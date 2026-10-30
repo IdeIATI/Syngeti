@@ -495,12 +495,20 @@ export default function ChatInterface({
 
   useEffect(() => {
     fetchUsersAndPresence();
-    const heartbeatInterval = setInterval(sendHeartbeatAndUpdatePresence, 7000);
-    const usersInterval = setInterval(fetchUsersAndPresence, 60000);
+    const runHeartbeat = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      sendHeartbeatAndUpdatePresence();
+    };
+    const heartbeatInterval = setInterval(runHeartbeat, 35000);
+    const usersInterval = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      fetchUsersAndPresence();
+    }, 60000);
     
     const handleVis = () => { 
       if (!document.hidden) {
         sendHeartbeatAndUpdatePresence(); 
+        fetchUsersAndPresence();
       }
     };
     document.addEventListener("visibilitychange", handleVis);
@@ -724,12 +732,26 @@ export default function ChatInterface({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannelId]);
 
-  // Polling de segurança adaptativo: lento com Realtime ativo, rápido sem ele
+  // Polling de segurança adaptativo: pausado totalmente em segundo plano (document.hidden) para blindagem de cota
   useEffect(() => {
-    const intervalMs = connectionState === "realtime" ? 15000 : 4000;
-    const interval = setInterval(() => fetchMessages(), intervalMs);
-    const notifyInterval = setInterval(() => notifyNewMessages(), connectionState === "realtime" ? 30000 : 8000);
-    const handleVis = () => { if (!document.hidden) { fetchMessages(true); notifyNewMessages(); } };
+    const runFetch = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      fetchMessages();
+    };
+    const runNotify = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      notifyNewMessages();
+    };
+
+    const intervalMs = connectionState === "realtime" ? 30000 : 8000;
+    const interval = setInterval(runFetch, intervalMs);
+    const notifyInterval = setInterval(runNotify, connectionState === "realtime" ? 45000 : 15000);
+    const handleVis = () => {
+      if (!document.hidden) {
+        fetchMessages(true);
+        notifyNewMessages();
+      }
+    };
     document.addEventListener("visibilitychange", handleVis);
     return () => {
       clearInterval(interval);

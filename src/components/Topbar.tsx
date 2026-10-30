@@ -38,11 +38,24 @@ export function Topbar({ userName, avatar }: { userName: string, avatar?: string
     heartbeatStarted.current = true;
 
     const sendHeartbeat = () => {
+      // Pausa heartbeat se a aba estiver em segundo plano para economizar banda/transferência
+      if (typeof document !== "undefined" && document.hidden) return;
       fetch("/api/chat/presence", { method: "POST" }).catch(() => {});
     };
     sendHeartbeat();
-    const interval = setInterval(sendHeartbeat, 30000);
-    return () => clearInterval(interval);
+    const interval = setInterval(sendHeartbeat, 45000);
+
+    const handleVis = () => {
+      if (typeof document !== "undefined" && !document.hidden) {
+        sendHeartbeat();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVis);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVis);
+    };
   }, []);
   
   // Format pathname into module mapping

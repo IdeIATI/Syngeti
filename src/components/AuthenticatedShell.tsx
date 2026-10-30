@@ -170,8 +170,21 @@ export function AuthenticatedShell({
       } catch {}
     };
 
+    // Economia drástica de banda: pausa total em segundo plano (document.hidden)
+    const runChatSync = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      checkChatSync();
+    };
+
     checkChatSync();
-    const interval = setInterval(checkChatSync, 18000);
+    const interval = setInterval(runChatSync, 35000);
+
+    const handleVis = () => {
+      if (typeof document !== "undefined" && !document.hidden) {
+        checkChatSync();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVis);
 
     const ch = supabase.channel("connect-chat-global-shell", { config: { broadcast: { self: false } } });
     ch.on("broadcast", { event: "message" }, () => {
@@ -182,6 +195,7 @@ export function AuthenticatedShell({
     return () => {
       disposed = true;
       clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleVis);
       supabase.removeChannel(ch);
     };
   }, [router]);
