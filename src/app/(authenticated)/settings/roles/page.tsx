@@ -30,12 +30,11 @@ export default async function RolesPage() {
           <p className="text-sm text-muted-foreground mt-1">Crie perfis de permissão e defina o que cada grupo pode acessar no sistema.</p>
         </div>
         <Link
-          href="/users"
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-hover hover:bg-muted border border-border text-xs font-bold text-foreground transition-colors self-start sm:self-auto"
+          href="/settings"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-hover hover:bg-muted border border-border text-xs font-bold text-foreground transition-colors self-start sm:self-auto shrink-0 shadow-2xs"
         >
-          <ArrowLeft className="w-4 h-4 text-primary" />
-          <Users className="w-4 h-4 text-primary" />
-          <span>Voltar para Usuários</span>
+          <ArrowLeft className="w-3.5 h-3.5 text-primary" />
+          <span>Configurações</span>
         </Link>
       </div>
 

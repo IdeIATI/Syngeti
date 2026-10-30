@@ -18,8 +18,10 @@ const MODULE_DATA: Record<string, { title: string, subtitle: string }> = {
   'contracts': { title: 'Módulo de Contratos', subtitle: 'SYNGETI • Parceiros e Fornecedores' },
   'knowledge': { title: 'Módulo de Conhecimento', subtitle: 'SYNGETI • Wiki e Procedimentos' },
   'connect': { title: 'CONNECT CHAT', subtitle: 'SYNGETI • Comunicação Corporativa' },
-  'users': { title: 'Módulo de Cadastros', subtitle: 'SYNGETI • Gestão de Colaboradores' },
-  'settings': { title: 'Módulo de Configurações', subtitle: 'SYNGETI • Sistema e Acessos' },
+  'users': { title: 'Gestão de Usuários', subtitle: 'SYNGETI • Colaboradores e Acessos' },
+  'pc-access': { title: 'Gestão de Acessos', subtitle: 'SYNGETI • E-mails, PCs e Senhas' },
+  'sentinela': { title: 'SYNGETI SENTINELA IA', subtitle: 'SYNGETI • Auditoria & SRE Contínuo' },
+  'settings': { title: 'Módulo de Configurações', subtitle: 'SYNGETI • Sistema e Parâmetros' },
 };
 
 import { useMobileMenu } from "./AuthenticatedShell";

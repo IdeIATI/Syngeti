@@ -29,11 +29,10 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
     }
   }, [router]);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>({
-    'Gestão de Acessos': true,
-    'Cadastros': false,
-    'Configurações': false,
-  });
+  const [expandedMenus, setExpandedMenus] = useState<Record<string, boolean>>(() => ({
+    'Gestão de Acessos': pathname?.startsWith('/pc-access') || false,
+    'Configurações': pathname?.startsWith('/settings') || false,
+  }));
   if (initialBranding && !brandingMemoryCache) {
     brandingMemoryCache = initialBranding;
   }
@@ -83,6 +82,15 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
     window.addEventListener("branding-updated", handleBrandingUpdated);
     return () => window.removeEventListener("branding-updated", handleBrandingUpdated);
   }, []);
+
+  // Expande automaticamente apenas o menu da rota ativa, mantendo os demais recolhidos
+  useEffect(() => {
+    if (pathname?.startsWith("/pc-access")) {
+      setExpandedMenus(prev => ({ ...prev, "Gestão de Acessos": true }));
+    } else if (pathname?.startsWith("/settings")) {
+      setExpandedMenus(prev => ({ ...prev, "Configurações": true }));
+    }
+  }, [pathname]);
 
   const toggleMenu = (name: string) => {
     setExpandedMenus(prev => ({ ...prev, [name]: !prev[name] }));
@@ -139,15 +147,10 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
       icon: FileText 
     },
     { 
-      name: "Cadastros", 
-      subtitle: "Base operacional",
-      icon: Database,
-      subItems: [
-        { name: "Usuários do Sistema", href: "/users" },
-        { name: "Departamentos", href: "/settings/departments" },
-        { name: "Perfis e Permissões", href: "/settings/roles" },
-        { name: "Recuperação de Senha", href: "/settings/password-resets" },
-      ]
+      name: "Usuários", 
+      subtitle: "Gestão de colaboradores",
+      href: "/users", 
+      icon: Users 
     },
     { 
       name: "CONNECT CHAT", 
@@ -170,11 +173,14 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
     },
     { 
       name: "Configurações", 
-      subtitle: "Sistema e acesso",
+      subtitle: "Sistema e segurança",
       icon: Settings,
       subItems: [
+        { name: "Visão Geral", href: "/settings" },
         { name: "Identidade Visual", href: "/settings/branding" },
-        { name: "Sentinela IA (Monitoramento)", href: "/sentinela" },
+        { name: "Departamentos", href: "/settings/departments" },
+        { name: "Perfis e Permissões", href: "/settings/roles" },
+        { name: "Recuperação de Senha", href: "/settings/password-resets" },
       ]
     },
   ];
