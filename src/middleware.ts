@@ -5,7 +5,7 @@ import type { NextRequest } from "next/server";
 const PRIMARY_SECRET =
   process.env.NEXTAUTH_SECRET ||
   process.env.AUTH_SECRET ||
-  "super-secret-key-123";
+  "syngeti-runtime-token-key";
 
 export async function middleware(req: NextRequest) {
   // Se o usuário está acessando a página de login, limpa quaisquer fragmentos de cookies de sessão
