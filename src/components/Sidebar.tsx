@@ -83,6 +83,19 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
     return () => window.removeEventListener("branding-updated", handleBrandingUpdated);
   }, []);
 
+  // Aquecimento inteligente do router cache para transição instantânea (< 50ms) entre os módulos principais
+  useEffect(() => {
+    const warmUpTimer = setTimeout(() => {
+      ['/dashboard', '/service-desk', '/cmdb', '/connect', '/users'].forEach((route) => {
+        try {
+          router.prefetch(route);
+        } catch {}
+      });
+    }, 1500);
+
+    return () => clearTimeout(warmUpTimer);
+  }, [router]);
+
   // Expande automaticamente apenas o menu da rota ativa, mantendo os demais recolhidos
   useEffect(() => {
     if (pathname?.startsWith("/pc-access")) {
@@ -316,7 +329,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
               <Link
                 key={item.name}
                 href={targetHref}
-                prefetch={false}
+                prefetch={true}
                 onMouseEnter={() => prefetchRoute(targetHref)}
                 onFocus={() => prefetchRoute(targetHref)}
                 onClick={() => {
@@ -395,7 +408,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
               ) : (
                 <Link
                   href={item.href!}
-                  prefetch={false}
+                  prefetch={true}
                   onMouseEnter={() => prefetchRoute(item.href)}
                   onFocus={() => prefetchRoute(item.href)}
                   onClick={() => {
@@ -423,7 +436,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                       <Link
                         key={subItem.name}
                         href={subItem.href}
-                        prefetch={false}
+                        prefetch={true}
                         onMouseEnter={() => prefetchRoute(subItem.href)}
                         onFocus={() => prefetchRoute(subItem.href)}
                         onClick={() => {

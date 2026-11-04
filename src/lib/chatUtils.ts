@@ -7,6 +7,17 @@ export interface ResolvedChatUser {
   avatar: string | null;
 }
 
+// Cache em memória de usuários resolvidos (TTL 60s) para eliminar consultas repetidas ao banco
+const resolvedUserCache = new Map<string, { user: ResolvedChatUser; expiresAt: number }>();
+
+export function clearResolvedUserCache(userId?: string) {
+  if (userId) {
+    resolvedUserCache.delete(userId);
+  } else {
+    resolvedUserCache.clear();
+  }
+}
+
 /**
  * Resolve o usuário autenticado no PostgreSQL de forma resiliente.
  * Impede falhas de Foreign Key (P2003) quando a sessão contém IDs sintéticos (ex.: "admin-master")
@@ -21,37 +32,60 @@ export async function resolveChatUser(sessionUser: {
   const candidateId = sessionUser?.id || "";
   const candidateEmail = sessionUser?.email?.toLowerCase().trim() || "";
 
+  const cacheKey = candidateId || candidateEmail;
+  if (cacheKey) {
+    const cached = resolvedUserCache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.user;
+    }
+  }
+
+  let resolved: ResolvedChatUser | null = null;
+
   if (candidateId && candidateId !== "admin-master") {
     const byId = await prisma.user.findUnique({
       where: { id: candidateId },
       select: { id: true, name: true, email: true, avatar: true },
     });
-    if (byId) return byId;
+    if (byId) resolved = byId;
   }
 
-  if (candidateEmail) {
+  if (!resolved && candidateEmail) {
     const byEmail = await prisma.user.findUnique({
       where: { email: candidateEmail },
       select: { id: true, name: true, email: true, avatar: true },
     });
-    if (byEmail) return byEmail;
+    if (byEmail) resolved = byEmail;
   }
 
-  // Fallback para primeiro usuário ativo (ex.: quando autenticado via contingência master)
-  const fallbackAdmin = await prisma.user.findFirst({
-    where: { status: { in: ["ACTIVE", "active"] } },
-    orderBy: { created_at: "asc" },
-    select: { id: true, name: true, email: true, avatar: true },
-  });
+  if (!resolved) {
+    // Fallback para primeiro usuário ativo (ex.: quando autenticado via contingência master)
+    const fallbackAdmin = await prisma.user.findFirst({
+      where: { status: { in: ["ACTIVE", "active"] } },
+      orderBy: { created_at: "asc" },
+      select: { id: true, name: true, email: true, avatar: true },
+    });
 
-  if (fallbackAdmin) return fallbackAdmin;
+    if (fallbackAdmin) resolved = fallbackAdmin;
+  }
 
-  const anyUser = await prisma.user.findFirst({
-    orderBy: { created_at: "asc" },
-    select: { id: true, name: true, email: true, avatar: true },
-  });
+  if (!resolved) {
+    const anyUser = await prisma.user.findFirst({
+      orderBy: { created_at: "asc" },
+      select: { id: true, name: true, email: true, avatar: true },
+    });
 
-  return anyUser || null;
+    resolved = anyUser || null;
+  }
+
+  if (resolved && cacheKey) {
+    resolvedUserCache.set(cacheKey, {
+      user: resolved,
+      expiresAt: Date.now() + 60_000, // 60 segundos
+    });
+  }
+
+  return resolved;
 }
 
 export const ALLOWED_MESSAGE_TYPES = new Set([

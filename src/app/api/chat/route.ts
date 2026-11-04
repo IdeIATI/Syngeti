@@ -31,6 +31,9 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const channelId = searchParams.get("channelId");
+    const limitParam = parseInt(searchParams.get("limit") || "40", 10);
+    const limit = Math.min(Math.max(isNaN(limitParam) ? 40 : limitParam, 10), 100);
+    const beforeParam = searchParams.get("before");
 
     if (!channelId) {
       return NextResponse.json(
@@ -42,57 +45,17 @@ export async function GET(request: Request) {
     const resolvedUser = await resolveChatUser(session.user);
     const currentUserId = resolvedUser?.id || session.user.id;
 
-    // Busca apenas mensagens que ainda NÃO possuem recibo READ deste usuário (evita reprocessar histórico já lido)
-    const unreadMessages = await prisma.chatMessage.findMany({
-      where: {
-        channel_id: channelId,
-        sender_id: { not: currentUserId },
-        receipts: {
-          none: {
-            user_id: currentUserId,
-            status: "READ",
-          },
-        },
-      },
-      select: { id: true },
-      take: 50,
-      orderBy: { created_at: "desc" },
-    });
-
-    if (unreadMessages.length > 0 && resolvedUser) {
-      const unreadIds = unreadMessages.map((m) => m.id);
-      // Bulk operation em 2 queries em vez de 50 upserts concorrentes (elimina exaustão do pool de conexões)
-      await Promise.all([
-        prisma.chatMessage.updateMany({
-          where: {
-            id: { in: unreadIds },
-            is_read: false,
-          },
-          data: { is_read: true },
-        }),
-        prisma.chatMessageReceipt.createMany({
-          data: unreadIds.map((msgId) => ({
-            message_id: msgId,
-            user_id: resolvedUser.id,
-            status: "READ",
-          })),
-          skipDuplicates: true,
-        }),
-        prisma.chatMessageReceipt.updateMany({
-          where: {
-            message_id: { in: unreadIds },
-            user_id: resolvedUser.id,
-            status: { not: "READ" },
-          },
-          data: { status: "READ" },
-        }),
-      ]).catch((err) => {
-        console.warn(`[GET /api/chat][${correlationId}] Aviso ao atualizar recibos de leitura:`, err?.message);
-      });
+    const whereClause: any = { channel_id: channelId };
+    if (beforeParam) {
+      const beforeDate = new Date(beforeParam);
+      if (!isNaN(beforeDate.getTime())) {
+        whereClause.created_at = { lt: beforeDate };
+      }
     }
 
-    const messages = await prisma.chatMessage.findMany({
-      where: { channel_id: channelId },
+    // Busca as mensagens mais recentes (ordenadas DESC) e inverte para envio cronológico ASC
+    const messagesQuery = prisma.chatMessage.findMany({
+      where: whereClause,
       include: {
         sender: {
           select: { id: true, name: true, avatar: true },
@@ -106,9 +69,61 @@ export async function GET(request: Request) {
           select: { user_id: true, status: true, updated_at: true },
         },
       },
-      orderBy: { created_at: "asc" },
-      take: 150,
+      orderBy: { created_at: "desc" },
+      take: limit,
     });
+
+    // Marca mensagens como lidas em paralelo sem bloquear o retorno das mensagens
+    const markUnreadPromise = (!beforeParam && resolvedUser)
+      ? (async () => {
+          try {
+            const unreadMessages = await prisma.chatMessage.findMany({
+              where: {
+                channel_id: channelId,
+                sender_id: { not: currentUserId },
+                receipts: {
+                  none: {
+                    user_id: currentUserId,
+                    status: "READ",
+                  },
+                },
+              },
+              select: { id: true },
+              take: 40,
+              orderBy: { created_at: "desc" },
+            });
+
+            if (unreadMessages.length === 0) return;
+            const unreadIds = unreadMessages.map((m) => m.id);
+
+            await Promise.all([
+              prisma.chatMessage.updateMany({
+                where: { id: { in: unreadIds }, is_read: false },
+                data: { is_read: true },
+              }),
+              prisma.chatMessageReceipt.createMany({
+                data: unreadIds.map((msgId) => ({
+                  message_id: msgId,
+                  user_id: resolvedUser.id,
+                  status: "READ",
+                })),
+                skipDuplicates: true,
+              }),
+              prisma.chatMessageReceipt.updateMany({
+                where: { message_id: { in: unreadIds }, user_id: resolvedUser.id, status: { not: "READ" } },
+                data: { status: "READ" },
+              }),
+            ]);
+          } catch (err: any) {
+            console.warn(`[GET /api/chat][${correlationId}] Aviso ao atualizar recibos de leitura:`, err?.message);
+          }
+        })()
+      : Promise.resolve();
+
+    const [rawMessages] = await Promise.all([messagesQuery, markUnreadPromise]);
+
+    // Inverte a lista para que a interface receba cronologicamente (ASC)
+    const messages = rawMessages.reverse();
 
     return NextResponse.json(messages);
   } catch (error: any) {

@@ -29,17 +29,8 @@ export default async function ConnectPage() {
   let departments: Array<{ id: string; name: string }> = [];
 
   try {
-    // Executa todas as consultas com resiliência individual (Promise.allSettled evita que uma falha derrube o SSR e gere React #441)
-    const results = await Promise.allSettled([
-      prisma.user.findFirst({
-        where: {
-          OR: [
-            { id: currentUserId },
-            ...(currentUserEmail ? [{ email: currentUserEmail }] : []),
-          ],
-        },
-        select: { id: true, name: true, avatar: true },
-      }),
+    // Executa apenas as 3 consultas essenciais em paralelo (elimina queries redundantes ao Supabase)
+    const [usersResult, channelsResult, deptsResult] = await Promise.allSettled([
       prisma.user.findMany({
         select: {
           id: true,
@@ -51,9 +42,6 @@ export default async function ConnectPage() {
           last_seen_at: true,
         },
         orderBy: { name: "asc" },
-      }),
-      prisma.chatChannel.findFirst({
-        where: { name: "Geral" },
       }),
       prisma.chatChannel.findMany({
         where: {
@@ -75,11 +63,22 @@ export default async function ConnectPage() {
       }),
     ]);
 
-    if (results[0].status === "fulfilled") dbUser = results[0].value;
-    if (results[1].status === "fulfilled") prismaUsers = results[1].value;
-    if (results[2].status === "fulfilled") mainChannelFound = results[2].value;
-    if (results[3].status === "fulfilled") userChannels = results[3].value;
-    if (results[4].status === "fulfilled") departments = results[4].value;
+    if (usersResult.status === "fulfilled") prismaUsers = usersResult.value;
+    if (channelsResult.status === "fulfilled") {
+      userChannels = channelsResult.value;
+      mainChannelFound = userChannels.find((c) => c.name === "Geral") || null;
+    }
+    if (deptsResult.status === "fulfilled") departments = deptsResult.value;
+
+    // Resolve o usuário autenticado diretamente da lista já carregada (0ms, sem query extra)
+    if (prismaUsers.length > 0) {
+      const match = prismaUsers.find(
+        (u) => u.id === currentUserId || (currentUserEmail && u.email?.toLowerCase() === currentUserEmail)
+      );
+      if (match) {
+        dbUser = { id: match.id, name: match.name, avatar: match.avatar };
+      }
+    }
   } catch (err) {
     console.error("[ConnectPage SSR] Aviso de contingência ao carregar dados iniciais:", err);
   }

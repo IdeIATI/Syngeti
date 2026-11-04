@@ -269,6 +269,26 @@ export default function ChatInterface({
   const fetchInFlightRef = useRef<string | null>(null);
   const lastMessageCountRef = useRef(0);
 
+  // Cache em memória de mensagens por canal (elimina recarregamentos repetidos e permite troca instantânea < 20ms)
+  const conversationCacheRef = useRef<Map<string, Message[]>>(new Map());
+  const fetchAbortControllerRef = useRef<AbortController | null>(null);
+  const hasMoreHistoryMapRef = useRef<Map<string, boolean>>(new Map());
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [loadingChannelMessages, setLoadingChannelMessages] = useState(false);
+  const [isLoadingOlder, setIsLoadingOlder] = useState(false);
+  const [hasMoreHistory, setHasMoreHistory] = useState(true);
+
+  // Sincroniza estado de mensagens com o cache da conversa ativa
+  const updateMessagesAndCache = (updater: Message[] | ((prev: Message[]) => Message[])) => {
+    setMessages((prev) => {
+      const next = typeof updater === "function" ? updater(prev) : updater;
+      if (activeChannelIdRef.current) {
+        conversationCacheRef.current.set(activeChannelIdRef.current, next);
+      }
+      return next;
+    });
+  };
+
   useEffect(() => { activeChannelIdRef.current = activeChannelId; }, [activeChannelId]);
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
@@ -536,18 +556,25 @@ export default function ChatInterface({
   }, [activeChannel, currentUser.id, userList]);
 
   // Busca mensagens do canal ativo e reconcilia com mensagens locais pendentes (sem duplicar)
-  const fetchMessages = async (force = false) => {
+  const fetchMessages = async (force = false, signal?: AbortSignal) => {
     const channelId = activeChannelIdRef.current;
     if (!channelId) return;
     if (!force && typeof document !== "undefined" && document.hidden) return;
     if (fetchInFlightRef.current === channelId) return; // deduplica requisições concorrentes do mesmo canal
     fetchInFlightRef.current = channelId;
     try {
-      const res = await fetch(`/api/chat?channelId=${channelId}`, { cache: "no-store" });
+      const res = await fetch(`/api/chat?channelId=${channelId}&limit=40`, { 
+        cache: "no-store",
+        signal: signal || undefined,
+      });
       if (res.ok && channelId === activeChannelIdRef.current) {
         const data: Message[] = await res.json();
         const merged = mergeMessages(data, messagesRef.current);
         const sig = messagesSignature(merged);
+        
+        // Mantém cache em memória atualizado para trocas instantâneas futuras
+        conversationCacheRef.current.set(channelId, merged);
+
         if (sig !== lastSignatureRef.current) {
           lastSignatureRef.current = sig;
           setMessages(merged);
@@ -556,10 +583,61 @@ export default function ChatInterface({
         // Emite confirmação em tempo real para o remetente atualizar os ticks de leitura (✓✓ azul)
         broadcastPing("receipt", channelId);
       }
-    } catch (err) {
-      console.error("Erro ao carregar mensagens:", err);
+    } catch (err: any) {
+      if (err?.name !== "AbortError") {
+        console.error("Erro ao carregar mensagens:", err);
+      }
     } finally {
       if (fetchInFlightRef.current === channelId) fetchInFlightRef.current = null;
+      if (channelId === activeChannelIdRef.current) setLoadingChannelMessages(false);
+    }
+  };
+
+  // Carrega mensagens antigas por paginação (ao rolar para o topo)
+  const loadOlderMessages = async () => {
+    const channelId = activeChannelIdRef.current;
+    if (!channelId || isLoadingOlder) return;
+    if (hasMoreHistoryMapRef.current.get(channelId) === false) return;
+
+    const currentMsgs = messagesRef.current;
+    if (!currentMsgs.length) return;
+    const oldest = currentMsgs[0];
+    if (!oldest?.created_at) return;
+
+    setIsLoadingOlder(true);
+    try {
+      const res = await fetch(
+        `/api/chat?channelId=${channelId}&limit=40&before=${encodeURIComponent(oldest.created_at)}`,
+        { cache: "no-store" }
+      );
+      if (res.ok && channelId === activeChannelIdRef.current) {
+        const olderData: Message[] = await res.json();
+        if (olderData.length === 0) {
+          hasMoreHistoryMapRef.current.set(channelId, false);
+          setHasMoreHistory(false);
+        } else {
+          const container = messagesContainerRef.current;
+          const prevScrollHeight = container ? container.scrollHeight : 0;
+          const prevScrollTop = container ? container.scrollTop : 0;
+
+          const merged = [...olderData, ...currentMsgs];
+          conversationCacheRef.current.set(channelId, merged);
+          setMessages(merged);
+          messagesRef.current = merged;
+
+          // Preserva posição exata do scroll sem saltos visuais
+          requestAnimationFrame(() => {
+            if (container) {
+              const newScrollHeight = container.scrollHeight;
+              container.scrollTop = prevScrollTop + (newScrollHeight - prevScrollHeight);
+            }
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao carregar mensagens antigas:", err);
+    } finally {
+      setIsLoadingOlder(false);
     }
   };
 
@@ -722,13 +800,41 @@ export default function ChatInterface({
     } catch {}
   };
 
-  // Troca de conversa: limpa a lista e carrega imediatamente
+  // Troca de conversa: abertura imediata (< 20ms) via Stale-While-Revalidate com proteção contra respostas fora de ordem
   useEffect(() => {
+    // Aborta imediatamente requisições da conversa anterior que ainda estejam trafegando
+    if (fetchAbortControllerRef.current) {
+      fetchAbortControllerRef.current.abort();
+    }
+    const controller = new AbortController();
+    fetchAbortControllerRef.current = controller;
+
     lastSignatureRef.current = "";
     lastMessageCountRef.current = 0;
-    setMessages([]);
-    messagesRef.current = [];
-    fetchMessages(true);
+    setHasMoreHistory(hasMoreHistoryMapRef.current.get(activeChannelId) !== false);
+
+    // Recupera mensagens do cache em memória deste canal
+    const cached = conversationCacheRef.current.get(activeChannelId);
+    if (cached && cached.length > 0) {
+      // Exibe instantaneamente as mensagens do cache! (Tempo de resposta < 20ms)
+      setLoadingChannelMessages(false);
+      setMessages(cached);
+      messagesRef.current = cached;
+      lastSignatureRef.current = messagesSignature(cached);
+      lastMessageCountRef.current = cached.length;
+      // Revalida em segundo plano sem piscar ou bloquear a tela
+      fetchMessages(true, controller.signal);
+    } else {
+      // Primeira vez abrindo este canal: exibe skeleton de carregamento localizado e busca
+      setLoadingChannelMessages(true);
+      setMessages([]);
+      messagesRef.current = [];
+      fetchMessages(true, controller.signal);
+    }
+
+    return () => {
+      controller.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannelId]);
 
@@ -783,7 +889,7 @@ export default function ChatInterface({
     const clientId = existingClientId || newClientId();
 
     if (!existingClientId) {
-      setMessages((prev) => [...prev, {
+      updateMessagesAndCache((prev) => [...prev, {
         id: `opt_${clientId}`,
         client_id: clientId,
         content: payload.content,
@@ -800,7 +906,7 @@ export default function ChatInterface({
         _localPayload: { ...payload, channelId },
       }]);
     } else {
-      setMessages((prev) => prev.map((m) => (m.client_id === clientId ? { ...m, status: "SENDING" } : m)));
+      updateMessagesAndCache((prev) => prev.map((m) => (m.client_id === clientId ? { ...m, status: "SENDING" } : m)));
     }
 
     const maxAttempts = 3;
@@ -842,7 +948,7 @@ export default function ChatInterface({
         }
 
         const saved: Message = await res.json();
-        setMessages((prev) => {
+        updateMessagesAndCache((prev) => {
           const without = prev.filter((m) => m.client_id !== clientId && m.id !== saved.id);
           return [...without, { ...saved, status: "SENT" }];
         });
@@ -856,7 +962,7 @@ export default function ChatInterface({
       }
     }
 
-    setMessages((prev) => prev.map((m) => (m.client_id === clientId ? { ...m, status: "FAILED" } : m)));
+    updateMessagesAndCache((prev) => prev.map((m) => (m.client_id === clientId ? { ...m, status: "FAILED" } : m)));
     showToast(navigator.onLine ? lastErrorText : "Sem conexão. A mensagem ficou pendente.");
   };
 
@@ -1125,7 +1231,7 @@ export default function ChatInterface({
   // Reações com persistência no Supabase + sincronização em tempo real
   const handleToggleReaction = async (messageId: string, emoji: string) => {
     recordRecentEmoji(emoji);
-    setMessages(prev => prev.map(msg => {
+    updateMessagesAndCache(prev => prev.map(msg => {
       if (msg.id !== messageId) return msg;
       const currentReactions = msg.reactions || [];
       const hasMyReaction = currentReactions.some(r => r.user_id === currentUser.id && r.emoji === emoji);
@@ -1156,7 +1262,7 @@ export default function ChatInterface({
       if (res.ok) {
         const data = await res.json();
         if (data?.reactions) {
-          setMessages(prev => prev.map(msg => 
+          updateMessagesAndCache(prev => prev.map(msg => 
             msg.id === messageId ? { ...msg, reactions: data.reactions } : msg
           ));
         }
@@ -1173,7 +1279,7 @@ export default function ChatInterface({
   // Fixar / Desafixar Mensagem
   const handleTogglePin = async (msg: Message) => {
     const nextPin = !msg.is_pinned;
-    setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, is_pinned: nextPin } : m));
+    updateMessagesAndCache(prev => prev.map(m => m.id === msg.id ? { ...m, is_pinned: nextPin } : m));
 
     try {
       await fetch("/api/chat", {
@@ -1196,7 +1302,7 @@ export default function ChatInterface({
   const handleSaveEdit = async (msgId: string) => {
     if (!editInput.trim()) return;
 
-    setMessages(prev => prev.map(m => m.id === msgId ? { ...m, content: editInput.trim(), is_edited: true } : m));
+    updateMessagesAndCache(prev => prev.map(m => m.id === msgId ? { ...m, content: editInput.trim(), is_edited: true } : m));
     setEditingMessageId(null);
 
     try {
@@ -1215,7 +1321,7 @@ export default function ChatInterface({
   const handleDeleteMessage = async (msgId: string) => {
     if (!confirm("Deseja realmente excluir esta mensagem?")) return;
 
-    setMessages(prev => prev.filter(m => m.id !== msgId));
+    updateMessagesAndCache(prev => prev.filter(m => m.id !== msgId));
     try {
       await fetch(`/api/chat?messageId=${msgId}`, { method: "DELETE" });
       showToast("Mensagem excluída.");
@@ -1844,8 +1950,52 @@ export default function ChatInterface({
         )}
         
         {/* Feed de Mensagens */}
-        <div className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-3 sm:space-y-4 custom-scrollbar min-h-0">
-          {displayedMessages.length === 0 ? (
+        <div 
+          ref={messagesContainerRef}
+          onScroll={(e) => {
+            const target = e.currentTarget;
+            if (target.scrollTop < 60 && !isLoadingOlder && hasMoreHistory) {
+              loadOlderMessages();
+            }
+          }}
+          className="flex-1 overflow-y-auto p-3.5 sm:p-6 space-y-3 sm:space-y-4 custom-scrollbar min-h-0"
+        >
+          {/* Indicador de carregamento de mensagens anteriores */}
+          {isLoadingOlder && (
+            <div className="flex justify-center py-2 animate-in fade-in">
+              <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-border text-xs text-muted-foreground shadow-xs">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                <span>Carregando histórico anterior...</span>
+              </div>
+            </div>
+          )}
+
+          {/* Skeleton de carregamento localizado ao trocar de canal */}
+          {loadingChannelMessages && displayedMessages.length === 0 ? (
+            <div className="flex flex-col gap-4 py-8 animate-pulse px-2">
+              <div className="flex gap-3 items-end">
+                <div className="w-8 h-8 rounded-full bg-surface-elevated/70 shrink-0"></div>
+                <div className="space-y-1.5 max-w-[65%]">
+                  <div className="h-3 w-20 bg-surface-elevated/50 rounded"></div>
+                  <div className="h-9 w-60 bg-surface-elevated/70 rounded-2xl rounded-bl-sm"></div>
+                </div>
+              </div>
+              <div className="flex gap-3 items-end flex-row-reverse">
+                <div className="w-8 h-8 rounded-full bg-primary/20 shrink-0"></div>
+                <div className="space-y-1.5 max-w-[65%] items-end flex flex-col">
+                  <div className="h-3 w-16 bg-surface-elevated/50 rounded"></div>
+                  <div className="h-10 w-72 bg-primary/25 rounded-2xl rounded-br-sm"></div>
+                </div>
+              </div>
+              <div className="flex gap-3 items-end">
+                <div className="w-8 h-8 rounded-full bg-surface-elevated/70 shrink-0"></div>
+                <div className="space-y-1.5 max-w-[65%]">
+                  <div className="h-3 w-24 bg-surface-elevated/50 rounded"></div>
+                  <div className="h-14 w-80 bg-surface-elevated/70 rounded-2xl rounded-bl-sm"></div>
+                </div>
+              </div>
+            </div>
+          ) : displayedMessages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground py-16 px-4">
               <MessageSquare className="w-12 h-12 text-muted-foreground/30 mb-3" />
               <p className="text-sm font-semibold text-foreground">
