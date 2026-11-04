@@ -27,43 +27,57 @@ export default async function DashboardPage() {
   // Início de hoje no fuso de Brasília (America/Sao_Paulo, UTC-03:00)
   const startOfToday = getStartOfTodayBrazil();
 
-  // Execução de consultas simultâneas em paralelo (reduz latência em até 80%)
-  const [
-    chamadosAbertos,
-    emAtendimento,
-    chamadosResolvidos,
-    resolvidosHoje,
-    equipamentosAtivos,
-    ticketsByCategory,
-    categories,
-    ultimosChamados,
-    equipamentosRecentes,
-  ] = await Promise.all([
-    prisma.ticket.count({ where: { status: { in: ["NEW", "OPEN"] } } }),
-    prisma.ticket.count({ where: { status: "IN_PROGRESS" } }),
-    prisma.ticket.count({ where: { status: { in: ["RESOLVED", "CLOSED"] } } }),
-    prisma.ticket.count({
-      where: {
-        status: { in: ["RESOLVED", "CLOSED"] },
-        resolved_at: { gte: startOfToday },
-      },
-    }),
-    prisma.asset.count({ where: { status: "IN_USE" } }),
-    prisma.ticket.groupBy({
-      by: ["category_id"],
-      _count: { id: true },
-    }),
-    prisma.ticketCategory.findMany(),
-    prisma.ticket.findMany({
-      take: 5,
-      orderBy: { created_at: "desc" },
-    }),
-    prisma.asset.findMany({
-      take: 4,
-      orderBy: { created_at: "desc" },
-      include: { department: true },
-    }),
-  ]);
+  // Execução de consultas com tolerância a falhas para garantir resiliência
+  let chamadosAbertos = 0;
+  let emAtendimento = 0;
+  let chamadosResolvidos = 0;
+  let resolvidosHoje = 0;
+  let equipamentosAtivos = 0;
+  let ticketsByCategory: any[] = [];
+  let categories: any[] = [];
+  let ultimosChamados: any[] = [];
+  let equipamentosRecentes: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      prisma.ticket.count({ where: { status: { in: ["NEW", "OPEN"] } } }),
+      prisma.ticket.count({ where: { status: "IN_PROGRESS" } }),
+      prisma.ticket.count({ where: { status: { in: ["RESOLVED", "CLOSED"] } } }),
+      prisma.ticket.count({
+        where: {
+          status: { in: ["RESOLVED", "CLOSED"] },
+          resolved_at: { gte: startOfToday },
+        },
+      }),
+      prisma.asset.count({ where: { status: "IN_USE" } }),
+      prisma.ticket.groupBy({
+        by: ["category_id"],
+        _count: { id: true },
+      }),
+      prisma.ticketCategory.findMany(),
+      prisma.ticket.findMany({
+        take: 5,
+        orderBy: { created_at: "desc" },
+      }),
+      prisma.asset.findMany({
+        take: 4,
+        orderBy: { created_at: "desc" },
+        include: { department: true },
+      }),
+    ]);
+
+    chamadosAbertos = results[0];
+    emAtendimento = results[1];
+    chamadosResolvidos = results[2];
+    resolvidosHoje = results[3];
+    equipamentosAtivos = results[4];
+    ticketsByCategory = results[5];
+    categories = results[6];
+    ultimosChamados = results[7];
+    equipamentosRecentes = results[8];
+  } catch (error) {
+    console.error("Aviso: Falha ao carregar métricas do dashboard via Prisma:", error);
+  }
 
   const chartData = ticketsByCategory.map((t) => {
     const cat = categories.find((c) => c.id === t.category_id);

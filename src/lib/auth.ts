@@ -4,12 +4,18 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
 const isVercel = !!process.env.VERCEL;
-const isProd = process.env.NODE_ENV === "production" || isVercel;
+const isNetlify = !!process.env.NETLIFY || !!process.env.URL;
+const isProd = process.env.NODE_ENV === "production" || isVercel || isNetlify;
 
-// Resolução dinâmica de NEXTAUTH_URL para Vercel caso não esteja explícita no ambiente ou aponte para localhost
-if (isVercel || (isProd && (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL.includes("localhost")))) {
-  const vercelDomain = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || "syngeti.vercel.app";
-  process.env.NEXTAUTH_URL = `https://${vercelDomain}`;
+// Resolução dinâmica de NEXTAUTH_URL para Netlify ou Vercel caso não esteja explícita no ambiente ou aponte para localhost
+if (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL.includes("localhost")) {
+  if (isNetlify || process.env.URL) {
+    const netlifyUrl = process.env.URL || process.env.DEPLOY_PRIME_URL || "https://syngeti.netlify.app";
+    process.env.NEXTAUTH_URL = netlifyUrl.startsWith("http") ? netlifyUrl : `https://${netlifyUrl}`;
+  } else if (isVercel || (isProd && process.env.VERCEL_URL)) {
+    const vercelDomain = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || "syngeti.vercel.app";
+    process.env.NEXTAUTH_URL = `https://${vercelDomain}`;
+  }
 }
 
 export const AUTH_SECRET =

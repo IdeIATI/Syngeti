@@ -29,9 +29,15 @@ export default function GlobalError({
           Ocorreu um erro inesperado
         </h1>
 
-        <p className="text-sm text-muted-foreground leading-relaxed mb-8 max-w-sm">
+        <p className="text-sm text-muted-foreground leading-relaxed mb-4 max-w-sm">
           A requisição não pôde ser completada no momento. Você pode tentar recarregar a página ou voltar para a tela de login.
         </p>
+
+        {error?.digest && (
+          <p className="text-[11px] font-mono text-muted-foreground/70 mb-6 bg-surface/50 px-3 py-1 rounded-md border border-border/40">
+            Código de rastreio: {error.digest}
+          </p>
+        )}
 
         <div className="flex items-center gap-3">
           <button
