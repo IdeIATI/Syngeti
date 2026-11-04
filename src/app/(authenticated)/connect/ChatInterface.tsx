@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, memo, useCallback } from "react";
 import { 
   User as UserIcon, Search, Hash, MessageSquare, Send, Circle, ArrowLeft,
   Smile, Heart, ThumbsUp, Sparkles, Star, Trash2, X, Image as ImageIcon, Flame, Check, CheckCheck, Loader2,
@@ -172,6 +172,120 @@ function UserAvatar({ name, url, className = "w-8 h-8" }: { name: string; url?: 
       {name ? name.charAt(0).toUpperCase() : <UserIcon className="w-4 h-4" />}
     </div>
   );
+}
+
+// Componentes de lista memoizados para evitar re-renderizações desnecessárias ao digitar ou rolar
+const ChannelListItem = memo(function ChannelListItem({
+  channel,
+  isActive,
+  unreadCount,
+  isMuted,
+  onSelect,
+}: {
+  channel: Channel;
+  isActive: boolean;
+  unreadCount: number;
+  isMuted: boolean;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <li>
+      <button
+        onClick={() => onSelect(channel.id)}
+        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${
+          isActive 
+            ? 'bg-primary text-white shadow-xs' 
+            : unreadCount > 0
+              ? 'bg-primary/10 text-foreground font-bold border border-primary/30'
+              : 'text-foreground hover:bg-surface-hover'
+        }`}
+      >
+        <div className="flex items-center gap-2 truncate">
+          <Hash className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-primary'}`} />
+          <span className="truncate">{channel.name || "Geral"}</span>
+          {isMuted && <BellOff className="w-3 h-3 opacity-60 shrink-0" />}
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {unreadCount > 0 && !isActive && (
+            <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-extrabold leading-none shadow-xs">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
+          {channel.members && channel.members.length > 0 && (
+            <span className={`text-[10px] opacity-75 shrink-0 ${isActive ? 'text-white' : 'text-muted-foreground'}`}>
+              {channel.members.length}
+            </span>
+          )}
+        </div>
+      </button>
+    </li>
+  );
+});
+
+const UserListItem = memo(function UserListItem({
+  user,
+  isActive,
+  unreadCount,
+  creatingDM,
+  onSelect,
+}: {
+  user: User;
+  isActive: boolean;
+  unreadCount: number;
+  creatingDM: boolean;
+  onSelect: (user: User) => void;
+}) {
+  return (
+    <li>
+      <button
+        onClick={() => onSelect(user)}
+        disabled={creatingDM}
+        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left group ${
+          isActive 
+            ? 'bg-primary/15 text-primary border border-primary/30 font-semibold' 
+            : unreadCount > 0
+              ? 'bg-primary/10 text-foreground border border-primary/30 font-bold'
+              : 'text-foreground hover:bg-surface-hover'
+        }`}
+      >
+        <div className="relative flex-shrink-0">
+          <UserAvatar name={user.name} url={user.avatar} className="w-8 h-8" />
+          <span 
+            className={`w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 border-2 border-surface rounded-full shadow-xs ${
+              user.isOnline ? 'bg-emerald-500 ring-1 ring-emerald-400/50' : 'bg-red-500 opacity-80'
+            }`}
+            title={user.isOnline ? "Online" : "Offline"}
+          />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-1">
+            <span className="truncate font-semibold text-xs group-hover:text-primary transition-colors">
+              {user.name}
+            </span>
+            <div className="flex items-center gap-1.5 shrink-0">
+              {unreadCount > 0 && !isActive && (
+                <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-extrabold leading-none shadow-xs">
+                  {unreadCount > 99 ? "99+" : userUnreadCount(unreadCount)}
+                </span>
+              )}
+              <span className={`text-[9px] font-bold uppercase tracking-wider shrink-0 ${
+                user.isOnline ? 'text-emerald-500' : 'text-red-400/90'
+              }`}>
+                {user.isOnline ? 'Online' : 'Offline'}
+              </span>
+            </div>
+          </div>
+          <span className="text-[10px] text-muted-foreground block truncate mt-0.5">
+            {user.job_title || user.email}
+          </span>
+        </div>
+      </button>
+    </li>
+  );
+});
+
+function userUnreadCount(count: number): string {
+  return count > 99 ? "99+" : String(count);
 }
 
 export default function ChatInterface({ 
@@ -1044,8 +1158,14 @@ export default function ChatInterface({
     return messages.filter(m => m.is_pinned).length;
   }, [messages]);
 
+  // Seleção rápida de canal
+  const handleSelectChannel = useCallback((channelId: string) => {
+    setActiveChannelId(channelId);
+    setMobileView('chat');
+  }, []);
+
   // Handle clicking on a user in the Direct Messages list
-  const handleSelectUser = async (targetUser: User) => {
+  const handleSelectUser = useCallback(async (targetUser: User) => {
     setMobileView('chat');
     const existing = channels.find(c => 
       !c.is_group && 
@@ -1078,7 +1198,7 @@ export default function ChatInterface({
     } finally {
       setCreatingDM(false);
     }
-  };
+  }, [channels]);
 
   // Enviar mensagem de texto
   const sendMessage = async (e?: React.FormEvent) => {
@@ -1465,9 +1585,9 @@ export default function ChatInterface({
     return Array.from(map.entries()).map(([emoji, data]) => ({ emoji, ...data }));
   };
 
-  const isUserActive = (userId: string) => {
+  const isUserActive = (userId: string): boolean => {
     if (!activeChannel || activeChannel.is_group) return false;
-    return activeChannel.members?.some(m => m.id === userId);
+    return Boolean(activeChannel.members?.some(m => m.id === userId));
   };
 
   const formatFileSize = (bytes?: number | null) => {
@@ -1652,46 +1772,16 @@ export default function ChatInterface({
               </span>
             </div>
             <ul className="space-y-1">
-              {groupChannels.map(channel => {
-                const isActive = activeChannelId === channel.id;
-                const unreadCount = unreadByChannel[channel.id] || 0;
-                const isMuted = mutedChannels.includes(channel.id);
-                return (
-                  <li key={channel.id}>
-                    <button
-                      onClick={() => {
-                        setActiveChannelId(channel.id);
-                        setMobileView('chat');
-                      }}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${
-                        isActive 
-                          ? 'bg-primary text-white shadow-sm' 
-                          : unreadCount > 0
-                            ? 'bg-primary/10 text-foreground font-bold border border-primary/30'
-                            : 'text-foreground hover:bg-surface-hover'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 truncate">
-                        <Hash className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-primary'}`} />
-                        <span className="truncate">{channel.name || "Geral"}</span>
-                        {isMuted && <BellOff className="w-3 h-3 opacity-60 shrink-0" />}
-                      </div>
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        {unreadCount > 0 && !isActive && (
-                          <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-extrabold leading-none shadow-xs">
-                            {unreadCount > 99 ? "99+" : unreadCount}
-                          </span>
-                        )}
-                        {channel.members && channel.members.length > 0 && (
-                          <span className={`text-[10px] opacity-75 shrink-0 ${isActive ? 'text-white' : 'text-muted-foreground'}`}>
-                            {channel.members.length}
-                          </span>
-                        )}
-                      </div>
-                    </button>
-                  </li>
-                );
-              })}
+              {groupChannels.map(channel => (
+                <ChannelListItem
+                  key={channel.id}
+                  channel={channel}
+                  isActive={activeChannelId === channel.id}
+                  unreadCount={unreadByChannel[channel.id] || 0}
+                  isMuted={mutedChannels.includes(channel.id)}
+                  onSelect={handleSelectChannel}
+                />
+              ))}
             </ul>
           </div>
 
@@ -1718,51 +1808,14 @@ export default function ChatInterface({
                   const dmChannel = channels.find(c => !c.is_group && c.members?.some(m => m.id === user.id));
                   const userUnread = (dmChannel ? unreadByChannel[dmChannel.id] : 0) || unreadByUser[user.id] || 0;
                   return (
-                    <li key={user.id}>
-                      <button
-                        onClick={() => handleSelectUser(user)}
-                        disabled={creatingDM}
-                        className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all text-left group ${
-                          active 
-                            ? 'bg-primary/15 text-primary border border-primary/30 font-semibold' 
-                            : userUnread > 0
-                              ? 'bg-primary/10 text-foreground border border-primary/30 font-bold'
-                              : 'text-foreground hover:bg-surface-hover'
-                        }`}
-                      >
-                        <div className="relative flex-shrink-0">
-                          <UserAvatar name={user.name} url={user.avatar} className="w-8 h-8" />
-                          <span 
-                            className={`w-2.5 h-2.5 absolute -bottom-0.5 -right-0.5 border-2 border-surface rounded-full shadow-sm ${
-                              user.isOnline ? 'bg-emerald-500 ring-1 ring-emerald-400/50' : 'bg-red-500 opacity-80'
-                            }`}
-                            title={user.isOnline ? "Online" : "Offline"}
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between gap-1">
-                            <span className="truncate font-semibold text-xs group-hover:text-primary transition-colors">
-                              {user.name}
-                            </span>
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              {userUnread > 0 && !active && (
-                                <span className="px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-extrabold leading-none shadow-xs">
-                                  {userUnread > 99 ? "99+" : userUnread}
-                                </span>
-                              )}
-                              <span className={`text-[9px] font-bold uppercase tracking-wider shrink-0 ${
-                                user.isOnline ? 'text-emerald-500' : 'text-red-400/90'
-                              }`}>
-                                {user.isOnline ? 'Online' : 'Offline'}
-                              </span>
-                            </div>
-                          </div>
-                          <span className="text-[10px] text-muted-foreground block truncate mt-0.5">
-                            {user.job_title || user.email}
-                          </span>
-                        </div>
-                      </button>
-                    </li>
+                    <UserListItem
+                      key={user.id}
+                      user={user}
+                      isActive={active}
+                      unreadCount={userUnread}
+                      creatingDM={creatingDM}
+                      onSelect={handleSelectUser}
+                    />
                   );
                 })}
               </ul>

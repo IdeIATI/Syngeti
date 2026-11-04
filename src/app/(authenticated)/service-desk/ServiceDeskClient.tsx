@@ -15,7 +15,9 @@ import dynamic from "next/dynamic";
 const ServiceDeskExportModal = dynamic(() => import("@/components/ServiceDeskExportModal"), {
   ssr: false,
 });
-import NewTicketModal from "@/components/NewTicketModal";
+const NewTicketModal = dynamic(() => import("@/components/NewTicketModal"), {
+  ssr: false,
+});
 import { 
   exportTicketsToPDF, 
   exportTicketsToExcel, 
