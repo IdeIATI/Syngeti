@@ -1384,10 +1384,11 @@ export default function ServiceDeskClient({
                           <div className="flex items-center justify-end gap-1">
                             <Link
                               href={`/service-desk/${ticket.id}`}
+                              onClick={(e) => handleOpenTicketModal(ticket, e)}
                               onMouseEnter={() => router.prefetch(`/service-desk/${ticket.id}`)}
                               onFocus={() => router.prefetch(`/service-desk/${ticket.id}`)}
-                              className="p-1 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                              title="Visualizar chamado"
+                              className="p-1 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                              title="Visualizar chamado em modal instantâneo"
                             >
                               <Eye className="w-4 h-4" />
                             </Link>
@@ -1400,6 +1401,66 @@ export default function ServiceDeskClient({
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {/* VIEW: Kanban Board Mode */}
+      {viewMode === "kanban" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5 items-start">
+          {kanbanColumns.map((col) => {
+            const colTickets = filteredTickets.filter((t) => col.statuses.includes(t.status));
+            return (
+              <div key={col.id} className="bg-surface border border-border rounded-xl p-3 flex flex-col gap-2.5 min-h-[350px]">
+                <div className="flex items-center justify-between pb-2 border-b border-border/60">
+                  <span className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 ${col.color}`}>
+                    <span className="w-2 h-2 rounded-full bg-current" />
+                    {col.title}
+                  </span>
+                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-surface-elevated text-muted-foreground border border-border">
+                    {colTickets.length}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2 overflow-y-auto max-h-[70vh] custom-scrollbar pr-1">
+                  {colTickets.length === 0 ? (
+                    <div className="text-center py-10 text-xs text-muted-foreground/60 italic">
+                      Nenhum chamado nesta etapa
+                    </div>
+                  ) : (
+                    colTickets.map((ticket) => {
+                      const priorityInfo = PRIORITY_CONFIG[ticket.priority] || { label: ticket.priority, badge: "bg-muted text-muted-foreground border-border", dot: "bg-muted-foreground" };
+                      return (
+                        <div
+                          key={ticket.id}
+                          onClick={(e) => handleOpenTicketModal(ticket, e)}
+                          className="bg-surface-elevated/70 hover:bg-surface-elevated border border-border/80 hover:border-primary/50 rounded-xl p-3 cursor-pointer transition-all shadow-2xs group flex flex-col gap-2"
+                        >
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="font-mono font-bold text-primary group-hover:underline">
+                              {ticket.code}
+                            </span>
+                            <span className={`px-1.5 py-0.5 rounded-md text-[10px] font-bold border ${priorityInfo.badge}`}>
+                              {priorityInfo.label}
+                            </span>
+                          </div>
+                          <h4 className="text-xs font-bold text-foreground line-clamp-2 leading-snug">
+                            {ticket.title}
+                          </h4>
+                          <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1.5 border-t border-border/40">
+                            <span className="truncate max-w-[120px] font-medium">
+                              {ticket.requester_name || ticket.requester?.name || "Solicitante"}
+                            </span>
+                            <span>
+                              {formatTimeAgo(ticket.created_at)}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
 
@@ -1761,7 +1822,11 @@ export default function ServiceDeskClient({
                     return (
                       <tr key={t.id} className="hover:bg-surface-hover/50">
                         <td className="py-2.5 px-3 font-mono font-bold text-primary">
-                          <Link href={`/service-desk/${t.id}`} className="hover:underline">
+                          <Link 
+                            href={`/service-desk/${t.id}`} 
+                            onClick={(e) => handleOpenTicketModal(t, e)}
+                            className="hover:underline cursor-pointer"
+                          >
                             {t.code}
                           </Link>
                         </td>
@@ -1843,6 +1908,36 @@ export default function ServiceDeskClient({
         initialCatalogItems={initialCatalogItems}
         currentUserId={currentUser?.id || ""}
       />
+
+      {/* Modal Redesenhado e Otimizado de Atendimento / Consulta / Edição de Chamados */}
+      {selectedTicketIdForModal && (
+        <TicketModal
+          isOpen={!!selectedTicketIdForModal}
+          onClose={() => {
+            setSelectedTicketIdForModal(null);
+            setSelectedTicketInitialData(null);
+          }}
+          ticketId={selectedTicketIdForModal}
+          initialTicket={selectedTicketInitialData}
+          categories={categories}
+          departments={departments}
+          assets={initialAssets || []}
+          users={attendants}
+          currentUser={currentUser}
+          initialRequesters={initialRequesters}
+          initialCatalogItems={initialCatalogItems}
+          onTicketUpdated={(updated) => {
+            setTickets((prev) =>
+              prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t))
+            );
+          }}
+          onTicketDeleted={(deletedId) => {
+            setTickets((prev) => prev.filter((t) => t.id !== deletedId));
+            setSelectedTicketIdForModal(null);
+            setSelectedTicketInitialData(null);
+          }}
+        />
+      )}
 
     </div>
   );
