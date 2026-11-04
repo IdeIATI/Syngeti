@@ -18,6 +18,9 @@ const ServiceDeskExportModal = dynamic(() => import("@/components/ServiceDeskExp
 const NewTicketModal = dynamic(() => import("@/components/NewTicketModal"), {
   ssr: false,
 });
+const TicketModal = dynamic(() => import("@/components/TicketModal").then((mod) => mod.TicketModal), {
+  ssr: false,
+});
 import { 
   exportTicketsToPDF, 
   exportTicketsToExcel, 
@@ -149,6 +152,17 @@ export default function ServiceDeskClient({
   const [filterAssignee, setFilterAssignee] = useState("ALL");
   const [filterCategory, setFilterCategory] = useState("ALL");
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+  const [selectedTicketIdForModal, setSelectedTicketIdForModal] = useState<string | null>(null);
+  const [selectedTicketInitialData, setSelectedTicketInitialData] = useState<any | null>(null);
+
+  const handleOpenTicketModal = (ticket: any, e?: React.MouseEvent) => {
+    if (e) {
+      if (e.ctrlKey || e.metaKey || e.button === 1) return;
+      e.preventDefault();
+    }
+    setSelectedTicketInitialData(ticket);
+    setSelectedTicketIdForModal(ticket.id);
+  };
 
   // Controle do Redesign Clean & Compact
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -1261,9 +1275,10 @@ export default function ServiceDeskClient({
                         <td className="px-3.5 py-2.5 sm:py-3 whitespace-nowrap">
                           <Link 
                             href={`/service-desk/${ticket.id}`} 
+                            onClick={(e) => handleOpenTicketModal(ticket, e)}
                             onMouseEnter={() => router.prefetch(`/service-desk/${ticket.id}`)}
                             onFocus={() => router.prefetch(`/service-desk/${ticket.id}`)}
-                            className="font-mono text-xs font-bold text-primary hover:underline"
+                            className="font-mono text-xs font-bold text-primary hover:underline cursor-pointer"
                           >
                             {ticket.code}
                           </Link>
@@ -1276,9 +1291,10 @@ export default function ServiceDeskClient({
                         <td className="px-3.5 py-2.5 sm:py-3">
                           <Link 
                             href={`/service-desk/${ticket.id}`} 
+                            onClick={(e) => handleOpenTicketModal(ticket, e)}
                             onMouseEnter={() => router.prefetch(`/service-desk/${ticket.id}`)}
                             onFocus={() => router.prefetch(`/service-desk/${ticket.id}`)}
-                            className="font-bold text-xs sm:text-sm text-foreground hover:text-primary transition-colors block line-clamp-1"
+                            className="font-bold text-xs sm:text-sm text-foreground hover:text-primary transition-colors block line-clamp-1 cursor-pointer"
                           >
                             {ticket.title}
                           </Link>
