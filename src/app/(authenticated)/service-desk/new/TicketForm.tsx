@@ -98,6 +98,7 @@ export default function TicketForm({
   const [catalogItems, setCatalogItems] = useState<Array<{ id: string; name: string; category?: string; unit?: string }>>(initialCatalogItems || []);
 
   // Form State
+  const [activeTab, setActiveTab] = useState<"details" | "items">("details");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [type, setType] = useState<"INCIDENT" | "REQUEST">("INCIDENT");
@@ -549,16 +550,15 @@ export default function TicketForm({
   };
 
   return (
-    <div className="space-y-8">
-      {/* 1-Click Fast Templates */}
-      <div className="bg-surface p-5 rounded-2xl border border-border shadow-xs">
-        <div className="flex items-center gap-2 mb-3">
-          <Layers className="w-4 h-4 text-primary" />
-          <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-            Modelos Rápidos Pré-formatados (Clique para preencher)
-          </h3>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+    <div className={`flex flex-col ${isModal ? "h-full" : "space-y-6"}`}>
+      {/* Top Bar: Modelos Rápidos Compactos + Abas Leves */}
+      <div className="bg-surface border-b border-border px-5 py-3 flex flex-col gap-3 shrink-0">
+        {/* Modelos Rápidos em Linha Horizontal Enxuta */}
+        <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-0.5">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground shrink-0 flex items-center gap-1.5 mr-1">
+            <Layers className="w-3.5 h-3.5 text-primary" />
+            Modelos:
+          </span>
           <button
             type="button"
             onClick={() => applyTemplate({
@@ -569,12 +569,11 @@ export default function TicketForm({
               urgency: "HIGH",
               impact: "MEDIUM",
             })}
-            className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-left transition-all text-xs font-medium text-foreground group"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-xs font-medium text-foreground transition-all shrink-0 cursor-pointer"
           >
-            <Cpu className="w-4 h-4 text-primary shrink-0 group-hover:scale-110 transition-transform" />
-            <span className="line-clamp-1">Falha em Computador</span>
+            <Cpu className="w-3.5 h-3.5 text-primary" />
+            <span>Falha em PC</span>
           </button>
-
           <button
             type="button"
             onClick={() => applyTemplate({
@@ -585,12 +584,11 @@ export default function TicketForm({
               urgency: "HIGH",
               impact: "HIGH",
             })}
-            className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-left transition-all text-xs font-medium text-foreground group"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-xs font-medium text-foreground transition-all shrink-0 cursor-pointer"
           >
-            <Network className="w-4 h-4 text-info shrink-0 group-hover:scale-110 transition-transform" />
-            <span className="line-clamp-1">Queda de Internet</span>
+            <Network className="w-3.5 h-3.5 text-info" />
+            <span>Queda de Internet</span>
           </button>
-
           <button
             type="button"
             onClick={() => applyTemplate({
@@ -605,12 +603,11 @@ export default function TicketForm({
                 { name: "Acesso ao Sistema ERP", quantity: 1, category: "Software / Licença", details: "Módulo Operacional" },
               ]
             })}
-            className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-left transition-all text-xs font-medium text-foreground group"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-xs font-medium text-foreground transition-all shrink-0 cursor-pointer"
           >
-            <KeyRound className="w-4 h-4 text-warning shrink-0 group-hover:scale-110 transition-transform" />
-            <span className="line-clamp-1">Acesso & Usuário</span>
+            <KeyRound className="w-3.5 h-3.5 text-warning" />
+            <span>Acesso & Usuário</span>
           </button>
-
           <button
             type="button"
             onClick={() => applyTemplate({
@@ -624,12 +621,11 @@ export default function TicketForm({
                 { name: "Toner Preto para Impressora", quantity: 1, category: "Consumível", details: "Para impressora do setor" }
               ]
             })}
-            className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-left transition-all text-xs font-medium text-foreground group"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-xs font-medium text-foreground transition-all shrink-0 cursor-pointer"
           >
-            <Printer className="w-4 h-4 text-accent shrink-0 group-hover:scale-110 transition-transform" />
-            <span className="line-clamp-1">Impressora & Toner</span>
+            <Printer className="w-3.5 h-3.5 text-accent" />
+            <span>Impressora / Toner</span>
           </button>
-
           <button
             type="button"
             onClick={() => applyTemplate({
@@ -644,508 +640,508 @@ export default function TicketForm({
                 { name: "Teclado ABNT2 com teclado numérico", quantity: 1, category: "Hardware / Periférico", details: "USB Padrão" }
               ]
             })}
-            className="flex items-center gap-2 p-2.5 rounded-xl border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-left transition-all text-xs font-medium text-foreground group"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-border bg-surface-elevated hover:border-primary/50 hover:bg-surface-hover text-xs font-medium text-foreground transition-all shrink-0 cursor-pointer"
           >
-            <Box className="w-4 h-4 text-success shrink-0 group-hover:scale-110 transition-transform" />
-            <span className="line-clamp-1">Periféricos / Peças</span>
+            <Box className="w-3.5 h-3.5 text-success" />
+            <span>Periféricos & Peças</span>
+          </button>
+        </div>
+
+        {/* Abas Leves de Navegação */}
+        <div className="flex items-center gap-2 border-t border-border/50 pt-2.5">
+          <button
+            type="button"
+            onClick={() => setActiveTab("details")}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === "details"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground hover:bg-surface-elevated"
+            }`}
+          >
+            <FileText className="w-3.5 h-3.5" />
+            <span>Detalhes & Classificação</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("items")}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+              activeTab === "items"
+                ? "bg-primary text-primary-foreground shadow-xs"
+                : "text-muted-foreground hover:text-foreground hover:bg-surface-elevated"
+            }`}
+          >
+            <Box className="w-3.5 h-3.5" />
+            <span>Peças & Itens</span>
+            {requestedItems.length > 0 && (
+              <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                activeTab === "items" ? "bg-white/20 text-white" : "bg-primary/20 text-primary"
+              }`}>
+                {requestedItems.length}
+              </span>
+            )}
           </button>
         </div>
       </div>
 
-      {/* Main Form */}
-      <form onSubmit={handleSubmit} className="bg-surface shadow-sm border border-border rounded-2xl p-6 sm:p-8 space-y-8">
-        
-        {/* Section 1: Classification & Requester */}
-        <div>
-          <div className="flex items-center justify-between pb-3 border-b border-border mb-6">
-            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-extrabold">1</span>
-              Classificação & Identificação
-            </h3>
-            <span className="text-xs text-muted-foreground font-medium">* Campos obrigatórios</span>
-          </div>
+      {/* Form Body com Rolagem Suave */}
+      <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-5 sm:p-6 space-y-6">
+          
+          {/* ABA 1: DETALHES & CLASSIFICAÇÃO (2 Colunas Desktop) */}
+          {activeTab === "details" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-in fade-in duration-150">
+              {/* Coluna 1: Conteúdo Principal (7 de 12) */}
+              <div className="lg:col-span-7 space-y-5">
+                {/* Título Resumido */}
+                <div className="bg-surface p-4 sm:p-5 rounded-2xl border border-border shadow-2xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-primary" />
+                      Título do Chamado *
+                    </label>
+                    <span className="text-[11px] text-muted-foreground font-medium">Claro e direto</span>
+                  </div>
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Ex: Lentidão severa no sistema de faturamento ao emitir notas..."
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-4 py-2.5 text-foreground text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground/60"
+                  />
+                </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {/* Requester with SmartSelect */}
-            <div className="lg:col-span-2">
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Solicitante do Chamado *
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowAddUserModal(true)}
-                  className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors"
-                  title="Cadastrar usuário completo com credenciais de login"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  + Cadastro Completo
-                </button>
-              </div>
-              <SmartSelect
-                placeholder="Pesquise por nome, e-mail ou digite para cadastrar na hora..."
-                value={requesterId}
-                options={requestersList.map(r => ({
-                  id: r.id,
-                  label: r.name,
-                  sublabel: r.email ? `${r.email}${r.department ? ` • Setor: ${r.department}` : ''}` : (r.department ? `Setor: ${r.department}` : undefined),
-                  badge: r.type === "REQUESTER" ? "Manual" : "Colaborador"
-                }))}
-                onChange={(val, opt) => {
-                  setRequesterId(val);
-                  setRequesterName(opt?.label || "");
-                }}
-                onCreateOption={handleCreateRequester}
-                creatableText="+ Adicionar Solicitante"
-                emptyMessage="Nenhum solicitante encontrado. Clique abaixo para cadastrar na hora."
-              />
-            </div>
-
-            {/* Type */}
-            <div>
-              <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-1.5">
-                Tipo de Atendimento *
-              </label>
-              <select
-                value={type}
-                onChange={(e) => setType(e.target.value as any)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3.5 py-2.5 text-foreground text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-              >
-                <option value="INCIDENT">🚨 Incidente (Falha / Algo parou)</option>
-                <option value="REQUEST">📋 Requisição (Pedido de recurso / Acesso)</option>
-              </select>
-            </div>
-
-            {/* Responsável pelo Chamado with SmartSelect */}
-            <div className="lg:col-span-3 bg-surface-elevated/70 p-4 rounded-xl border border-border">
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-2">
-                <div>
+                {/* Descrição Detalhada */}
+                <div className="bg-surface p-4 sm:p-5 rounded-2xl border border-border shadow-2xs space-y-2">
                   <label className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <UserCheck className="w-4 h-4 text-primary" />
-                    Responsável pelo Chamado
+                    <span className="w-2 h-2 rounded-full bg-primary" />
+                    Descrição do Problema / Sintomas *
                   </label>
-                  <p className="text-[11px] text-muted-foreground">
-                    Selecione um técnico da lista ou digite livremente qualquer nome para atribuir.
-                  </p>
+                  <textarea
+                    required
+                    rows={5}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Descreva o que ocorreu, mensagens de erro exibidas, quando começou e procedimentos já realizados..."
+                    className="w-full rounded-xl border border-border bg-surface-elevated p-3.5 text-foreground text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-y leading-relaxed placeholder:text-muted-foreground/60"
+                  />
+                </div>
+
+                {/* Ativo / Equipamento CMDB */}
+                <div className="bg-surface p-4 sm:p-5 rounded-2xl border border-border shadow-2xs space-y-3">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <Laptop className="w-3.5 h-3.5 text-primary" />
+                      Ativo CMDB Relacionado
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddAssetModal(true)}
+                      className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      + Cadastrar Ativo
+                    </button>
+                  </div>
+                  <SmartSelect
+                    placeholder="Selecione ativo do inventário ou cadastre rápido..."
+                    value={assetId}
+                    options={assetsList.map((a) => ({
+                      id: a.id,
+                      label: a.name,
+                      sublabel: a.asset_tag ? `Tag: ${a.asset_tag}` : a.internal_id,
+                      badge: a.type
+                    }))}
+                    onChange={(val) => setAssetId(val)}
+                    onCreateOption={handleCreateAsset}
+                    creatableText="+ Cadastrar Ativo Rápido"
+                    clearable
+                  />
+                  <div>
+                    <input
+                      type="text"
+                      value={customAssetNote}
+                      onChange={(e) => setCustomAssetNote(e.target.value)}
+                      placeholder="Ou digite a identificação manual (Ex: PC mesa 04 do Financeiro / Notebook preto Lenovo)..."
+                      className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-foreground text-xs focus:ring-2 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground/60"
+                    />
+                  </div>
                 </div>
               </div>
-              <SmartSelect
-                placeholder="Selecione um técnico ou digite qualquer nome (ex: João Marcos)..."
-                value={assignedToId || assignedToName}
-                options={usersList.map((u) => ({
-                  id: u.id,
-                  label: u.name,
-                  sublabel: u.job_title ? `${u.email} - ${u.job_title}` : u.email,
-                  badge: "Técnico"
-                }))}
-                onChange={(val, opt) => {
-                  if (usersList.some(u => u.id === val)) {
-                    setAssignedToId(val);
-                    setAssignedToName(opt?.label || "");
-                  } else {
-                    setAssignedToId("");
-                    setAssignedToName(opt?.label || val);
-                  }
-                }}
-                onCreateOption={async (name) => {
-                  setAssignedToId("");
-                  setAssignedToName(name);
-                  return { id: name, label: name, badge: "Manual" };
-                }}
-                creatableText="+ Atribuir a"
-                clearable
-                emptyMessage="Nenhum técnico encontrado. Clique abaixo para atribuir livremente."
-              />
-            </div>
 
-            {/* Category with SmartSelect */}
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Categoria *
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowAddCategoryModal(true)}
-                  className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors"
-                >
-                  <FolderPlus className="w-3.5 h-3.5" />
-                  + Nova
-                </button>
-              </div>
-              <SmartSelect
-                placeholder="Selecione ou digite nova categoria..."
-                value={categoryId}
-                options={categoriesList.map((c) => ({
-                  id: c.id,
-                  label: c.name,
-                  sublabel: c.description || undefined
-                }))}
-                onChange={(val) => setCategoryId(val)}
-                onCreateOption={handleCreateCategory}
-                creatableText="+ Adicionar Categoria"
-              />
-            </div>
-
-            {/* Department with SmartSelect */}
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Setor / Grupo de Atendimento
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowAddDeptModal(true)}
-                  className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  + Novo
-                </button>
-              </div>
-              <SmartSelect
-                placeholder="Selecione ou digite novo setor..."
-                value={groupId}
-                options={departmentsList.map((d) => ({
-                  id: d.id,
-                  label: d.name
-                }))}
-                onChange={(val) => setGroupId(val)}
-                onCreateOption={handleCreateDepartment}
-                creatableText="+ Adicionar Setor"
-                clearable
-              />
-            </div>
-
-            {/* Asset with SmartSelect */}
-            <div>
-              <div className="flex justify-between items-center mb-1.5">
-                <label className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  Ativo CMDB Relacionado
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setShowAddAssetModal(true)}
-                  className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors"
-                >
-                  <Laptop className="w-3.5 h-3.5" />
-                  + Cadastrar
-                </button>
-              </div>
-              <SmartSelect
-                placeholder="Selecione ativo ou cadastre rápido..."
-                value={assetId}
-                options={assetsList.map((a) => ({
-                  id: a.id,
-                  label: a.name,
-                  sublabel: a.asset_tag ? `Tag: ${a.asset_tag}` : a.internal_id,
-                  badge: a.type
-                }))}
-                onChange={(val) => setAssetId(val)}
-                onCreateOption={handleCreateAsset}
-                creatableText="+ Cadastrar Ativo Rápido"
-                clearable
-              />
-            </div>
-          </div>
-
-          {/* Quick manual identification for devices not in CMDB */}
-          <div className="mt-3">
-            <label className="block text-xs font-semibold text-muted-foreground mb-1">
-              Ou digite a identificação manual do equipamento (caso não esteja no inventário CMDB):
-            </label>
-            <input
-              type="text"
-              value={customAssetNote}
-              onChange={(e) => setCustomAssetNote(e.target.value)}
-              placeholder="Ex: Notebook preto Lenovo da recepção / PC mesa 04 do Financeiro"
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-foreground text-xs focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-            />
-          </div>
-        </div>
-
-        {/* Section 2: Ticket Core Details */}
-        <div>
-          <div className="flex items-center justify-between pb-3 border-b border-border mb-6">
-            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-extrabold">2</span>
-              Conteúdo & Descrição do Problema
-            </h3>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-1.5">
-                Título Resumido do Chamado *
-              </label>
-              <input
-                type="text"
-                required
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Ex: Lentidão severa no sistema de faturamento ao emitir notas"
-                className="w-full rounded-xl border border-border bg-surface-elevated px-4 py-2.5 text-foreground text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-1.5">
-                Descrição Detalhada e Sintomas *
-              </label>
-              <textarea
-                required
-                rows={4}
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Descreva o que ocorreu, mensagens de erro exibidas, quando começou e etapas já testadas..."
-                className="w-full rounded-xl border border-border bg-surface-elevated p-4 text-foreground text-sm focus:ring-2 focus:ring-primary focus:border-primary transition-all resize-y"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Section 3: ITENS DO CHAMADO */}
-        <div className="bg-surface-elevated p-6 rounded-2xl border border-border">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-border mb-4">
-            <div>
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
-                <Box className="w-4 h-4 text-primary" />
-                ITENS DO CHAMADO
-              </h3>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Adicione individualmente peças, periféricos, licenças, acessos ou cabos solicitados neste chamado.
-              </p>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleAddRequestedItem()}
-                className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground px-3.5 py-1.5 rounded-lg text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs"
-              >
-                <Plus className="w-4 h-4" />
-                + Adicionar Item
-              </button>
-            </div>
-          </div>
-
-          {requestedItems.length === 0 ? (
-            <div className="text-center py-6 border-2 border-dashed border-border rounded-xl">
-              <Box className="w-8 h-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-              <p className="text-xs font-medium text-muted-foreground">
-                Nenhum item adicionado ainda. Se o chamado requer peças ou itens específicos, adicione abaixo.
-              </p>
-              <div className="flex justify-center gap-2 mt-3 flex-wrap">
-                <button
-                  type="button"
-                  onClick={() => handleAddRequestedItem({ name: "Mouse sem fio", quantity: 1, unit: "UN", details: "Óptico USB" })}
-                  className="text-xs bg-surface border border-border px-2.5 py-1 rounded-md text-foreground hover:bg-surface-hover font-medium transition-colors"
-                >
-                  + Mouse sem fio
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAddRequestedItem({ name: "Teclado USB", quantity: 1, unit: "UN", details: "ABNT2" })}
-                  className="text-xs bg-surface border border-border px-2.5 py-1 rounded-md text-foreground hover:bg-surface-hover font-medium transition-colors"
-                >
-                  + Teclado USB
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAddRequestedItem({ name: "Monitor 24 polegadas", quantity: 1, unit: "UN", details: "HDMI/DisplayPort" })}
-                  className="text-xs bg-surface border border-border px-2.5 py-1 rounded-md text-foreground hover:bg-surface-hover font-medium transition-colors"
-                >
-                  + Monitor
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAddRequestedItem({ name: "Cabo de Rede Cat6", quantity: 1, unit: "UN", details: "3 metros montado" })}
-                  className="text-xs bg-surface border border-border px-2.5 py-1 rounded-md text-foreground hover:bg-surface-hover font-medium transition-colors"
-                >
-                  + Cabo de Rede
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleAddRequestedItem({ name: "Licença de Software", quantity: 1, unit: "UN", details: "Assinatura anual" })}
-                  className="text-xs bg-surface border border-border px-2.5 py-1 rounded-md text-foreground hover:bg-surface-hover font-medium transition-colors"
-                >
-                  + Licença
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {requestedItems.map((item, index) => (
-                <div key={item.id} className="grid grid-cols-1 sm:grid-cols-12 gap-3 p-3.5 bg-surface border border-border rounded-xl items-center">
-                  <div className="sm:col-span-1 text-xs font-bold text-muted-foreground text-center">
-                    #{index + 1}
+              {/* Coluna 2: Classificação & Atribuição (5 de 12) */}
+              <div className="lg:col-span-5 space-y-4">
+                
+                {/* Solicitante */}
+                <div className="bg-surface p-4 rounded-2xl border border-border shadow-2xs space-y-2">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-primary" />
+                      Solicitante do Chamado *
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddUserModal(true)}
+                      className="text-[11px] font-bold text-primary hover:text-primary-hover flex items-center gap-1 transition-colors cursor-pointer"
+                      title="Cadastrar usuário completo"
+                    >
+                      <UserPlus className="w-3 h-3" />
+                      + Completo
+                    </button>
                   </div>
-                  <div className="sm:col-span-4">
-                    <label className="block text-[10px] font-bold text-muted-foreground uppercase mb-1 sm:hidden">Descrição do Item</label>
+                  <SmartSelect
+                    placeholder="Pesquise por nome, e-mail ou digite para criar na hora..."
+                    value={requesterId}
+                    options={requestersList.map(r => ({
+                      id: r.id,
+                      label: r.name,
+                      sublabel: r.email ? `${r.email}${r.department ? ` • Setor: ${r.department}` : ''}` : (r.department ? `Setor: ${r.department}` : undefined),
+                      badge: r.type === "REQUESTER" ? "Manual" : "Colaborador"
+                    }))}
+                    onChange={(val, opt) => {
+                      setRequesterId(val);
+                      setRequesterName(opt?.label || "");
+                    }}
+                    onCreateOption={handleCreateRequester}
+                    creatableText="+ Adicionar Solicitante"
+                    emptyMessage="Nenhum solicitante encontrado. Digite para cadastrar na hora."
+                  />
+                </div>
+
+                {/* Tipo e Categoria */}
+                <div className="bg-surface p-4 rounded-2xl border border-border shadow-2xs grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
+                    <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-1.5">
+                      Tipo *
+                    </label>
+                    <select
+                      value={type}
+                      onChange={(e) => setType(e.target.value as any)}
+                      className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-foreground text-xs font-bold focus:ring-2 focus:ring-primary focus:border-primary transition-all cursor-pointer"
+                    >
+                      <option value="INCIDENT">🚨 Incidente (Falha)</option>
+                      <option value="REQUEST">📋 Requisição (Pedido)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="text-xs font-bold text-foreground uppercase tracking-wider">
+                        Categoria *
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddCategoryModal(true)}
+                        className="text-[11px] font-bold text-primary hover:text-primary-hover cursor-pointer"
+                      >
+                        + Nova
+                      </button>
+                    </div>
                     <SmartSelect
-                      placeholder="Descrição do item ou escolher..."
-                      value={item.name}
-                      options={catalogItems.map(ci => ({
-                        id: ci.name,
-                        label: ci.name,
-                        sublabel: ci.category || undefined
+                      placeholder="Selecione categoria..."
+                      value={categoryId}
+                      options={categoriesList.map((c) => ({
+                        id: c.id,
+                        label: c.name,
+                        sublabel: c.description || undefined
                       }))}
-                      onChange={(val, opt) => handleUpdateRequestedItem(item.id, "name", opt?.label || val)}
-                      onCreateOption={handleCreateCatalogItem}
-                      creatableText="+ Adicionar"
+                      onChange={(val) => setCategoryId(val)}
+                      onCreateOption={handleCreateCategory}
+                      creatableText="+ Nova Categoria"
+                    />
+                  </div>
+                </div>
+
+                {/* Setor e Responsável Técnico */}
+                <div className="bg-surface p-4 rounded-2xl border border-border shadow-2xs space-y-3.5">
+                  <div>
+                    <div className="flex justify-between items-center mb-1.5">
+                      <label className="text-xs font-bold text-foreground uppercase tracking-wider">
+                        Setor / Departamento
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowAddDeptModal(true)}
+                        className="text-[11px] font-bold text-primary hover:text-primary-hover cursor-pointer"
+                      >
+                        + Novo
+                      </button>
+                    </div>
+                    <SmartSelect
+                      placeholder="Selecione ou digite setor..."
+                      value={groupId}
+                      options={departmentsList.map((d) => ({
+                        id: d.id,
+                        label: d.name
+                      }))}
+                      onChange={(val) => setGroupId(val)}
+                      onCreateOption={handleCreateDepartment}
+                      creatableText="+ Novo Setor"
                       clearable
                     />
                   </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-bold text-muted-foreground uppercase mb-1 sm:hidden">Quantidade</label>
-                    <div className="flex items-center gap-1">
-                      <span className="text-[11px] font-bold text-muted-foreground hidden sm:inline">Qtd:</span>
-                      <input
-                        type="number"
-                        min={1}
-                        value={item.quantity}
-                        onChange={(e) => handleUpdateRequestedItem(item.id, "quantity", parseInt(e.target.value) || 1)}
-                        className="w-full text-xs font-bold px-2.5 py-2 rounded-lg border border-border bg-surface-elevated text-foreground text-center"
-                      />
-                    </div>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-bold text-muted-foreground uppercase mb-1 sm:hidden">Unidade</label>
-                    <input
-                      type="text"
-                      placeholder="Unidade (UN, CX...)"
-                      value={item.unit || "UN"}
-                      onChange={(e) => handleUpdateRequestedItem(item.id, "unit", e.target.value)}
-                      className="w-full text-xs font-medium px-2.5 py-2 rounded-lg border border-border bg-surface-elevated text-foreground text-center"
+
+                  <div>
+                    <label className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5 mb-1.5">
+                      <UserCheck className="w-3.5 h-3.5 text-primary" />
+                      Responsável Técnico
+                    </label>
+                    <SmartSelect
+                      placeholder="Técnico ou digite qualquer nome livre..."
+                      value={assignedToId || assignedToName}
+                      options={usersList.map((u) => ({
+                        id: u.id,
+                        label: u.name,
+                        sublabel: u.job_title ? `${u.email} - ${u.job_title}` : u.email,
+                        badge: "Técnico"
+                      }))}
+                      onChange={(val, opt) => {
+                        if (usersList.some(u => u.id === val)) {
+                          setAssignedToId(val);
+                          setAssignedToName(opt?.label || "");
+                        } else {
+                          setAssignedToId("");
+                          setAssignedToName(opt?.label || val);
+                        }
+                      }}
+                      onCreateOption={async (name) => {
+                        setAssignedToId("");
+                        setAssignedToName(name);
+                        return { id: name, label: name, badge: "Manual" };
+                      }}
+                      creatableText="+ Atribuir a"
+                      clearable
+                      emptyMessage="Nenhum técnico na lista. Digite para atribuir livremente."
                     />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-[10px] font-bold text-muted-foreground uppercase mb-1 sm:hidden">Observação</label>
-                    <input
-                      type="text"
-                      placeholder="Observação / detalhes"
-                      value={item.details}
-                      onChange={(e) => handleUpdateRequestedItem(item.id, "details", e.target.value)}
-                      className="w-full text-xs px-3 py-2 rounded-lg border border-border bg-surface-elevated text-foreground"
-                    />
-                  </div>
-                  <div className="sm:col-span-1 text-right">
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveRequestedItem(item.id)}
-                      className="p-1.5 text-muted-foreground hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
-                      title="Remover item"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
                   </div>
                 </div>
-              ))}
-              <div className="pt-2 flex justify-start">
-                <button
-                  type="button"
-                  onClick={() => handleAddRequestedItem()}
-                  className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1.5 transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  + Adicionar Item
-                </button>
+
+                {/* Matriz de Prioridade ITIL */}
+                <div className="bg-surface p-4 rounded-2xl border border-border shadow-2xs space-y-3">
+                  <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                    <ShieldAlert className="w-3.5 h-3.5 text-primary" />
+                    Prioridade ITIL (SLA)
+                  </span>
+
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label className="block text-[11px] font-semibold text-muted-foreground mb-1">Urgência</label>
+                      <select
+                        value={urgency}
+                        onChange={(e) => setUrgency(e.target.value as any)}
+                        className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-foreground text-xs font-medium cursor-pointer"
+                      >
+                        <option value="LOW">Baixa</option>
+                        <option value="MEDIUM">Média</option>
+                        <option value="HIGH">Alta</option>
+                        <option value="CRITICAL">Crítica</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-semibold text-muted-foreground mb-1">Impacto</label>
+                      <select
+                        value={impact}
+                        onChange={(e) => setImpact(e.target.value as any)}
+                        className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-foreground text-xs font-medium cursor-pointer"
+                      >
+                        <option value="LOW">Baixo</option>
+                        <option value="MEDIUM">Médio</option>
+                        <option value="HIGH">Alto</option>
+                        <option value="CRITICAL">Crítico</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-1 flex items-center justify-between border-t border-border/50">
+                    <span className="text-[11px] font-semibold text-muted-foreground">Prioridade Calculada:</span>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border ${
+                      priority === "CRITICAL" ? "bg-danger/10 text-danger border-danger/30 animate-pulse" :
+                      priority === "HIGH" ? "bg-warning/10 text-warning border-warning/30" :
+                      priority === "MEDIUM" ? "bg-info/10 text-info border-info/30" :
+                      "bg-success/10 text-success border-success/30"
+                    }`}>
+                      {priority === "CRITICAL" ? "CRÍTICA (SLA 4h)" :
+                       priority === "HIGH" ? "ALTA (SLA 8h)" :
+                       priority === "MEDIUM" ? "MÉDIA (SLA 24h)" :
+                       "BAIXA (SLA 48h)"}
+                    </span>
+                  </div>
+                </div>
+
               </div>
             </div>
           )}
-        </div>
 
-        {/* Section 4: ITIL Matrix (Urgency x Impact = Priority) */}
-        <div>
-          <div className="flex items-center justify-between pb-3 border-b border-border mb-6">
-            <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-extrabold">3</span>
-              Priorização ITIL (Matriz de Atendimento)
-            </h3>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 items-center">
-            {/* Urgency */}
-            <div>
-              <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-1.5">
-                Urgência (Velocidade requerida)
-              </label>
-              <select
-                value={urgency}
-                onChange={(e) => setUrgency(e.target.value as any)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3.5 py-2.5 text-foreground text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-              >
-                <option value="LOW">Baixa (Pode aguardar fila normal)</option>
-                <option value="MEDIUM">Média (Impacto operacional moderado)</option>
-                <option value="HIGH">Alta (Necessidade rápida de intervenção)</option>
-                <option value="CRITICAL">Crítica (Imediato / Parada iminente)</option>
-              </select>
-            </div>
-
-            {/* Impact */}
-            <div>
-              <label className="block text-xs font-bold text-foreground uppercase tracking-wider mb-1.5">
-                Impacto (Abrangência de usuários)
-              </label>
-              <select
-                value={impact}
-                onChange={(e) => setImpact(e.target.value as any)}
-                className="w-full rounded-xl border border-border bg-surface-elevated px-3.5 py-2.5 text-foreground text-sm font-semibold focus:ring-2 focus:ring-primary focus:border-primary transition-all"
-              >
-                <option value="LOW">Baixo (1 usuário ou equipamento secundário)</option>
-                <option value="MEDIUM">Médio (Um departamento ou setor)</option>
-                <option value="HIGH">Alto (Vários setores ou filial inteira)</option>
-                <option value="CRITICAL">Crítico (Organização inteira paralisada)</option>
-              </select>
-            </div>
-
-            {/* Calculated Priority Card */}
-            <div className="p-4 rounded-xl border border-border bg-surface-elevated flex flex-col justify-center">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Prioridade Calculada (SLA)
-              </span>
-              <div className="flex items-center gap-2 mt-1.5">
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold border ${
-                  priority === "CRITICAL" ? "bg-danger/10 text-danger border-danger/30 animate-pulse" :
-                  priority === "HIGH" ? "bg-warning/10 text-warning border-warning/30" :
-                  priority === "MEDIUM" ? "bg-info/10 text-info border-info/30" :
-                  "bg-success/10 text-success border-success/30"
-                }`}>
-                  {priority === "CRITICAL" && <ShieldAlert className="w-3.5 h-3.5" />}
-                  {priority === "CRITICAL" ? "CRÍTICA (SLA 4h)" :
-                   priority === "HIGH" ? "ALTA (SLA 8h)" :
-                   priority === "MEDIUM" ? "MÉDIA (SLA 24h)" :
-                   "BAIXA (SLA 48h)"}
-                </span>
+          {/* ABA 2: PEÇAS & ITENS SOLICITADOS */}
+          {activeTab === "items" && (
+            <div className="bg-surface p-5 sm:p-6 rounded-2xl border border-border shadow-2xs space-y-4 animate-in fade-in duration-150">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-border">
+                <div>
+                  <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                    <Box className="w-4 h-4 text-primary" />
+                    Peças, Materiais & Acessos Requeridos
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Adicione os componentes necessários para este atendimento.
+                  </p>
+                </div>
+                
+                <button
+                  type="button"
+                  onClick={() => handleAddRequestedItem()}
+                  className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground px-3.5 py-1.5 rounded-xl text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  + Adicionar Item
+                </button>
               </div>
+
+              {requestedItems.length === 0 ? (
+                <div className="text-center py-10 border-2 border-dashed border-border rounded-xl">
+                  <Box className="w-10 h-10 text-muted-foreground mx-auto mb-2 opacity-40" />
+                  <p className="text-xs font-semibold text-foreground">Nenhum item adicionado ao chamado</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">Se o chamado envolve substituição de peças ou periféricos, selecione um atalho rápido abaixo:</p>
+                  <div className="flex justify-center gap-2 mt-4 flex-wrap max-w-lg mx-auto">
+                    <button
+                      type="button"
+                      onClick={() => handleAddRequestedItem({ name: "Mouse sem fio", quantity: 1, unit: "UN", details: "Óptico USB" })}
+                      className="text-xs bg-surface-elevated border border-border px-3 py-1.5 rounded-lg text-foreground hover:border-primary/50 font-medium transition-colors cursor-pointer"
+                    >
+                      + Mouse sem fio
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddRequestedItem({ name: "Teclado USB", quantity: 1, unit: "UN", details: "ABNT2" })}
+                      className="text-xs bg-surface-elevated border border-border px-3 py-1.5 rounded-lg text-foreground hover:border-primary/50 font-medium transition-colors cursor-pointer"
+                    >
+                      + Teclado USB
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddRequestedItem({ name: "Monitor 24 polegadas", quantity: 1, unit: "UN", details: "HDMI/DisplayPort" })}
+                      className="text-xs bg-surface-elevated border border-border px-3 py-1.5 rounded-lg text-foreground hover:border-primary/50 font-medium transition-colors cursor-pointer"
+                    >
+                      + Monitor 24&quot;
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddRequestedItem({ name: "Cabo de Rede Cat6", quantity: 1, unit: "UN", details: "3 metros montado" })}
+                      className="text-xs bg-surface-elevated border border-border px-3 py-1.5 rounded-lg text-foreground hover:border-primary/50 font-medium transition-colors cursor-pointer"
+                    >
+                      + Cabo de Rede
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleAddRequestedItem({ name: "Toner Preto", quantity: 1, unit: "UN", details: "Para impressora do setor" })}
+                      className="text-xs bg-surface-elevated border border-border px-3 py-1.5 rounded-lg text-foreground hover:border-primary/50 font-medium transition-colors cursor-pointer"
+                    >
+                      + Toner Impressora
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {requestedItems.map((item, index) => (
+                    <div key={item.id} className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 p-3 bg-surface-elevated/70 border border-border rounded-xl items-center">
+                      <div className="sm:col-span-1 text-xs font-bold text-muted-foreground text-center">
+                        #{index + 1}
+                      </div>
+                      <div className="sm:col-span-5">
+                        <label className="block text-[10px] font-bold text-muted-foreground uppercase mb-1 sm:hidden">Descrição do Item</label>
+                        <SmartSelect
+                          placeholder="Descrição do item ou catálogo..."
+                          value={item.name}
+                          options={catalogItems.map(ci => ({
+                            id: ci.name,
+                            label: ci.name,
+                            sublabel: ci.category || undefined
+                          }))}
+                          onChange={(val, opt) => handleUpdateRequestedItem(item.id, "name", opt?.label || val)}
+                          onCreateOption={handleCreateCatalogItem}
+                          creatableText="+ Adicionar"
+                          clearable
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] font-bold text-muted-foreground uppercase mb-1 sm:hidden">Quantidade</label>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[11px] font-bold text-muted-foreground hidden sm:inline">Qtd:</span>
+                          <input
+                            type="number"
+                            min={1}
+                            value={item.quantity}
+                            onChange={(e) => handleUpdateRequestedItem(item.id, "quantity", parseInt(e.target.value) || 1)}
+                            className="w-full text-xs font-bold px-2 py-1.5 rounded-lg border border-border bg-surface text-foreground text-center"
+                          />
+                        </div>
+                      </div>
+                      <div className="sm:col-span-1">
+                        <label className="block text-[10px] font-bold text-muted-foreground uppercase mb-1 sm:hidden">Unidade</label>
+                        <input
+                          type="text"
+                          placeholder="UN"
+                          value={item.unit || "UN"}
+                          onChange={(e) => handleUpdateRequestedItem(item.id, "unit", e.target.value)}
+                          className="w-full text-xs font-medium px-2 py-1.5 rounded-lg border border-border bg-surface text-foreground text-center"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] font-bold text-muted-foreground uppercase mb-1 sm:hidden">Observação</label>
+                        <input
+                          type="text"
+                          placeholder="Detalhes..."
+                          value={item.details}
+                          onChange={(e) => handleUpdateRequestedItem(item.id, "details", e.target.value)}
+                          className="w-full text-xs px-2.5 py-1.5 rounded-lg border border-border bg-surface text-foreground"
+                        />
+                      </div>
+                      <div className="sm:col-span-1 text-right">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveRequestedItem(item.id)}
+                          className="p-1.5 text-muted-foreground hover:text-danger hover:bg-danger/10 rounded-lg transition-colors cursor-pointer"
+                          title="Remover item"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
+          )}
+
         </div>
 
-        {/* Submit Actions */}
-        <div className="pt-6 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
+        {/* C — RODAPÉ FIXO (Sticky Footer) */}
+        <div className="shrink-0 border-t border-border bg-surface px-6 py-3.5 flex flex-col sm:flex-row justify-between items-center gap-3">
           <button
             type="button"
             onClick={handleExitTicket}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl border border-border text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors text-center flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-5 py-2.5 rounded-xl border border-border text-xs sm:text-sm font-bold text-muted-foreground hover:text-foreground hover:bg-surface-elevated transition-colors text-center flex items-center justify-center gap-2 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
-            Sair do Chamado
+            <span>Sair do Chamado</span>
           </button>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full sm:w-auto bg-primary text-primary-foreground px-8 py-3 rounded-xl text-sm font-bold hover:bg-primary-hover transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full sm:w-auto bg-primary text-primary-foreground px-6 py-2.5 rounded-xl text-xs sm:text-sm font-bold hover:bg-primary-hover transition-all shadow-md disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
           >
             {loading ? (
               <>
                 <span className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
-                Registrando Chamado...
+                <span>Registrando Chamado...</span>
               </>
             ) : (
               <>
-                <CheckCircle2 className="w-5 h-5" />
-                Confirmar e Abrir Chamado
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Confirmar e Abrir Chamado</span>
               </>
             )}
           </button>
