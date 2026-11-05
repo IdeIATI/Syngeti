@@ -7,13 +7,30 @@ import { prisma } from "@/lib/prisma";
 import { getBranding } from "@/lib/branding";
 
 // Memoiza a busca de avatar por ciclo de render (evita queries duplicadas na mesma request)
-const getUserAvatar = cache(async (userId: string): Promise<string | null> => {
+const getUserAvatar = cache(async (userId: string, userEmail?: string | null): Promise<string | null> => {
   try {
-    const dbUser = await prisma.user.findUnique({
+    let dbUser = await prisma.user.findUnique({
       where: { id: userId },
-      select: { avatar: true },
+      select: { id: true, avatar: true },
     });
-    return dbUser?.avatar || null;
+
+    if (!dbUser && userEmail) {
+      dbUser = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { email: userEmail },
+            { username: userEmail },
+            ...(userEmail.includes("admin") ? [{ username: "administrador" }] : []),
+          ],
+        },
+        select: { id: true, avatar: true },
+      });
+    }
+
+    if (dbUser?.avatar) {
+      return `/api/users/${dbUser.id}/avatar`;
+    }
+    return null;
   } catch {
     return null;
   }
@@ -30,12 +47,13 @@ export default async function AuthenticatedLayout({
     redirect("/login");
   }
 
-  // Usa avatar da sessão diretamente sem consulta ao banco de dados; fallback para cache em memória se necessário
-  const userAvatar = session.user?.image || (session.user?.id ? await getUserAvatar(session.user.id) : null);
+  // Usa avatar da sessão ou resolve via endpoint canônico
+  const userAvatar = session.user?.image || (session.user?.id ? await getUserAvatar(session.user.id, session.user.email) : null);
   const branding = getBranding();
 
   return (
     <AuthenticatedShell
+      userId={session.user.id}
       userName={session.user.name || "Admin"}
       userAvatar={userAvatar}
       initialBranding={branding}

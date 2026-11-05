@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { UserAvatar } from "@/components/UserAvatar";
 import { Shield, Briefcase, Plus, X, Edit2, Power, Trash2, AtSign } from "lucide-react";
 import UserForm from "./new/UserForm";
 
@@ -129,13 +130,13 @@ export default function UserManager({
                   <tr key={u.id} className="hover:bg-surface-hover transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold overflow-hidden flex-shrink-0">
-                          {u.avatar ? (
-                            <Image src={u.avatar} alt={u.name} width={40} height={40} className="w-full h-full object-cover" unoptimized />
-                          ) : (
-                            u.name.charAt(0).toUpperCase()
-                          )}
-                        </div>
+                        <UserAvatar
+                          src={u.avatar || `/api/users/${u.id}/avatar`}
+                          name={u.name}
+                          userId={u.id}
+                          size="md"
+                          shape="circle"
+                        />
                         <div>
                           <div className="font-semibold text-foreground flex items-center gap-1.5">
                             {u.name}

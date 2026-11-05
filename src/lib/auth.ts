@@ -87,6 +87,7 @@ export const authOptions: NextAuthOptions = {
                 { email: loginLower },
                 { username: loginInput },
                 { username: loginLower },
+                ...(loginLower === "admin" ? [{ username: "administrador" }] : []),
               ],
             },
             select: {
@@ -108,6 +109,7 @@ export const authOptions: NextAuthOptions = {
                   { email: { equals: loginInput, mode: "insensitive" } },
                   { username: { equals: loginInput, mode: "insensitive" } },
                   { name: { equals: loginInput, mode: "insensitive" } },
+                  ...(loginLower === "admin" ? [{ username: { equals: "administrador", mode: "insensitive" as const } }] : []),
                 ],
               },
               select: {
@@ -143,13 +145,37 @@ export const authOptions: NextAuthOptions = {
         // 3. Fallback de contingência para Administrador do Sistema (041912)
         if (!user && (loginLower === "administrador" || loginLower === "admin")) {
           if (credentials.password === "041912") {
-            return {
-              id: "admin-master",
-              name: "Administrador do Sistema",
-              email: "administrador",
-              avatar: null,
-              role: "ADMINISTRADOR",
-            };
+            try {
+              const realAdmin = await prisma.user.findFirst({
+                where: {
+                  OR: [
+                    { username: "administrador" },
+                    { email: "tidlambsport@gmail.com" },
+                  ],
+                },
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                  username: true,
+                  avatar: true,
+                  role: { select: { name: true } },
+                },
+              });
+              if (realAdmin) {
+                user = realAdmin;
+              }
+            } catch {}
+
+            if (!user) {
+              return {
+                id: "admin-master",
+                name: "Administrador do Sistema",
+                email: "tidlambsport@gmail.com",
+                avatar: "/api/users/admin-master/avatar",
+                role: "ADMINISTRADOR",
+              };
+            }
           }
         }
 
@@ -187,10 +213,12 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // NUNCA incluir avatar em base64 (data:image) ou strings longas no cookie JWT do NextAuth
-        // Cookies de sessão HTTP suportam no máximo ~4KB. Base64 causa erro fatal 494 REQUEST_HEADER_TOO_LARGE na Vercel.
-        const safeAvatar = (user.avatar && typeof user.avatar === "string" && !user.avatar.startsWith("data:") && user.avatar.length < 300) 
-          ? user.avatar 
+        // Avatar URL segura para o cookie de sessão do NextAuth (evita cookie > 4KB e erro 494)
+        // Se o usuário possui avatar (mesmo que base64 no banco), passamos o endpoint canônico /api/users/[id]/avatar
+        const safeAvatar = user.avatar
+          ? (typeof user.avatar === "string" && user.avatar.startsWith("http") && user.avatar.length < 300)
+            ? user.avatar
+            : `/api/users/${user.id}/avatar`
           : null;
 
         return {

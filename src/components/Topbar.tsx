@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { HelpButton } from "./help/HelpButton";
+import { UserAvatar } from "./UserAvatar";
 import { Menu } from "lucide-react";
 
 const MODULE_DATA: Record<string, { title: string, subtitle: string }> = {
@@ -26,11 +27,18 @@ const MODULE_DATA: Record<string, { title: string, subtitle: string }> = {
 
 import { useMobileMenu } from "./AuthenticatedShell";
 
-export function Topbar({ userName, avatar }: { userName: string, avatar?: string | null }) {
+export function Topbar({
+  userId,
+  userName,
+  avatar,
+}: {
+  userId?: string;
+  userName: string;
+  avatar?: string | null;
+}) {
   const pathname = usePathname();
   const { toggleMobileMenu } = useMobileMenu();
   const heartbeatStarted = useRef(false);
-  const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
     // Inicia heartbeat uma única vez por sessão — não a cada troca de aba
@@ -102,18 +110,13 @@ export function Topbar({ userName, avatar }: { userName: string, avatar?: string
             <p className="text-[11px] font-semibold text-muted-foreground uppercase">Admin</p>
           </div>
           
-          {avatar && !avatarError ? (
-            <img 
-              src={avatar} 
-              alt={userName} 
-              onError={() => setAvatarError(true)}
-              className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover border border-border shadow-xs bg-surface shrink-0" 
-            />
-          ) : (
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-extrabold text-xs sm:text-sm shadow-xs shrink-0">
-              {userName.charAt(0).toUpperCase()}
-            </div>
-          )}
+          <UserAvatar
+            src={avatar}
+            name={userName}
+            userId={userId}
+            size="md"
+            shape="circle"
+          />
 
           <button 
             type="button"

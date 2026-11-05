@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { UserAvatar } from "@/components/UserAvatar";
 import { User as UserIcon, Eye, EyeOff } from "lucide-react";
 import ImageCropperModal from "@/components/ImageCropperModal";
 
@@ -77,6 +78,20 @@ export default function UserForm({
           if (data?.error) errorMsg = data.error;
         } catch {}
         throw new Error(errorMsg);
+      }
+
+      if (typeof window !== "undefined") {
+        const updatedAvatar = formData.avatar
+          ? (formData.avatar.startsWith("data:") ? `/api/users/${initialData?.id || "me"}/avatar?v=${Date.now()}` : formData.avatar)
+          : null;
+        window.dispatchEvent(
+          new CustomEvent("user-avatar-updated", {
+            detail: {
+              userId: isEditing ? initialData?.id : undefined,
+              avatarUrl: updatedAvatar,
+            },
+          })
+        );
       }
 
       if (onSuccess) {
@@ -168,14 +183,15 @@ export default function UserForm({
         
         <div className="flex items-center gap-6 mb-6">
           <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-surface shadow-sm bg-muted flex items-center justify-center flex-shrink-0 relative group cursor-pointer">
-            {formData.avatar ? (
-              <Image src={formData.avatar} alt="Avatar" width={80} height={80} className="w-full h-full object-cover" unoptimized />
-            ) : (
-              <UserIcon className="w-8 h-8 text-muted-foreground" />
-            )}
-            
+            <UserAvatar
+              src={formData.avatar}
+              name={formData.name || "Usuário"}
+              size="xl"
+              shape="circle"
+              className="border-0 shadow-none w-full h-full"
+            />
             {/* Overlay for clicking */}
-            <label className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center text-white text-[10px] font-bold text-center cursor-pointer transition-all">
+            <label className="absolute inset-0 bg-black/60 hidden group-hover:flex items-center justify-center text-white text-[11px] font-bold text-center cursor-pointer transition-all">
               ALTERAR
               <input 
                 type="file" 
