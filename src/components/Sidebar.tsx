@@ -86,7 +86,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
   // Aquecimento inteligente do router cache para transição instantânea (< 50ms) entre os módulos principais
   useEffect(() => {
     const warmUpTimer = setTimeout(() => {
-      ['/dashboard', '/service-desk', '/cmdb', '/connect', '/users'].forEach((route) => {
+      ['/dashboard', '/service-desk', '/cmdb', '/cmdb/stock', '/connect', '/users'].forEach((route) => {
         try {
           router.prefetch(route);
         } catch {}
@@ -98,7 +98,9 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
 
   // Expande automaticamente apenas o menu da rota ativa, mantendo os demais recolhidos
   useEffect(() => {
-    if (pathname?.startsWith("/pc-access")) {
+    if (pathname?.startsWith("/cmdb")) {
+      setExpandedMenus(prev => ({ ...prev, "CMDB / ESTOQUE": true }));
+    } else if (pathname?.startsWith("/pc-access")) {
       setExpandedMenus(prev => ({ ...prev, "Gestão de Acessos": true }));
     } else if (pathname?.startsWith("/settings")) {
       setExpandedMenus(prev => ({ ...prev, "Configurações": true }));
@@ -109,12 +111,22 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
     setExpandedMenus(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
-  const isCurrent = (path: string) => pathname?.startsWith(path);
   const isNavActive = (path: string) => {
-    if (navigatingTo) {
-      return navigatingTo === path || navigatingTo.startsWith(path + "/");
+    const current = navigatingTo || pathname || "";
+    if (path === "/cmdb") {
+      return current === "/cmdb" || (current.startsWith("/cmdb") && !current.startsWith("/cmdb/stock"));
     }
-    return isCurrent(path);
+    if (path === "/cmdb/stock") {
+      return current.startsWith("/cmdb/stock");
+    }
+    if (path.includes("?")) {
+      const [base, query] = path.split("?");
+      if (typeof window !== "undefined") {
+        return window.location.pathname === base && window.location.search.includes(query);
+      }
+      return current === base;
+    }
+    return current === path || current.startsWith(path + "/");
   };
 
   const navItems = [
@@ -125,10 +137,13 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
       icon: LayoutDashboard 
     },
     { 
-      name: "CMDB", 
-      subtitle: "Inventário de TI",
-      href: "/cmdb", 
-      icon: Server 
+      name: "CMDB / ESTOQUE", 
+      subtitle: "Ativos & Peças de TI",
+      icon: Server,
+      subItems: [
+        { name: "Ativos & Equipamentos", href: "/cmdb" },
+        { name: "Peças & Estoque de TI", href: "/cmdb/stock" },
+      ]
     },
     { 
       name: "Service Desk", 

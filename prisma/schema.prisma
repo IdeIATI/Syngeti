@@ -32,6 +32,10 @@ model Company {
   Contract         Contract[]
   Project          Project[]
   KnowledgeArticle KnowledgeArticle[]
+  products           Product[]
+  product_categories ProductCategory[]
+  stock_movements    StockMovement[]
+  product_suppliers  ProductSupplier[]
 
   @@map("companies")
 }
@@ -137,6 +141,7 @@ model User {
   saved_stickers         UserSticker[]
   password_reset_requests PasswordResetRequest[]
   last_seen_at           DateTime?
+  stock_movements        StockMovement[]
 
   @@map("users")
 }
@@ -191,6 +196,7 @@ model Asset {
   projectId  String?
   Booking    Booking[]
   ticket_items TicketItem[]
+  stock_movements StockMovement[]
 
   @@index([status])
   @@index([type])
@@ -492,6 +498,8 @@ model Supplier {
   contracts Contract[]
   assets    Asset[]
   licenses  License[]
+  product_suppliers ProductSupplier[]
+  stock_movements   StockMovement[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
@@ -1121,4 +1129,151 @@ model SentinelaAuditLog {
   @@index([action])
   @@index([created_at])
   @@map("sentinela_audit_logs")
+}
+
+// ---------------------------------------------------------
+// FASE 12: ESTOQUE E CADASTRO DE PRODUTOS / PEÇAS (TI & DTF)
+// ---------------------------------------------------------
+
+model ProductCategory {
+  id               String   @id @default(cuid())
+  name             String
+  description      String?
+  department_group String   @default("TI")
+  company_id       String
+  company          Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  products Product[]
+
+  @@unique([name, company_id])
+  @@index([department_group])
+  @@index([company_id])
+  @@map("product_categories")
+}
+
+model Product {
+  id               String   @id @default(cuid())
+  sku              String   @unique
+  name             String
+  description      String?  @db.Text
+  category_id      String
+  brand            String?
+  model            String?
+  part_number      String?
+  unit             String   @default("UN") // UN, PAR, KIT, M, L, CX, etc.
+  type             String   @default("PART") // PART, EQUIPMENT, SUPPLY, CONSUMABLE
+  compatibility    String?  @db.Text // Equipamentos e máquinas compatíveis
+  location         String?  // Localização física no estoque (ex: Prateleira A1)
+  
+  current_stock    Int      @default(0) // Saldo físico derivado/auditado
+  min_stock        Int      @default(0) // Estoque mínimo (gatilho de reposição)
+  reorder_point    Int      @default(0) // Ponto de reposição
+  avg_cost         Float    @default(0) // Custo médio ponderado
+  last_cost        Float    @default(0) // Último custo de aquisição
+  
+  department_group String   @default("TI") // Padrão "TI", expansível
+  photo_url        String?  @db.Text
+  notes            String?  @db.Text
+  status           String   @default("ACTIVE") // ACTIVE, INACTIVE
+
+  company_id       String
+  company          Company         @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  category         ProductCategory @relation(fields: [category_id], references: [id], onDelete: Restrict)
+
+  movements        StockMovement[]
+  suppliers        ProductSupplier[]
+
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@index([name])
+  @@index([sku])
+  @@index([part_number])
+  @@index([category_id])
+  @@index([status])
+  @@index([department_group])
+  @@index([company_id])
+  @@map("products")
+}
+
+model StockMovement {
+  id            String   @id @default(cuid())
+  code          String   @unique // ex: MOV-2026-00001
+  product_id    String
+  type          String   // IN_PURCHASE, OUT_CONSUMPTION, OUT_MAINTENANCE, ADJUSTMENT, RETURN
+  quantity      Int      // Quantidade movimentada (sempre positiva)
+  balance_after Int      // Saldo resultante após a movimentação
+  unit_cost     Float?   // Custo unitário no momento
+  total_cost    Float?   // Custo total da movimentação
+  movement_date DateTime @default(now())
+
+  supplier_id   String?
+  document_ref  String?  // Número NF, Pedido ou Requisição
+  destination   String?  // Setor, máquina ou chamado destino
+  asset_id      String?  // Equipamento CMDB onde a peça foi instalada
+  ticket_id     String?  // Chamado do Service Desk
+  reason        String?  @db.Text // Justificativa obrigatória para ajustes
+
+  user_id       String
+  company_id    String
+
+  product       Product   @relation(fields: [product_id], references: [id], onDelete: Restrict)
+  supplier      Supplier? @relation(fields: [supplier_id], references: [id], onDelete: SetNull)
+  asset         Asset?    @relation(fields: [asset_id], references: [id], onDelete: SetNull)
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  company       Company   @relation(fields: [company_id], references: [id], onDelete: Cascade)
+
+  created_at    DateTime @default(now())
+
+  @@index([product_id])
+  @@index([movement_date])
+  @@index([type])
+  @@index([company_id])
+  @@index([asset_id])
+  @@map("stock_movements")
+}
+
+model ProductSupplier {
+  id                    String   @id @default(cuid())
+  product_id            String
+  supplier_id           String
+  supplier_product_code String?  // Part number / Código no fornecedor
+  last_price            Float    @default(0)
+  price_updated_at      DateTime @default(now())
+  lead_time_days        Int?     // Prazo médio de entrega em dias
+  min_order_qty         Int      @default(1)
+  is_preferred          Boolean  @default(false)
+  notes                 String?  @db.Text
+
+  company_id            String
+  company               Company  @relation(fields: [company_id], references: [id], onDelete: Cascade)
+  product               Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  supplier              Supplier @relation(fields: [supplier_id], references: [id], onDelete: Restrict)
+
+  price_history         SupplierPriceHistory[]
+
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
+
+  @@unique([product_id, supplier_id])
+  @@index([supplier_id])
+  @@index([product_id])
+  @@map("product_suppliers")
+}
+
+model SupplierPriceHistory {
+  id                  String          @id @default(cuid())
+  product_supplier_id String
+  price               Float
+  document_ref        String?
+  recorded_at         DateTime        @default(now())
+  registered_by_id    String?
+
+  product_supplier    ProductSupplier @relation(fields: [product_supplier_id], references: [id], onDelete: Cascade)
+
+  @@index([product_supplier_id])
+  @@index([recorded_at])
+  @@map("supplier_price_history")
 }

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Server, Monitor, Printer, Network, ChevronLeft, ChevronRight } from "lucide-react";
+import { Server, Monitor, Printer, Network, ChevronLeft, ChevronRight, Boxes } from "lucide-react";
 import RowActions from "../problems/RowActions";
 import CMDBFilters from "./CMDBFilters";
 
@@ -50,12 +50,35 @@ export default async function CMDBPage({
   return (
     <div className="flex flex-col gap-6">
       {/* Header Actions */}
-      <div className="flex justify-between items-center bg-surface p-6 rounded-xl border border-border shadow-sm">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-surface p-6 rounded-xl border border-border shadow-sm">
         <div>
+          <div className="flex items-center gap-2 mb-2">
+            <Link
+              href="/cmdb"
+              className="px-3 py-1 rounded-lg text-xs font-bold bg-primary/10 text-primary border border-primary/20 flex items-center gap-1.5"
+            >
+              <Server className="w-3.5 h-3.5" />
+              Ativos & Equipamentos
+            </Link>
+            <Link
+              href="/cmdb/stock"
+              className="px-3 py-1 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-surface-hover border border-border transition-all flex items-center gap-1.5"
+            >
+              <Boxes className="w-3.5 h-3.5" />
+              Peças & Estoque de TI
+            </Link>
+          </div>
           <h2 className="text-2xl font-bold text-foreground">Inventário Corporativo (CMDB)</h2>
           <p className="text-sm text-muted-foreground mt-1">Gerencie todos os hardwares, dispositivos e ativos da organização.</p>
         </div>
         <div className="flex items-center gap-3">
+          <Link 
+            href="/cmdb/stock"
+            className="border border-border bg-surface-hover text-foreground px-4 py-2.5 rounded-lg text-sm font-semibold hover:border-primary/40 transition-colors shadow-sm flex items-center gap-2"
+          >
+            <Boxes className="w-4 h-4 text-primary" />
+            Estoque de Peças
+          </Link>
           <Link 
             href="/cmdb/new" 
             className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-primary-hover transition-colors shadow-sm"
