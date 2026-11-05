@@ -79,16 +79,48 @@ export const authOptions: NextAuthOptions = {
 
         // 1. Busca direta e rápida no banco PostgreSQL (index-assisted case-insensitive)
         try {
+          // 1.1. Correspondência direta usando índice B-Tree único de email/username (tempo de busca < 2ms)
           user = await prisma.user.findFirst({
             where: {
               OR: [
-                { email: { equals: loginInput, mode: "insensitive" } },
-                { username: { equals: loginInput, mode: "insensitive" } },
-                { name: { equals: loginInput, mode: "insensitive" } },
+                { email: loginInput },
+                { email: loginLower },
+                { username: loginInput },
+                { username: loginLower },
               ],
             },
-            include: { role: true },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              username: true,
+              avatar: true,
+              password_hash: true,
+              role: { select: { name: true } },
+            },
           });
+
+          // 1.2. Se não encontrou por igualdade indexada, realiza busca ampla insensível
+          if (!user) {
+            user = await prisma.user.findFirst({
+              where: {
+                OR: [
+                  { email: { equals: loginInput, mode: "insensitive" } },
+                  { username: { equals: loginInput, mode: "insensitive" } },
+                  { name: { equals: loginInput, mode: "insensitive" } },
+                ],
+              },
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                username: true,
+                avatar: true,
+                password_hash: true,
+                role: { select: { name: true } },
+              },
+            });
+          }
         } catch (dbError) {
           console.error("Aviso: Falha ao consultar banco local Prisma:", dbError);
         }

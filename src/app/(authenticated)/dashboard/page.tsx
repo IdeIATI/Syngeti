@@ -39,42 +39,79 @@ export default async function DashboardPage() {
   let equipamentosRecentes: any[] = [];
 
   try {
-    const results = await Promise.all([
-      prisma.ticket.count({ where: { status: { in: ["NEW", "OPEN"] } } }),
-      prisma.ticket.count({ where: { status: "IN_PROGRESS" } }),
-      prisma.ticket.count({ where: { status: { in: ["RESOLVED", "CLOSED"] } } }),
+    const [
+      ticketStatusGroups,
+      todayResolvedCount,
+      activeAssetsCount,
+      categoryGroups,
+      categoriesList,
+      recentTickets,
+      recentAssets,
+    ] = await Promise.all([
+      // 1. Agrupamento consolidado por status: substitui 3 contagens individuais em 1 única query indexada
+      prisma.ticket.groupBy({
+        by: ["status"],
+        _count: { id: true },
+      }),
+      // 2. Chamados resolvidos hoje
       prisma.ticket.count({
         where: {
           status: { in: ["RESOLVED", "CLOSED"] },
           resolved_at: { gte: startOfToday },
         },
       }),
+      // 3. Equipamentos ativos
       prisma.asset.count({ where: { status: "IN_USE" } }),
+      // 4. Chamados por categoria
       prisma.ticket.groupBy({
         by: ["category_id"],
         _count: { id: true },
       }),
-      prisma.ticketCategory.findMany(),
+      // 5. Categorias (apenas colunas necessárias)
+      prisma.ticketCategory.findMany({
+        select: { id: true, name: true },
+        orderBy: { name: "asc" },
+      }),
+      // 6. Últimos 5 chamados (projeção enxuta para diminuir latência de rede)
       prisma.ticket.findMany({
         take: 5,
         orderBy: { created_at: "desc" },
+        select: {
+          id: true,
+          code: true,
+          title: true,
+          status: true,
+          created_at: true,
+        },
       }),
+      // 7. Equipamentos recentes (apenas campos exibidos nos cards)
       prisma.asset.findMany({
         take: 4,
         orderBy: { created_at: "desc" },
-        include: { department: true },
+        select: {
+          id: true,
+          name: true,
+          asset_tag: true,
+          status: true,
+          department: { select: { name: true } },
+        },
       }),
     ]);
 
-    chamadosAbertos = results[0];
-    emAtendimento = results[1];
-    chamadosResolvidos = results[2];
-    resolvidosHoje = results[3];
-    equipamentosAtivos = results[4];
-    ticketsByCategory = results[5];
-    categories = results[6];
-    ultimosChamados = results[7];
-    equipamentosRecentes = results[8];
+    const statusMap: Record<string, number> = {};
+    ticketStatusGroups.forEach((g) => {
+      statusMap[g.status] = g._count.id;
+    });
+
+    chamadosAbertos = (statusMap["NEW"] || 0) + (statusMap["OPEN"] || 0);
+    emAtendimento = statusMap["IN_PROGRESS"] || 0;
+    chamadosResolvidos = (statusMap["RESOLVED"] || 0) + (statusMap["CLOSED"] || 0);
+    resolvidosHoje = todayResolvedCount;
+    equipamentosAtivos = activeAssetsCount;
+    ticketsByCategory = categoryGroups;
+    categories = categoriesList;
+    ultimosChamados = recentTickets;
+    equipamentosRecentes = recentAssets;
   } catch (error) {
     console.error("Aviso: Falha ao carregar métricas do dashboard via Prisma:", error);
   }

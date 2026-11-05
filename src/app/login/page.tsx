@@ -289,7 +289,15 @@ export default function LoginPage() {
                   type="text"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => {
+                    try { router.prefetch("/dashboard"); } catch {}
+                  }}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (e.target.value.length > 2) {
+                      try { router.prefetch("/dashboard"); } catch {}
+                    }
+                  }}
                   className="w-full bg-[#050D1B] border border-border text-foreground text-sm rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground"
                   placeholder="admin"
                 />
@@ -307,6 +315,9 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   required
                   value={password}
+                  onFocus={() => {
+                    try { router.prefetch("/dashboard"); } catch {}
+                  }}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-[#050D1B] border border-border text-foreground text-sm rounded-xl py-3.5 pl-11 pr-12 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground"
                   placeholder="••••••••"
