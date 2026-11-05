@@ -8,6 +8,7 @@ import { SessionGuard } from "@/components/SessionGuard";
 import { ContextualHelpProvider } from "@/components/help/ContextualHelpContext";
 import { ContextualHelpDrawer } from "@/components/help/ContextualHelpDrawer";
 import { SentinelaClientTelemetry } from "@/components/sentinela/SentinelaClientTelemetry";
+import { AuthUserProvider, AuthUser } from "@/contexts/AuthUserContext";
 import { supabase } from "@/lib/supabaseClient";
 import { soundManager } from "@/lib/sound";
 import { MessageSquare, X } from "lucide-react";
@@ -35,18 +36,28 @@ const MobileMenuContext = createContext<MobileMenuContextType>({
 export const useMobileMenu = () => useContext(MobileMenuContext);
 
 export function AuthenticatedShell({
+  initialUser,
   userId,
   userName,
   userAvatar,
   initialBranding,
   children,
 }: {
+  initialUser?: AuthUser;
   userId?: string;
-  userName: string;
-  userAvatar: string | null;
+  userName?: string;
+  userAvatar?: string | null;
   initialBranding: any;
   children: React.ReactNode;
 }) {
+  const effectiveUser: AuthUser = initialUser || {
+    id: userId || "admin-master",
+    name: userName || "Administrador",
+    email: "",
+    avatar: userAvatar,
+    role: "ADMINISTRADOR",
+  };
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
   const [chatUnreadCount, setChatUnreadCount] = useState(0);
@@ -211,12 +222,13 @@ export function AuthenticatedShell({
   };
 
   return (
-    <ContextualHelpProvider>
-      <MobileMenuContext.Provider value={{ isMobileOpen, setIsMobileOpen, toggleMobileMenu, closeMobileMenu, navigatingTo, startNavigation, chatUnreadCount }}>
-        <div className="flex h-screen overflow-hidden bg-background">
-          <SessionGuard />
-          <SentinelaClientTelemetry />
-          <ContextualHelpDrawer />
+    <AuthUserProvider initialUser={effectiveUser}>
+      <ContextualHelpProvider>
+        <MobileMenuContext.Provider value={{ isMobileOpen, setIsMobileOpen, toggleMobileMenu, closeMobileMenu, navigatingTo, startNavigation, chatUnreadCount }}>
+          <div className="flex h-screen overflow-hidden bg-background">
+            <SessionGuard />
+            <SentinelaClientTelemetry />
+            <ContextualHelpDrawer />
 
         {/* Toast Global de Nova Mensagem (quando o usuário está em outros módulos como Service Desk, CMDB, etc.) */}
         {chatToast && (
@@ -273,7 +285,7 @@ export function AuthenticatedShell({
         )}
 
         <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <Topbar userId={userId} userName={userName} avatar={userAvatar} />
+          <Topbar />
           {pathname?.startsWith("/connect") ? (
             <main className="flex-1 overflow-hidden p-0 sm:p-3 md:p-6 flex flex-col min-h-0">
               <div className="max-w-7xl mx-auto w-full h-full flex flex-col flex-1 min-h-0">
@@ -291,5 +303,6 @@ export function AuthenticatedShell({
       </div>
     </MobileMenuContext.Provider>
   </ContextualHelpProvider>
+</AuthUserProvider>
 );
 }

@@ -4,6 +4,7 @@ export interface ResolvedUser {
   id: string;
   name: string;
   email: string;
+  avatar?: string | null;
   company_id: string;
   role_id?: string;
   role?: string;
@@ -130,6 +131,11 @@ export async function resolveCurrentUser(session: any): Promise<ResolvedUser | n
     id: user.id,
     name: user.name,
     email: user.email,
+    avatar: (user as any).avatar
+      ? ((user as any).avatar.startsWith("http") && (user as any).avatar.length < 300)
+        ? (user as any).avatar
+        : `/api/users/${user.id}/avatar`
+      : null,
     company_id: user.company_id,
     role_id: user.role_id,
     role: user.role?.name || "ADMINISTRADOR",

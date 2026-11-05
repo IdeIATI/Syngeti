@@ -6,6 +6,7 @@ import { signOut } from "next-auth/react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
 import { HelpButton } from "./help/HelpButton";
 import { UserAvatar } from "./UserAvatar";
+import { useAuthUser } from "@/contexts/AuthUserContext";
 import { Menu } from "lucide-react";
 
 const MODULE_DATA: Record<string, { title: string, subtitle: string }> = {
@@ -28,14 +29,20 @@ const MODULE_DATA: Record<string, { title: string, subtitle: string }> = {
 import { useMobileMenu } from "./AuthenticatedShell";
 
 export function Topbar({
-  userId,
-  userName,
-  avatar,
+  userId: propUserId,
+  userName: propUserName,
+  avatar: propAvatar,
 }: {
   userId?: string;
-  userName: string;
+  userName?: string;
   avatar?: string | null;
-}) {
+} = {}) {
+  const { user } = useAuthUser();
+  const activeUserId = propUserId || user?.id;
+  const activeUserName = propUserName || user?.name || "Administrador";
+  const activeAvatar = propAvatar !== undefined ? propAvatar : user?.avatar;
+  const activeRole = user?.role || "Admin";
+
   const pathname = usePathname();
   const { toggleMobileMenu } = useMobileMenu();
   const heartbeatStarted = useRef(false);
@@ -106,14 +113,14 @@ export function Topbar({
         
         <div className="flex items-center space-x-2 sm:space-x-3 border-l border-border pl-2 sm:pl-4">
           <div className="text-sm text-right hidden lg:block">
-            <p className="font-bold text-foreground leading-tight truncate max-w-[120px]">{userName}</p>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase">Admin</p>
+            <p className="font-bold text-foreground leading-tight truncate max-w-[120px]">{activeUserName}</p>
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase">{activeRole}</p>
           </div>
           
           <UserAvatar
-            src={avatar}
-            name={userName}
-            userId={userId}
+            src={activeAvatar}
+            name={activeUserName}
+            userId={activeUserId}
             size="md"
             shape="circle"
           />

@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { getBranding } from "@/lib/branding";
+import { resolveCurrentUser } from "@/lib/currentUser";
 
 // Memoiza a busca de avatar por ciclo de render (evita queries duplicadas na mesma request)
 const getUserAvatar = cache(async (userId: string, userEmail?: string | null): Promise<string | null> => {
@@ -47,15 +48,24 @@ export default async function AuthenticatedLayout({
     redirect("/login");
   }
 
-  // Usa avatar da sessão ou resolve via endpoint canônico
-  const userAvatar = session.user?.image || (session.user?.id ? await getUserAvatar(session.user.id, session.user.email) : null);
+  // Resolve o usuário autenticado completo (com avatar canônico)
+  const currentUser = await resolveCurrentUser(session);
+  const userAvatar = currentUser?.avatar || session.user?.image || (session.user?.id ? await getUserAvatar(session.user.id, session.user.email) : null);
+
+  const initialUser = {
+    id: currentUser?.id || session.user.id || "admin-master",
+    name: currentUser?.name || session.user.name || "Administrador",
+    email: currentUser?.email || session.user.email || "administrador",
+    role: currentUser?.role || "ADMINISTRADOR",
+    avatar: userAvatar,
+    company_id: currentUser?.company_id,
+  };
+
   const branding = getBranding();
 
   return (
     <AuthenticatedShell
-      userId={session.user.id}
-      userName={session.user.name || "Admin"}
-      userAvatar={userAvatar}
+      initialUser={initialUser}
       initialBranding={branding}
     >
       {children}
