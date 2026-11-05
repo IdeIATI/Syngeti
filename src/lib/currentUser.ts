@@ -65,15 +65,16 @@ export async function resolveCurrentUser(session: any): Promise<ResolvedUser | n
     } catch {}
   }
 
-  // 3. Se for perfil de Administrador Mestre ("admin-master" ou email "administrador")
-  if (!user && (rawId === "admin-master" || rawEmail === "administrador" || rawEmail === "admin")) {
+  // 3. Se for perfil de Administrador Mestre ("admin-master" ou login "administrador" / "admin")
+  if (!user && (rawId === "admin-master" || rawEmail === "administrador" || rawEmail === "admin" || session.user.name?.toLowerCase().includes("administrador"))) {
     try {
       user = await prisma.user.findFirst({
         where: {
           OR: [
-            { role: { name: "ADMINISTRADOR" } },
-            { email: "administrador" },
-            { email: "admin" },
+            { username: "administrador" },
+            { email: "tidlambsport@gmail.com" },
+            { name: "Administrador do Sistema" },
+            { username: "admin" },
           ],
         },
         include: { role: true },

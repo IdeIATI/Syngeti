@@ -69,7 +69,9 @@ export function UserAvatar({
   const customStyle = typeof size === "number" ? { width: `${size}px`, height: `${size}px` } : undefined;
   const roundedClass = shape === "circle" ? "rounded-full" : "rounded-xl";
 
-  const hasValidImage = !!currentSrc && !imgError;
+  // Se currentSrc não está definido mas temos userId, tenta a rota canônica
+  const effectiveSrc = currentSrc || (userId ? `/api/users/${userId}/avatar` : null);
+  const hasValidImage = !!effectiveSrc && !imgError;
 
   return (
     <div
@@ -85,7 +87,7 @@ export function UserAvatar({
     >
       {hasValidImage ? (
         <img
-          src={currentSrc!}
+          src={effectiveSrc!}
           alt={name ? `Foto de perfil de ${name}` : "Foto de perfil"}
           onError={() => setImgError(true)}
           className="w-full h-full object-cover object-center aspect-square"
