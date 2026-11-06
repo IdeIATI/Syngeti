@@ -33,17 +33,6 @@ export default function LoginPage() {
       sessionStorage.removeItem("syngeti_login_time");
       sessionStorage.removeItem("syngeti_login_entry_consumed");
 
-      // Limpeza defensiva de cookies fragmentados acessíveis pelo cliente
-      try {
-        const cookies = document.cookie.split(";");
-        for (const c of cookies) {
-          const cookieName = c.split("=")[0].trim();
-          if (cookieName.includes("session-token") || cookieName.includes("next-auth")) {
-            document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-          }
-        }
-      } catch {}
-
       // Carrega usuário salvo se a opção Lembrar-me estiver ativa
       const savedUser = localStorage.getItem("syngeti_saved_user");
       const isRemembered = localStorage.getItem("syngeti_remember_me") === "true";
@@ -96,16 +85,25 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-    if (result?.error) {
-      setError("E-mail ou senha incorretos.");
-      setLoading(false);
-    } else {
+      if (!result) {
+        setError("Não foi possível conectar ao servidor de autenticação.");
+        setLoading(false);
+        return;
+      }
+
+      if (result.error) {
+        setError("E-mail ou senha incorretos.");
+        setLoading(false);
+        return;
+      }
+
       // Salva ou remove o usuário no localStorage conforme opção Lembrar-me
       if (typeof window !== "undefined") {
         if (rememberMe && email.trim()) {
@@ -116,7 +114,7 @@ export default function LoginPage() {
           localStorage.removeItem("syngeti_remember_me");
         }
 
-        // Ativa flag de sessão para a aba do navegador e libera a primeira transição SPA pós-login
+        // Ativa flag de sessão para a aba do navegador e libera a primeira transição pós-login
         sessionStorage.setItem("syngeti_session_active", "true");
         sessionStorage.setItem("syngeti_login_time", Date.now().toString());
         sessionStorage.removeItem("syngeti_login_entry_consumed");
@@ -124,8 +122,11 @@ export default function LoginPage() {
 
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
       const callback = params?.get("callbackUrl") || "/dashboard";
-      // Usa router.replace para transição SPA limpa da tela de login para o painel
-      router.replace(callback);
+      // Navegação direta para carregar a sessão autenticada com cookies validados
+      window.location.href = callback;
+    } catch (err: any) {
+      setError(err?.message || "Erro inesperado ao realizar login.");
+      setLoading(false);
     }
   };
 
@@ -283,7 +284,7 @@ export default function LoginPage() {
               <label className="text-xs font-semibold text-foreground ml-1">E-mail ou Usuário</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Mail className="h-4 w-4 text-foreground0" />
+                  <Mail className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <input
                   type="text"
@@ -309,7 +310,7 @@ export default function LoginPage() {
               <label className="text-xs font-semibold text-foreground ml-1">Senha</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="h-4 w-4 text-foreground0" />
+                  <Lock className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -325,7 +326,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-foreground0 hover:text-foreground transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>

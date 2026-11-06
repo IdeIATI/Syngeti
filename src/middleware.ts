@@ -8,15 +8,9 @@ const PRIMARY_SECRET =
   "syngeti-runtime-token-key";
 
 export async function middleware(req: NextRequest) {
-  // Se o usuário está acessando a página de login, limpa quaisquer fragmentos de cookies de sessão
+  // Permite acesso direto à página de login sem interceptação
   if (req.nextUrl.pathname === "/login") {
-    const response = NextResponse.next();
-    for (const cookie of req.cookies.getAll()) {
-      if (cookie.name.includes("session-token")) {
-        response.cookies.delete(cookie.name);
-      }
-    }
-    return response;
+    return NextResponse.next();
   }
 
   let token = null;

@@ -4,15 +4,16 @@ import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
 const isVercel = !!process.env.VERCEL;
-const isNetlify = !!process.env.NETLIFY || !!process.env.URL;
-const isProd = process.env.NODE_ENV === "production" || isVercel || isNetlify;
+const isNetlify = !!process.env.NETLIFY || (!!process.env.URL && !process.env.URL.includes("localhost"));
+const nextAuthUrl = process.env.NEXTAUTH_URL || "";
+const isHttps = nextAuthUrl.startsWith("https://") || isVercel || (isNetlify && !nextAuthUrl.includes("localhost"));
 
 // Resolução dinâmica de NEXTAUTH_URL para Netlify ou Vercel caso não esteja explícita no ambiente ou aponte para localhost
-if (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL.includes("localhost")) {
+if (!process.env.NEXTAUTH_URL || (process.env.NEXTAUTH_URL.includes("localhost") && (isNetlify || isVercel))) {
   if (isNetlify || process.env.URL) {
     const netlifyUrl = process.env.URL || process.env.DEPLOY_PRIME_URL || "https://syngeti.netlify.app";
     process.env.NEXTAUTH_URL = netlifyUrl.startsWith("http") ? netlifyUrl : `https://${netlifyUrl}`;
-  } else if (isVercel || (isProd && process.env.VERCEL_URL)) {
+  } else if (isVercel || process.env.VERCEL_URL) {
     const vercelDomain = process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || "syngeti.vercel.app";
     process.env.NEXTAUTH_URL = `https://${vercelDomain}`;
   }
@@ -257,34 +258,34 @@ export const authOptions: NextAuthOptions = {
   },
   cookies: {
     sessionToken: {
-      name: isProd ? "__Secure-next-auth.session-token" : "next-auth.session-token",
+      name: isHttps ? "__Secure-next-auth.session-token" : "next-auth.session-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: isProd,
+        secure: isHttps,
       },
     },
     callbackUrl: {
-      name: isProd ? "__Secure-next-auth.callback-url" : "next-auth.callback-url",
+      name: isHttps ? "__Secure-next-auth.callback-url" : "next-auth.callback-url",
       options: {
         sameSite: "lax",
         path: "/",
-        secure: isProd,
+        secure: isHttps,
       },
     },
     csrfToken: {
-      name: isProd ? "__Host-next-auth.csrf-token" : "next-auth.csrf-token",
+      name: isHttps ? "__Host-next-auth.csrf-token" : "next-auth.csrf-token",
       options: {
         httpOnly: true,
         sameSite: "lax",
         path: "/",
-        secure: isProd,
+        secure: isHttps,
       },
     },
   },
   secret: AUTH_SECRET,
-  useSecureCookies: isProd,
+  useSecureCookies: isHttps,
   pages: {
     signIn: "/login",
     error: "/login",
