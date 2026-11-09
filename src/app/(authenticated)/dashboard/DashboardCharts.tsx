@@ -1,56 +1,8 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-
-// Paleta ampla de 20 cores modernas, vibrantes e com alto contraste
-const PALETTE = [
-  '#06B6D4', // Ciano Vibrante (Rede e Conectividade)
-  '#F97316', // Laranja Intenso (Hardware)
-  '#8B5CF6', // Roxo / Violeta (Software)
-  '#EAB308', // Âmbar Dourado (Realocação)
-  '#0D9488', // Teal / Verde-azulado (Acessos e Permissões)
-  '#EC4899', // Rosa Pink (Impressora)
-  '#64748B', // Slate / Cinza Neutro (Outros)
-  '#2563EB', // Azul Royal (Acesso a Software)
-  '#10B981', // Verde Esmeralda
-  '#F43F5E', // Carmim / Rose
-  '#3B82F6', // Azul Claro
-  '#A855F7', // Púrpura
-  '#84CC16', // Lima
-  '#0EA5E9', // Sky Blue
-  '#D946EF', // Fuchsia
-  '#6366F1', // Indigo
-  '#FB923C', // Tangerina
-  '#2DD4BF', // Menta
-  '#FBBF24', // Mostarda
-  '#94A3B8', // Slate Light
-];
-
-// Mapeamento semântico exclusivo por categoria (todas com cores 100% distintas)
-const CATEGORY_COLOR_MAP: Record<string, string> = {
-  "rede e conectividade": "#06B6D4", // 🌐 Ciano Vibrante
-  "hardware": "#F97316",             // 🟠 Laranja Intenso
-  "software": "#8B5CF6",             // 🟣 Roxo / Violeta
-  "realocação": "#EAB308",           // 🟡 Âmbar Dourado
-  "realocacao": "#EAB308",           // 🟡 Âmbar Dourado (sem acento)
-  "acessos e permissões": "#0D9488", // 🟢 Teal / Verde-azulado
-  "acessos e permissoes": "#0D9488", // 🟢 Teal (sem acento)
-  "impressora": "#EC4899",           // 🌸 Rosa Pink (diferente de Rede!)
-  "outros": "#64748B",               // ⚪ Cinza Grafite / Slate (diferente de Hardware!)
-  "acesso a software": "#2563EB",    // 🔵 Azul Royal (diferente de Software!)
-  "telefonia": "#10B981",            // 🌿 Verde Esmeralda
-  "infraestrutura": "#6366F1",       // 🔷 Indigo
-  "segurança": "#EF4444",            // 🔴 Vermelho
-  "backup": "#0EA5E9",               // 💠 Sky Blue
-};
-
-export function getCategoryColor(name: string, index: number): string {
-  const normalized = (name || "").trim().toLowerCase();
-  if (CATEGORY_COLOR_MAP[normalized]) {
-    return CATEGORY_COLOR_MAP[normalized];
-  }
-  return PALETTE[index % PALETTE.length];
-}
+import { PALETTE, getCategoryColor } from './categoryColors';
 
 interface ChartItem {
   name: string;
@@ -63,6 +15,12 @@ export default function DashboardCharts({
 }: { 
   chartData: ChartItem[] 
 }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const total = chartData ? chartData.reduce((sum, item) => sum + (item.quantidade || 0), 0) : 0;
 
   // Algoritmo de Blindagem Anti-Colisão:
@@ -92,6 +50,20 @@ export default function DashboardCharts({
     };
   });
 
+  if (!mounted) {
+    return (
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-6 w-full py-4 animate-pulse">
+        <div className="w-[180px] h-[180px] rounded-full border-4 border-muted/30 bg-surface/50 shrink-0" />
+        <div className="flex-1 space-y-2.5 w-full">
+          <div className="h-4 bg-muted/30 rounded w-full" />
+          <div className="h-4 bg-muted/30 rounded w-3/4" />
+          <div className="h-4 bg-muted/30 rounded w-2/3" />
+          <div className="h-4 bg-muted/30 rounded w-1/2" />
+        </div>
+      </div>
+    );
+  }
+
   if (!chartData || chartData.length === 0 || total === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-6 text-center text-muted-foreground w-full flex-1">
@@ -119,6 +91,7 @@ export default function DashboardCharts({
               paddingAngle={2.5}
               dataKey="quantidade"
               stroke="none"
+              isAnimationActive={false}
             >
               {enrichedData.map((entry, index) => (
                 <Cell 
@@ -128,27 +101,15 @@ export default function DashboardCharts({
               ))}
             </Pie>
             <Tooltip 
-              content={({ active, payload }) => {
-                if (active && payload && payload.length) {
-                  const data = payload[0].payload as ChartItem & { color: string; percent: number };
-                  return (
-                    <div className="bg-[#0B1528] border border-border/80 px-3 py-2 rounded-lg shadow-xl text-xs backdrop-blur-md">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span 
-                          className="w-2.5 h-2.5 rounded-full inline-block shrink-0" 
-                          style={{ backgroundColor: data.color }} 
-                        />
-                        <span className="font-semibold text-white">{data.name}</span>
-                      </div>
-                      <div className="flex items-center justify-between gap-4 text-muted-foreground text-[11px]">
-                        <span>Chamados: <strong className="text-white font-bold">{data.quantidade}</strong></span>
-                        <span className="font-mono text-cyan-400 font-semibold">{data.percent}%</span>
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
+              contentStyle={{
+                backgroundColor: '#0B1528',
+                borderColor: 'rgba(255,255,255,0.1)',
+                borderRadius: '8px',
+                color: '#fff',
+                fontSize: '12px',
               }}
+              itemStyle={{ color: '#fff' }}
+              formatter={(value: any, name: any) => [`${value} chamados`, name]}
             />
           </PieChart>
         </ResponsiveContainer>

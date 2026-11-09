@@ -14,7 +14,8 @@ import {
   Building2, 
   ArrowUpRight 
 } from "lucide-react";
-import DashboardCharts, { getCategoryColor } from "./DashboardCharts";
+import DashboardCharts from "./DashboardCharts";
+import { getCategoryColor } from "./categoryColors";
 import Link from "next/link";
 import { DashboardClock } from "@/components/DashboardClock";
 import {
@@ -30,7 +31,7 @@ export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const userName = session.user.name ? session.user.name.split(' ')[0] : 'Usuário';
+  const userName = session.user?.name ? session.user.name.split(' ')[0] : 'Usuário';
   const now = new Date();
   const formattedDate = formatLongDateBR(now);
   const formattedTime = formatTimeBR(now);
@@ -144,33 +145,39 @@ export default async function DashboardPage() {
     ]);
 
     const statusMap: Record<string, number> = {};
-    ticketStatusGroups.forEach((g) => {
-      statusMap[g.status] = g._count.id;
-    });
+    if (Array.isArray(ticketStatusGroups)) {
+      ticketStatusGroups.forEach((g) => {
+        if (g?.status) {
+          statusMap[g.status] = g._count?.id || 0;
+        }
+      });
+    }
 
     chamadosAbertos = (statusMap["NEW"] || 0) + (statusMap["OPEN"] || 0);
     emAtendimento = statusMap["IN_PROGRESS"] || 0;
     chamadosResolvidos = (statusMap["RESOLVED"] || 0) + (statusMap["CLOSED"] || 0);
-    resolvidosHoje = todayResolvedCount;
-    equipamentosAtivos = activeAssetsCount;
-    ticketsByCategory = categoryGroups;
-    categories = categoriesList;
-    ultimosChamados = recentTickets;
-    criticalStockItems = lowStockList;
+    resolvidosHoje = typeof todayResolvedCount === 'number' ? todayResolvedCount : 0;
+    equipamentosAtivos = typeof activeAssetsCount === 'number' ? activeAssetsCount : 0;
+    ticketsByCategory = Array.isArray(categoryGroups) ? categoryGroups : [];
+    categories = Array.isArray(categoriesList) ? categoriesList : [];
+    ultimosChamados = Array.isArray(recentTickets) ? recentTickets : [];
+    criticalStockItems = Array.isArray(lowStockList) ? lowStockList : [];
 
     // Matriz de Prioridade
-    priorityGroups.forEach((pg) => {
-      if (pg.priority) {
-        priorityStats[pg.priority] = pg._count.id;
-      }
-    });
+    if (Array.isArray(priorityGroups)) {
+      priorityGroups.forEach((pg) => {
+        if (pg?.priority) {
+          priorityStats[pg.priority] = pg._count?.id || 0;
+        }
+      });
+    }
 
     totalTicketsCount = Object.values(priorityStats).reduce((a, b) => a + b, 0);
 
     // Cálculo do MTTR
-    if (resolvedTicketsWithDates.length > 0) {
+    if (Array.isArray(resolvedTicketsWithDates) && resolvedTicketsWithDates.length > 0) {
       const totalMinutes = resolvedTicketsWithDates.reduce((acc, t) => {
-        if (!t.resolved_at) return acc;
+        if (!t?.resolved_at || !t?.created_at) return acc;
         const diff = (new Date(t.resolved_at).getTime() - new Date(t.created_at).getTime()) / (1000 * 60);
         return acc + (diff > 0 ? diff : 0);
       }, 0);
@@ -185,28 +192,30 @@ export default async function DashboardPage() {
     }
 
     // Processar departamentos
-    departmentData = deptGroups
-      .map((g) => {
-        const dept = deptsList.find((d) => d.id === g.group_id);
-        return {
-          name: dept ? dept.name : "Geral / Não Atribuído",
-          quantidade: g._count.id,
-        };
-      })
-      .sort((a, b) => b.quantidade - a.quantidade)
-      .slice(0, 5);
+    if (Array.isArray(deptGroups)) {
+      departmentData = deptGroups
+        .map((g) => {
+          const dept = categoriesList ? deptsList.find((d) => d.id === g.group_id) : null;
+          return {
+            name: dept ? dept.name : "Geral / Não Atribuído",
+            quantidade: g._count?.id || 0,
+          };
+        })
+        .sort((a, b) => b.quantidade - a.quantidade)
+        .slice(0, 5);
+    }
 
   } catch (error) {
     console.error("Aviso: Falha ao carregar métricas do dashboard via Prisma:", error);
   }
 
   // Mapeamento de dados do gráfico de categorias com garantia de cores exclusivas
-  const chartData = ticketsByCategory.map((t, index) => {
+  const chartData = (ticketsByCategory || []).map((t, index) => {
     const cat = categories.find((c) => c.id === t.category_id);
     const catName = cat ? cat.name : "Outros";
     return {
       name: catName,
-      quantidade: t._count.id,
+      quantidade: t._count?.id || 0,
       color: getCategoryColor(catName, index),
     };
   }).sort((a, b) => b.quantidade - a.quantidade);
