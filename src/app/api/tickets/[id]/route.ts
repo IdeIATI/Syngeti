@@ -15,8 +15,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
     const ticket = await prisma.ticket.findUnique({
       where: { id: resolvedParams.id },
       include: {
-        requester: { select: { id: true, name: true, email: true, avatar: true } },
-        assigned_to: { select: { id: true, name: true, email: true, avatar: true } },
+        requester: { select: { id: true, name: true, email: true } },
+        assigned_to: { select: { id: true, name: true, email: true } },
         category: true,
         asset: {
           include: {
@@ -34,7 +34,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         },
         comments: {
           include: {
-            author: { select: { id: true, name: true, email: true, avatar: true } },
+            author: { select: { id: true, name: true, email: true } },
           },
           orderBy: {
             created_at: "asc"
@@ -160,8 +160,8 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
       where: { id: resolvedParams.id },
       data: updateData,
       include: {
-        requester: { select: { id: true, name: true, email: true, avatar: true } },
-        assigned_to: { select: { id: true, name: true, email: true, avatar: true } },
+        requester: { select: { id: true, name: true, email: true } },
+        assigned_to: { select: { id: true, name: true, email: true } },
         category: true,
         asset: true,
         department: true,
@@ -175,7 +175,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         },
         comments: {
           include: {
-            author: { select: { id: true, name: true, email: true, avatar: true } }
+            author: { select: { id: true, name: true, email: true } }
           },
           orderBy: { created_at: "asc" }
         }

@@ -93,10 +93,10 @@ export async function GET(req: Request) {
         where,
         include: {
           requester: {
-            select: { id: true, name: true, email: true, avatar: true }
+            select: { id: true, name: true, email: true }
           },
           assigned_to: {
-            select: { id: true, name: true, email: true, avatar: true }
+            select: { id: true, name: true, email: true }
           },
           category: true,
           asset: {

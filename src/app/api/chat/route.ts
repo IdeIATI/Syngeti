@@ -58,7 +58,7 @@ export async function GET(request: Request) {
       where: whereClause,
       include: {
         sender: {
-          select: { id: true, name: true, avatar: true },
+          select: { id: true, name: true },
         },
         reactions: {
           include: {
@@ -122,8 +122,11 @@ export async function GET(request: Request) {
 
     const [rawMessages] = await Promise.all([messagesQuery, markUnreadPromise]);
 
-    // Inverte a lista para que a interface receba cronologicamente (ASC)
-    const messages = rawMessages.reverse();
+    // Inverte a lista para que a interface receba cronologicamente (ASC) e sanitiza avatar para endpoint canônico
+    const messages = rawMessages.reverse().map((m) => ({
+      ...m,
+      sender: m.sender ? { ...m.sender, avatar: `/api/users/${m.sender.id}/avatar` } : null,
+    }));
 
     return NextResponse.json(messages);
   } catch (error: any) {
@@ -270,7 +273,7 @@ export async function POST(request: Request) {
       const existing = await prisma.chatMessage.findFirst({
         where: { client_id: clientId },
         include: {
-          sender: { select: { id: true, name: true, avatar: true } },
+          sender: { select: { id: true, name: true } },
           reactions: { include: { user: { select: { id: true, name: true } } } },
           receipts: { select: { user_id: true, status: true, updated_at: true } },
         },
@@ -315,7 +318,7 @@ export async function POST(request: Request) {
         const existing = await prisma.chatMessage.findFirst({
           where: { client_id: clientId },
           include: {
-            sender: { select: { id: true, name: true, avatar: true } },
+            sender: { select: { id: true, name: true } },
             reactions: { include: { user: { select: { id: true, name: true } } } },
             receipts: { select: { user_id: true, status: true, updated_at: true } },
           },
@@ -431,7 +434,7 @@ export async function PATCH(request: Request) {
           is_edited: true,
         },
         include: {
-          sender: { select: { id: true, name: true, avatar: true } },
+          sender: { select: { id: true, name: true } },
           reactions: { include: { user: { select: { id: true, name: true } } } },
         },
       });
@@ -444,7 +447,7 @@ export async function PATCH(request: Request) {
         where: { id: messageId },
         data: { is_pinned: Boolean(isPinned) },
         include: {
-          sender: { select: { id: true, name: true, avatar: true } },
+          sender: { select: { id: true, name: true } },
           reactions: { include: { user: { select: { id: true, name: true } } } },
         },
       });

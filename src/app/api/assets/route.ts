@@ -4,11 +4,22 @@ import { authOptions } from "@/lib/auth";
 import { NextResponse } from "next/server";
 import { areStringsEquivalent } from "@/lib/normalize";
 
+// Cache em memória de ativos para aceleração de telas e comboboxes
+let cachedAssets: { data: any; expiresAt: number } | null = null;
+
+export function invalidateAssetsCache() {
+  cachedAssets = null;
+}
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+    }
+
+    if (cachedAssets && cachedAssets.expiresAt > Date.now()) {
+      return NextResponse.json(cachedAssets.data);
     }
 
     const assets = await prisma.asset.findMany({
@@ -20,6 +31,11 @@ export async function GET() {
       },
       orderBy: { name: "asc" }
     });
+
+    cachedAssets = {
+      data: assets,
+      expiresAt: Date.now() + 60 * 1000,
+    };
 
     return NextResponse.json(assets);
   } catch (error: any) {
@@ -95,6 +111,7 @@ export async function POST(req: Request) {
       data: assetData
     });
 
+    invalidateAssetsCache();
     return NextResponse.json(asset, { status: 201 });
   } catch (error: any) {
     console.error("Asset creation error:", error);

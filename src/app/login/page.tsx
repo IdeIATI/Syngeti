@@ -122,8 +122,16 @@ export default function LoginPage() {
 
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
       const callback = params?.get("callbackUrl") || "/dashboard";
-      // Navegação direta para carregar a sessão autenticada com cookies validados
-      window.location.href = callback;
+      
+      // Transição instantânea SPA via Next.js router (< 50ms, sem reload branco)
+      router.replace(callback);
+
+      // Fallback resiliente caso o navegador demore para processar a rota SPA
+      setTimeout(() => {
+        if (typeof window !== "undefined" && window.location.pathname === "/login") {
+          window.location.href = callback;
+        }
+      }, 1200);
     } catch (err: any) {
       setError(err?.message || "Erro inesperado ao realizar login.");
       setLoading(false);

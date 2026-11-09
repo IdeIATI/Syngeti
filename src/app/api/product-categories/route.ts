@@ -4,6 +4,13 @@ import { authOptions } from "@/lib/auth";
 import { resolveCurrentUser } from "@/lib/currentUser";
 import { NextResponse } from "next/server";
 
+// Cache em memória de alta performance para categorias (reduz round-trips no carregamento de abas)
+let cachedCategories: { data: any; expiresAt: number; companyId: string } | null = null;
+
+export function invalidateCategoriesCache() {
+  cachedCategories = null;
+}
+
 // Categorias padrão para auto-seeding na primeira chamada
 const DEFAULT_CATEGORIES = [
   { name: "Sensores & Fim de Curso", description: "Sensores ópticos, mecânicos, de temperatura e de proximidade (DTF e impressoras)" },
@@ -26,6 +33,10 @@ export async function GET() {
     const currentUser = await resolveCurrentUser(session);
     if (!currentUser?.company_id) {
       return NextResponse.json({ error: "Empresa não identificada" }, { status: 400 });
+    }
+
+    if (cachedCategories && cachedCategories.companyId === currentUser.company_id && cachedCategories.expiresAt > Date.now()) {
+      return NextResponse.json(cachedCategories.data);
     }
 
     let categories = await prisma.productCategory.findMany({
@@ -61,6 +72,12 @@ export async function GET() {
         orderBy: { name: "asc" }
       });
     }
+
+    cachedCategories = {
+      data: categories,
+      companyId: currentUser.company_id,
+      expiresAt: Date.now() + 60 * 1000,
+    };
 
     return NextResponse.json(categories);
   } catch (error: any) {
@@ -108,6 +125,7 @@ export async function POST(req: Request) {
       }
     });
 
+    invalidateCategoriesCache();
     return NextResponse.json(category, { status: 201 });
   } catch (error: any) {
     console.error("POST /api/product-categories error:", error);

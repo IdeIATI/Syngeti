@@ -19,7 +19,10 @@ export async function GET() {
       orderBy: { name: "asc" },
     });
 
-    const safeUsers = users.map(({ password_hash, ...u }) => u);
+    const safeUsers = users.map(({ password_hash, avatar, ...u }) => ({
+      ...u,
+      avatar: avatar ? `/api/users/${u.id}/avatar` : null,
+    }));
 
     // Mesclar usuários do Supabase com timeout curto (2.5s) para nunca travar a rota
     try {

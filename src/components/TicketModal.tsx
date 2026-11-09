@@ -147,6 +147,10 @@ export function TicketModal({
 
     if (initialTicket) {
       applyTicketData(initialTicket);
+      // Carrega comentários e peças em segundo plano sem bloquear a abertura instantânea do modal
+      if (ticketId) {
+        fetchTicketData(ticketId, true);
+      }
     } else if (ticketId) {
       fetchTicketData(ticketId);
     }
@@ -172,8 +176,8 @@ export function TicketModal({
     setCommentStatusTarget(t.status || "NEW");
   };
 
-  const fetchTicketData = async (id: string) => {
-    setLoadingTicket(true);
+  const fetchTicketData = async (id: string, inBackground = false) => {
+    if (!inBackground) setLoadingTicket(true);
     try {
       const res = await fetch(`/api/tickets/${id}`);
       if (res.ok) {
@@ -183,7 +187,7 @@ export function TicketModal({
     } catch (e) {
       console.error("Erro ao carregar chamado:", e);
     } finally {
-      setLoadingTicket(false);
+      if (!inBackground) setLoadingTicket(false);
     }
   };
 

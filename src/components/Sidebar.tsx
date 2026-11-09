@@ -83,15 +83,31 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
     return () => window.removeEventListener("branding-updated", handleBrandingUpdated);
   }, []);
 
-  // Aquecimento inteligente do router cache para transição instantânea (< 50ms) entre os módulos principais
+  // Aquecimento inteligente do router cache para transição instantânea (< 50ms) entre todos os módulos principais
   useEffect(() => {
     const warmUpTimer = setTimeout(() => {
-      ['/dashboard', '/service-desk', '/cmdb', '/cmdb/stock', '/connect', '/users'].forEach((route) => {
-        try {
-          router.prefetch(route);
-        } catch {}
+      const allRoutes = [
+        '/dashboard',
+        '/service-desk',
+        '/cmdb',
+        '/cmdb/stock',
+        '/pc-access',
+        '/projects',
+        '/contracts',
+        '/users',
+        '/connect',
+        '/knowledge',
+        '/sentinela',
+        '/settings',
+      ];
+      allRoutes.forEach((route, idx) => {
+        setTimeout(() => {
+          try {
+            router.prefetch(route);
+          } catch {}
+        }, idx * 100);
       });
-    }, 1500);
+    }, 1200);
 
     return () => clearTimeout(warmUpTimer);
   }, [router]);

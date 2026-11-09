@@ -60,7 +60,7 @@ export async function POST(request: Request) {
         },
         include: {
           members: {
-            select: { id: true, name: true, avatar: true, email: true, job_title: true },
+            select: { id: true, name: true, email: true, job_title: true },
           },
         },
       });
@@ -95,7 +95,7 @@ export async function POST(request: Request) {
       },
       include: {
         members: {
-          select: { id: true, name: true, avatar: true, email: true, job_title: true },
+          select: { id: true, name: true, email: true, job_title: true },
         },
       },
     });
@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       },
       include: {
         members: {
-          select: { id: true, name: true, avatar: true, email: true, job_title: true },
+          select: { id: true, name: true, email: true, job_title: true },
         },
       },
     });

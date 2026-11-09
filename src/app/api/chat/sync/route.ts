@@ -28,7 +28,7 @@ export async function GET() {
         },
         include: {
           members: {
-            select: { id: true, name: true, avatar: true, email: true, job_title: true },
+            select: { id: true, name: true, email: true, job_title: true },
           },
           messages: {
             take: 1,
@@ -41,7 +41,7 @@ export async function GET() {
               created_at: true,
               sender_id: true,
               is_read: true,
-              sender: { select: { name: true, avatar: true } },
+              sender: { select: { name: true } },
             },
           },
         },
@@ -71,7 +71,7 @@ export async function GET() {
           type: true,
           file_name: true,
           created_at: true,
-          sender: { select: { name: true, avatar: true } },
+          sender: { select: { name: true } },
         },
         orderBy: { created_at: "desc" },
         take: 50,

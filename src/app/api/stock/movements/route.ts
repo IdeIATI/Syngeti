@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { resolveCurrentUser } from "@/lib/currentUser";
 import { NextResponse } from "next/server";
+import { invalidateProductsCache } from "@/app/api/products/route";
 
 export async function GET(req: Request) {
   try {
@@ -289,6 +290,7 @@ export async function POST(req: Request) {
       return movement;
     });
 
+    invalidateProductsCache();
     return NextResponse.json(result, { status: 201 });
   } catch (error: any) {
     console.error("POST /api/stock/movements error:", error);

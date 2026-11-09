@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { resolveCurrentUser } from "@/lib/currentUser";
 import { NextResponse } from "next/server";
+import { invalidateProductsCache } from "@/app/api/products/route";
 
 export async function GET(
   req: Request,
@@ -150,6 +151,7 @@ export async function PUT(
       }
     });
 
+    invalidateProductsCache();
     return NextResponse.json(updated);
   } catch (error: any) {
     console.error("PUT /api/products/[id] error:", error);
@@ -191,7 +193,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 });
     }
 
-    // REGRA DE INTEGRIDADE CONTÁBIL:
+    invalidateProductsCache();
     // Se o produto já possui movimentações registradas, NUNCA deletar fisicamente. Apenas inativar.
     if (product._count.movements > 0) {
       const inactivated = await prisma.product.update({

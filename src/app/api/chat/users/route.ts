@@ -41,7 +41,7 @@ export async function GET() {
         id: u.id,
         name: u.name,
         email: u.email,
-        avatar: u.avatar,
+        avatar: u.avatar ? `/api/users/${u.id}/avatar` : null,
         job_title: u.job_title,
         status: u.status,
         last_seen_at: u.last_seen_at,

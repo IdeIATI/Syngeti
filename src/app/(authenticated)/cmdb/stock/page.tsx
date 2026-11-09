@@ -115,7 +115,8 @@ export default function StockManagementPage() {
     }
   };
 
-  const fetchMovements = async () => {
+  const fetchMovements = async (force = false) => {
+    if (!force && movements.length > 0) return;
     try {
       setLoadingMovements(true);
       const res = await fetch("/api/stock/movements?limit=150");

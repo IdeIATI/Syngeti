@@ -1,10 +1,14 @@
 import { prisma } from "@/lib/prisma";
 import { OFFICIAL_MANUALS_CATALOG } from "@/lib/manualsCatalog";
 
+let seededInMemory = false;
+
 export async function ensureManualsSeeded() {
+  if (seededInMemory) return;
   try {
     const count = await prisma.systemManual.count();
     if (count >= OFFICIAL_MANUALS_CATALOG.length) {
+      seededInMemory = true;
       return;
     }
 
