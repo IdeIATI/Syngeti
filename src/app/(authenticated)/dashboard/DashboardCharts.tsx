@@ -2,20 +2,20 @@
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
-// Paleta ampla de 20 cores modernas, vibrantes e contrastantes
+// Paleta ampla de 20 cores modernas, vibrantes e com alto contraste
 const PALETTE = [
-  '#2563EB', // Azul Royal
-  '#06B6D4', // Ciano
-  '#8B5CF6', // Roxo / Violeta
-  '#EC4899', // Rosa / Magenta
-  '#F97316', // Laranja
+  '#06B6D4', // Ciano Vibrante (Rede e Conectividade)
+  '#F97316', // Laranja Intenso (Hardware)
+  '#8B5CF6', // Roxo / Violeta (Software)
+  '#EAB308', // Âmbar Dourado (Realocação)
+  '#0D9488', // Teal / Verde-azulado (Acessos e Permissões)
+  '#EC4899', // Rosa Pink (Impressora)
+  '#64748B', // Slate / Cinza Neutro (Outros)
+  '#2563EB', // Azul Royal (Acesso a Software)
   '#10B981', // Verde Esmeralda
-  '#EAB308', // Âmbar Dourado
-  '#64748B', // Slate / Grafite
+  '#F43F5E', // Carmim / Rose
   '#3B82F6', // Azul Claro
-  '#14B8A6', // Teal
   '#A855F7', // Púrpura
-  '#F43F5E', // Rose / Carmim
   '#84CC16', // Lima
   '#0EA5E9', // Sky Blue
   '#D946EF', // Fuchsia
@@ -26,20 +26,22 @@ const PALETTE = [
   '#94A3B8', // Slate Light
 ];
 
-// Mapeamento semântico padronizado por nome de categoria
+// Mapeamento semântico exclusivo por categoria (todas com cores 100% distintas)
 const CATEGORY_COLOR_MAP: Record<string, string> = {
-  "acesso a software": "#2563EB",       // Azul Royal
-  "rede e conectividade": "#06B6D4",    // Ciano vibrante
-  "software": "#8B5CF6",                // Roxo / Violeta
-  "acessos e permissões": "#0D9488",    // Teal / Verde-azulado
-  "hardware": "#F97316",                // Laranja Intenso
-  "impressora": "#EC4899",              // Rosa Pink
-  "realocação": "#EAB308",              // Âmbar Dourado
-  "outros": "#64748B",                  // Slate / Cinza Neutro
-  "telefonia": "#10B981",               // Esmeralda
-  "infraestrutura": "#6366F1",          // Indigo
-  "segurança": "#EF4444",               // Vermelho
-  "backup": "#0EA5E9",                  // Sky Blue
+  "rede e conectividade": "#06B6D4", // 🌐 Ciano Vibrante
+  "hardware": "#F97316",             // 🟠 Laranja Intenso
+  "software": "#8B5CF6",             // 🟣 Roxo / Violeta
+  "realocação": "#EAB308",           // 🟡 Âmbar Dourado
+  "realocacao": "#EAB308",           // 🟡 Âmbar Dourado (sem acento)
+  "acessos e permissões": "#0D9488", // 🟢 Teal / Verde-azulado
+  "acessos e permissoes": "#0D9488", // 🟢 Teal (sem acento)
+  "impressora": "#EC4899",           // 🌸 Rosa Pink (diferente de Rede!)
+  "outros": "#64748B",               // ⚪ Cinza Grafite / Slate (diferente de Hardware!)
+  "acesso a software": "#2563EB",    // 🔵 Azul Royal (diferente de Software!)
+  "telefonia": "#10B981",            // 🌿 Verde Esmeralda
+  "infraestrutura": "#6366F1",       // 🔷 Indigo
+  "segurança": "#EF4444",            // 🔴 Vermelho
+  "backup": "#0EA5E9",               // 💠 Sky Blue
 };
 
 export function getCategoryColor(name: string, index: number): string {
@@ -61,15 +63,34 @@ export default function DashboardCharts({
 }: { 
   chartData: ChartItem[] 
 }) {
-  // Total para cálculo do rótulo central e porcentagens
   const total = chartData ? chartData.reduce((sum, item) => sum + (item.quantidade || 0), 0) : 0;
 
-  // Garante que cada item receba uma cor única
-  const enrichedData = (chartData || []).map((item, idx) => ({
-    ...item,
-    color: item.color || getCategoryColor(item.name, idx),
-    percent: total > 0 ? Math.round((item.quantidade / total) * 100) : 0,
-  }));
+  // Algoritmo de Blindagem Anti-Colisão:
+  // Garante matematicamente que NENHUMA categoria repita cor com outra no gráfico
+  const usedColors = new Set<string>();
+  const enrichedData = (chartData || []).map((item, idx) => {
+    let assignedColor = item.color;
+    const preferredColor = getCategoryColor(item.name, idx);
+
+    // Se não tem cor ou a cor preferida já está ocupada por outro item
+    if (!assignedColor || usedColors.has(assignedColor)) {
+      if (!usedColors.has(preferredColor)) {
+        assignedColor = preferredColor;
+      } else {
+        // Encontra a primeira cor da PALETTE que ainda esteja livre
+        const freeColor = PALETTE.find((c) => !usedColors.has(c));
+        assignedColor = freeColor || PALETTE[idx % PALETTE.length];
+      }
+    }
+
+    usedColors.add(assignedColor);
+
+    return {
+      ...item,
+      color: assignedColor,
+      percent: total > 0 ? Math.round((item.quantidade / total) * 100) : 0,
+    };
+  });
 
   if (!chartData || chartData.length === 0 || total === 0) {
     return (
@@ -102,7 +123,7 @@ export default function DashboardCharts({
               {enrichedData.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
-                  fill={entry.color}
+                  fill={entry.color} 
                 />
               ))}
             </Pie>
