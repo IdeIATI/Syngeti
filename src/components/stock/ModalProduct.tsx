@@ -1,7 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { X, Package, Plus, Save, AlertCircle, RefreshCw, Upload, Sparkles } from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { 
+  X, 
+  Package, 
+  Plus, 
+  Save, 
+  AlertCircle, 
+  RefreshCw, 
+  Upload, 
+  Sparkles, 
+  Check, 
+  Building2, 
+  Tag, 
+  Edit3,
+  Layers
+} from "lucide-react";
+import { 
+  DEFAULT_ITEM_TYPES, 
+  ItemTypeOption, 
+  generateSmartSku, 
+  extractTypeAcronym 
+} from "@/lib/skuGenerator";
 
 interface ModalProductProps {
   isOpen: boolean;
@@ -11,7 +31,10 @@ interface ModalProductProps {
   categories: any[];
   suppliers: any[];
   onReloadCategories?: () => void;
+  onReloadSuppliers?: () => void;
 }
+
+const CUSTOM_TYPES_STORAGE_KEY = "syngeti_custom_product_types";
 
 export default function ModalProduct({
   isOpen,
@@ -19,16 +42,55 @@ export default function ModalProduct({
   onSuccess,
   productToEdit,
   categories,
-  suppliers,
+  suppliers: initialSuppliers,
   onReloadCategories,
+  onReloadSuppliers,
 }: ModalProductProps) {
   const isEditing = Boolean(productToEdit?.id);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Lista local de fornecedores para permitir inserção inline imediata
+  const [localSuppliers, setLocalSuppliers] = useState<any[]>(initialSuppliers || []);
+
+  useEffect(() => {
+    setLocalSuppliers(initialSuppliers || []);
+  }, [initialSuppliers]);
+
+  // Lista de tipos de item (Padrões + Customizados pelo usuário)
+  const [customTypes, setCustomTypes] = useState<ItemTypeOption[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(CUSTOM_TYPES_STORAGE_KEY);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            setCustomTypes(parsed);
+          }
+        }
+      } catch (e) {
+        console.error("Falha ao carregar tipos customizados:", e);
+      }
+    }
+  }, [isOpen]);
+
+  const allItemTypes = useMemo(() => {
+    const list = [...DEFAULT_ITEM_TYPES];
+    customTypes.forEach((ct) => {
+      if (!list.some((item) => item.id === ct.id)) {
+        list.push(ct);
+      }
+    });
+    return list;
+  }, [customTypes]);
+
   // Form states
   const [sku, setSku] = useState("");
+  const [isManualSku, setIsManualSku] = useState(false);
+  const [nextSequence, setNextSequence] = useState<number>(1);
   const [name, setName] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [brand, setBrand] = useState("");
@@ -45,18 +107,48 @@ export default function ModalProduct({
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState("ACTIVE");
 
-  // Initial stock for new products
+  // Initial stock & Supplier
   const [initialStock, setInitialStock] = useState("0");
   const [supplierId, setSupplierId] = useState("");
 
-  // New Category inline creation
+  // Novo Tipo de Item inline
+  const [showNewType, setShowNewType] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
+  const [newTypeAcronym, setNewTypeAcronym] = useState("");
+
+  // Nova Categoria inline
   const [showNewCategory, setShowNewCategory] = useState(false);
   const [newCatName, setNewCatName] = useState("");
   const [creatingCat, setCreatingCat] = useState(false);
 
+  // Novo Fornecedor inline
+  const [showNewSupplier, setShowNewSupplier] = useState(false);
+  const [newSupplierName, setNewSupplierName] = useState("");
+  const [newSupplierTrade, setNewSupplierTrade] = useState("");
+  const [newSupplierPhone, setNewSupplierPhone] = useState("");
+  const [newSupplierCnpj, setNewSupplierCnpj] = useState("");
+  const [creatingSupplier, setCreatingSupplier] = useState(false);
+  const [supplierSuccessMsg, setSupplierSuccessMsg] = useState<string | null>(null);
+
+  // Busca a sequência numérica real do banco ao abrir modal para novo produto
+  useEffect(() => {
+    if (isOpen && !isEditing) {
+      fetch("/api/products/next-sku")
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.sequence) {
+            setNextSequence(data.sequence);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [isOpen, isEditing]);
+
+  // Inicialização do formulário
   useEffect(() => {
     if (productToEdit) {
       setSku(productToEdit.sku || "");
+      setIsManualSku(true); // Na edição, respeita o SKU existente como padrão
       setName(productToEdit.name || "");
       setCategoryId(productToEdit.category_id || "");
       setBrand(productToEdit.brand || "");
@@ -73,9 +165,22 @@ export default function ModalProduct({
       setNotes(productToEdit.notes || "");
       setStatus(productToEdit.status || "ACTIVE");
       setInitialStock("0");
-      setSupplierId("");
+
+      // Se o produto tiver fornecedor vinculado
+      const preferred = productToEdit.suppliers?.find((s: any) => s.is_preferred) || productToEdit.suppliers?.[0];
+      setSupplierId(preferred?.supplier_id || "");
+
+      // Tenta extrair a sequência do SKU atual (ex: SEN-PR-0001 -> 1)
+      if (productToEdit.sku) {
+        const matches = productToEdit.sku.match(/\d+$/);
+        if (matches) {
+          const num = parseInt(matches[0], 10);
+          if (!isNaN(num) && num > 0) setNextSequence(num);
+        }
+      }
     } else {
       setSku("");
+      setIsManualSku(false);
       setName("");
       setCategoryId(categories.length > 0 ? categories[0].id : "");
       setBrand("");
@@ -95,10 +200,51 @@ export default function ModalProduct({
       setSupplierId("");
     }
     setError(null);
+    setShowNewType(false);
+    setShowNewCategory(false);
+    setShowNewSupplier(false);
+    setSupplierSuccessMsg(null);
   }, [productToEdit, isOpen, categories]);
 
-  if (!isOpen) return null;
+  // Recalcula o SKU automaticamente quando o nome ou o tipo mudarem (somente se não foi editado manualmente)
+  useEffect(() => {
+    if (!isEditing && !isManualSku) {
+      if (name.trim()) {
+        const currentTypeObj = allItemTypes.find((t) => t.id === type);
+        const generated = generateSmartSku(
+          name, 
+          type, 
+          nextSequence, 
+          currentTypeObj?.name, 
+          currentTypeObj?.acronym
+        );
+        setSku(generated);
+      } else {
+        setSku("");
+      }
+    }
+  }, [name, type, nextSequence, isManualSku, isEditing, allItemTypes]);
 
+  // Função para forçar a regeração do SKU pelo padrão inteligente
+  const handleRegenerateSku = () => {
+    if (!name.trim()) {
+      setError("Digite o Nome do Produto para gerar o SKU inteligente.");
+      return;
+    }
+    const currentTypeObj = allItemTypes.find((t) => t.id === type);
+    const generated = generateSmartSku(
+      name, 
+      type, 
+      nextSequence, 
+      currentTypeObj?.name, 
+      currentTypeObj?.acronym
+    );
+    setSku(generated);
+    setIsManualSku(false);
+    setError(null);
+  };
+
+  // Criação de Nova Categoria inline
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCatName.trim()) return;
@@ -123,6 +269,89 @@ export default function ModalProduct({
     }
   };
 
+  // Criação de Novo Tipo de Item inline
+  const handleCreateType = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTypeName.trim()) return;
+
+    const trimmedName = newTypeName.trim();
+    const acronym = (newTypeAcronym.trim() || extractTypeAcronym("", trimmedName)).toUpperCase().slice(0, 4);
+    const id = `CUSTOM_${trimmedName.toUpperCase().replace(/[^A-Z0-9]/g, "_")}`;
+
+    const newTypeObj: ItemTypeOption = {
+      id,
+      name: trimmedName,
+      acronym,
+      isCustom: true,
+    };
+
+    const updated = [...customTypes, newTypeObj];
+    setCustomTypes(updated);
+
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem(CUSTOM_TYPES_STORAGE_KEY, JSON.stringify(updated));
+      } catch (e) {
+        console.error("Falha ao salvar tipo customizado no storage:", e);
+      }
+    }
+
+    setType(id);
+    setNewTypeName("");
+    setNewTypeAcronym("");
+    setShowNewType(false);
+
+    // Se o SKU for automático, já recalcula com a nova sigla
+    if (!isManualSku && name.trim()) {
+      const generated = generateSmartSku(name, id, nextSequence, trimmedName, acronym);
+      setSku(generated);
+    }
+  };
+
+  // Criação de Novo Fornecedor inline
+  const handleCreateSupplier = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newSupplierName.trim()) return;
+
+    try {
+      setCreatingSupplier(true);
+      setSupplierSuccessMsg(null);
+      const res = await fetch("/api/suppliers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newSupplierName.trim(),
+          trade_name: newSupplierTrade.trim() || null,
+          phone: newSupplierPhone.trim() || null,
+          cnpj: newSupplierCnpj.trim() || null,
+          status: "ACTIVE",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || data || "Falha ao cadastrar fornecedor");
+      }
+
+      // Adiciona o novo fornecedor na lista local e já o seleciona
+      setLocalSuppliers((prev) => [data, ...prev]);
+      setSupplierId(data.id);
+      setNewSupplierName("");
+      setNewSupplierTrade("");
+      setNewSupplierPhone("");
+      setNewSupplierCnpj("");
+      setShowNewSupplier(false);
+      setSupplierSuccessMsg(`Fornecedor "${data.trade_name || data.name}" cadastrado e selecionado!`);
+
+      if (onReloadSuppliers) onReloadSuppliers();
+    } catch (err: any) {
+      alert(err.message || "Erro ao salvar fornecedor");
+    } finally {
+      setCreatingSupplier(false);
+    }
+  };
+
+  // Submissão do Formulário
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -156,11 +385,18 @@ export default function ModalProduct({
         photo_url: photoUrl.trim() || null,
         notes: notes.trim() || null,
         status,
+        supplier_id: supplierId || null,
       };
+
+      // Metadados para tipos customizados
+      const currentTypeObj = allItemTypes.find((t) => t.id === type);
+      if (currentTypeObj?.isCustom) {
+        payload.custom_type_name = currentTypeObj.name;
+        payload.custom_acronym = currentTypeObj.acronym;
+      }
 
       if (!isEditing) {
         payload.initial_stock = Number(initialStock) || 0;
-        payload.supplier_id = supplierId || null;
       }
 
       const url = isEditing ? `/api/products/${productToEdit.id}` : "/api/products";
@@ -186,6 +422,8 @@ export default function ModalProduct({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div 
       className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150"
@@ -207,8 +445,8 @@ export default function ModalProduct({
               </h2>
               <p className="text-xs text-muted-foreground">
                 {isEditing 
-                  ? "Atualize os dados técnicos, localização física e parâmetros de estoque."
-                  : "Cadastro unificado para peças de impressoras DTF, placas, sensores, cabos e periféricos."
+                  ? "Atualize o código interno (SKU), especificações técnicas, tipo de item e fornecedores."
+                  : "Geração automática inteligente de SKU (3 letras do produto + tipo + sequência). Totalmente editável."
                 }
               </p>
             </div>
@@ -231,37 +469,90 @@ export default function ModalProduct({
             </div>
           )}
 
+          {supplierSuccessMsg && (
+            <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4" />
+                <span>{supplierSuccessMsg}</span>
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setSupplierSuccessMsg(null)}
+                className="text-emerald-400 hover:text-white"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* Section 1: Identificação Básica */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">1</span>
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Identificação & Classificação
+                Identificação, SKU Inteligente & Classificação
               </h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-              {/* SKU */}
-              <div className="sm:col-span-4">
-                <label className="block text-xs font-semibold text-foreground mb-1">
-                  Código Interno (SKU)
-                </label>
-                <input
-                  type="text"
-                  value={sku}
-                  onChange={(e) => setSku(e.target.value.toUpperCase())}
-                  placeholder={isEditing ? "SKU-TI-0001" : "Automático (ex: SKU-TI-0001)"}
-                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono tracking-wide"
-                />
-                <span className="text-[10px] text-muted-foreground mt-1 block">
-                  {isEditing ? "Identificador único permanente." : "Deixe em branco para gerar sequencial automático."}
-                </span>
+              
+              {/* SKU / Código Interno (Automático + Totalmente Editável) */}
+              <div className="sm:col-span-5">
+                <div className="flex items-center justify-between mb-1">
+                  <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-primary" />
+                    Código Interno (SKU) <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleRegenerateSku}
+                    title="Recalcular SKU pelo padrão inteligente: [3 letras produto]-[tipo]-[sequencial]"
+                    className="text-[11px] text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                  >
+                    <Sparkles className="w-3 h-3" /> Padrão Auto
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    required
+                    value={sku}
+                    onChange={(e) => {
+                      setSku(e.target.value.toUpperCase());
+                      setIsManualSku(true);
+                    }}
+                    placeholder="Ex: SEN-PR-0001"
+                    className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono tracking-wider font-bold"
+                  />
+                  {isManualSku && (
+                    <span 
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30"
+                      title="Código personalizado manualmente pelo usuário"
+                    >
+                      Personalizado
+                    </span>
+                  )}
+                  {!isManualSku && sku && (
+                    <span 
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
+                      title="Gerado automaticamente pelo padrão do sistema"
+                    >
+                      Auto
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-[10px] text-muted-foreground mt-1">
+                  <span>Padrão: <strong>3 letras</strong> - <strong>Tipo</strong> - <strong>Sequência</strong></span>
+                  <span className="font-mono text-foreground font-semibold">Ex: SEN-PR-0001</span>
+                </div>
               </div>
 
-              {/* Nome */}
-              <div className="sm:col-span-8">
+              {/* Nome do Produto / Peça */}
+              <div className="sm:col-span-7">
                 <label className="block text-xs font-semibold text-foreground mb-1">
-                  Nome do Produto / Peça <span className="text-red-500">*</span>
+                  Nome do Produto / Peça de Equipamento <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
@@ -271,6 +562,82 @@ export default function ModalProduct({
                   placeholder="Ex: Sensor Fim de Curso DTF 60cm XP600"
                   className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary"
                 />
+                <span className="text-[10px] text-muted-foreground mt-1 block">
+                  As 3 primeiras letras serão usadas no prefixo do SKU (ex: <strong>SEN</strong>).
+                </span>
+              </div>
+
+              {/* Tipo de Item (Com opção de criar novos tipos manualmente) */}
+              <div className="sm:col-span-6">
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-primary" />
+                    Tipo de Item <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewType(!showNewType)}
+                    className="text-[11px] text-primary hover:underline font-semibold flex items-center gap-1"
+                  >
+                    <Plus className="w-3 h-3" /> Novo Tipo
+                  </button>
+                </div>
+
+                {showNewType && (
+                  <div className="p-3 bg-surface-elevated/90 border border-primary/30 rounded-xl mb-2.5 space-y-2 animate-in fade-in duration-150">
+                    <div className="text-[11px] font-bold text-foreground">Cadastrar Novo Tipo de Item</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                      <div className="sm:col-span-7">
+                        <input
+                          type="text"
+                          placeholder="Nome do tipo (ex: Ferramenta)..."
+                          value={newTypeName}
+                          onChange={(e) => {
+                            setNewTypeName(e.target.value);
+                            if (!newTypeAcronym) {
+                              setNewTypeAcronym(extractTypeAcronym("", e.target.value));
+                            }
+                          }}
+                          className="w-full bg-surface border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
+                        />
+                      </div>
+                      <div className="sm:col-span-3">
+                        <input
+                          type="text"
+                          maxLength={4}
+                          placeholder="Sigla (ex: FER)..."
+                          value={newTypeAcronym}
+                          onChange={(e) => setNewTypeAcronym(e.target.value.toUpperCase())}
+                          className="w-full bg-surface border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary font-mono uppercase"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <button
+                          type="button"
+                          onClick={handleCreateType}
+                          className="w-full h-full py-1.5 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:bg-primary/90"
+                        >
+                          Salvar
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <select
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary cursor-pointer font-medium"
+                >
+                  {allItemTypes.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.name} ({t.acronym})
+                    </option>
+                  ))}
+                </select>
+                <span className="text-[10px] text-muted-foreground mt-1 block">
+                  Define a sigla intermediária do SKU (ex: Peça Reposição = <strong>PR</strong>, Consumível TI = <strong>CTI</strong>).
+                </span>
               </div>
 
               {/* Categoria */}
@@ -321,44 +688,23 @@ export default function ModalProduct({
                     </option>
                   ))}
                 </select>
+                <span className="text-[10px] text-muted-foreground mt-1 block">
+                  Agrupamento para filtros, inventário e relatórios.
+                </span>
               </div>
 
-              {/* Tipo */}
-              <div className="sm:col-span-3">
+              {/* Part Number / Código Fabricante */}
+              <div className="sm:col-span-4">
                 <label className="block text-xs font-semibold text-foreground mb-1">
-                  Tipo de Item
+                  Part Number (Fabricante)
                 </label>
-                <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
-                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary cursor-pointer"
-                >
-                  <option value="PART">Peça de Reposição</option>
-                  <option value="EQUIPMENT">Equipamento / Máquina</option>
-                  <option value="SUPPLY">Insumo Industrial (DTF)</option>
-                  <option value="CONSUMABLE">Consumível de TI</option>
-                </select>
-              </div>
-
-              {/* Unidade */}
-              <div className="sm:col-span-3">
-                <label className="block text-xs font-semibold text-foreground mb-1">
-                  Unidade Medida
-                </label>
-                <select
-                  value={unit}
-                  onChange={(e) => setUnit(e.target.value)}
-                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary cursor-pointer"
-                >
-                  <option value="UN">Unidade (UN)</option>
-                  <option value="PAR">Par (PAR)</option>
-                  <option value="KIT">Kit / Jogo (KIT)</option>
-                  <option value="CX">Caixa (CX)</option>
-                  <option value="M">Metro (M)</option>
-                  <option value="L">Litro (L)</option>
-                  <option value="ROLO">Rolo</option>
-                  <option value="KG">Quilograma (KG)</option>
-                </select>
+                <input
+                  type="text"
+                  value={partNumber}
+                  onChange={(e) => setPartNumber(e.target.value)}
+                  placeholder="Ex: CS-18021 / F1080"
+                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
+                />
               </div>
 
               {/* Marca */}
@@ -370,7 +716,7 @@ export default function ModalProduct({
                   type="text"
                   value={brand}
                   onChange={(e) => setBrand(e.target.value)}
-                  placeholder="Ex: Epson, Omron, Mean Well, Kingston"
+                  placeholder="Ex: Epson, Novi, Kingston"
                   className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
@@ -378,130 +724,171 @@ export default function ModalProduct({
               {/* Modelo */}
               <div className="sm:col-span-4">
                 <label className="block text-xs font-semibold text-foreground mb-1">
-                  Modelo Específico
+                  Modelo da Peça
                 </label>
                 <input
                   type="text"
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  placeholder="Ex: XP600 / L1800 / LRS-350-24"
+                  placeholder="Ex: DTF-60 / XP600"
                   className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary"
                 />
               </div>
 
-              {/* Part Number */}
-              <div className="sm:col-span-4">
+              {/* Compatibilidade de Máquinas e Equipamentos */}
+              <div className="sm:col-span-12">
                 <label className="block text-xs font-semibold text-foreground mb-1">
-                  Part Number (Código Original)
+                  Equipamentos / Máquinas Compatíveis
                 </label>
                 <input
                   type="text"
-                  value={partNumber}
-                  onChange={(e) => setPartNumber(e.target.value)}
-                  placeholder="Ex: 1729431 / F1080-A1"
-                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
+                  value={compatibility}
+                  onChange={(e) => setCompatibility(e.target.value)}
+                  placeholder="Ex: NOVI - DTF - 60 ( DTF UV ), Impressora Epson L1800, Plotter 1.60m"
+                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary"
                 />
+                <span className="text-[10px] text-muted-foreground mt-1 block">
+                  Permite aos técnicos localizarem peças compatíveis diretamente ao atender chamados de manutenção.
+                </span>
               </div>
+
             </div>
           </div>
 
-          {/* Section 2: Aplicação, Estoque e Localização */}
+          {/* Section 2: Fornecedor, Estoque & Custos */}
           <div className="pt-2 border-t border-border">
             <div className="flex items-center gap-2 mb-3">
               <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-xs font-bold flex items-center justify-center">2</span>
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Compatibilidade, Estoque & Localização Física
+                Fornecedor, Estoque & Parâmetros Físicos
               </h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
-              {/* Compatibilidade */}
-              <div className="sm:col-span-8">
-                <label className="block text-xs font-semibold text-foreground mb-1">
-                  Máquinas & Equipamentos Compatíveis
-                </label>
-                <textarea
-                  rows={2}
-                  value={compatibility}
-                  onChange={(e) => setCompatibility(e.target.value)}
-                  placeholder="Ex: Impressora DTF 60cm XP600, Epson L1800 de Testes, Máquina de Cura Forno A3"
-                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2 text-sm text-foreground focus:outline-none focus:border-primary resize-none"
-                />
-                <span className="text-[10px] text-muted-foreground">
-                  Facilita encontrar a peça ao pesquisar pelo modelo da máquina na busca rápida.
+
+              {/* Fornecedor (Com criação inline para novos fornecedores) */}
+              <div className="sm:col-span-12 p-3 bg-surface-elevated/40 border border-border/80 rounded-xl">
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <Building2 className="w-3.5 h-3.5 text-primary" />
+                    Fornecedor Principal
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowNewSupplier(!showNewSupplier)}
+                    className="text-[11px] text-primary hover:underline font-semibold flex items-center gap-1"
+                  >
+                    <Plus className="w-3 h-3" /> Novo Fornecedor
+                  </button>
+                </div>
+
+                {showNewSupplier && (
+                  <div className="p-3 bg-surface border border-primary/30 rounded-xl mb-3 space-y-2.5 animate-in fade-in duration-150">
+                    <div className="text-[11px] font-bold text-foreground">Cadastrar Fornecedor Manualmente</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                      <div className="sm:col-span-6">
+                        <input
+                          type="text"
+                          required
+                          placeholder="Razão Social / Nome da Empresa *"
+                          value={newSupplierName}
+                          onChange={(e) => setNewSupplierName(e.target.value)}
+                          className="w-full bg-surface-elevated border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
+                        />
+                      </div>
+                      <div className="sm:col-span-6">
+                        <input
+                          type="text"
+                          placeholder="Nome Fantasia (Opcional)"
+                          value={newSupplierTrade}
+                          onChange={(e) => setNewSupplierTrade(e.target.value)}
+                          className="w-full bg-surface-elevated border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
+                        />
+                      </div>
+                      <div className="sm:col-span-6">
+                        <input
+                          type="text"
+                          placeholder="Telefone / WhatsApp (Opcional)"
+                          value={newSupplierPhone}
+                          onChange={(e) => setNewSupplierPhone(e.target.value)}
+                          className="w-full bg-surface-elevated border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
+                        />
+                      </div>
+                      <div className="sm:col-span-4">
+                        <input
+                          type="text"
+                          placeholder="CNPJ (Opcional)"
+                          value={newSupplierCnpj}
+                          onChange={(e) => setNewSupplierCnpj(e.target.value)}
+                          className="w-full bg-surface-elevated border border-border rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-primary"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <button
+                          type="button"
+                          disabled={creatingSupplier || !newSupplierName.trim()}
+                          onClick={handleCreateSupplier}
+                          className="w-full h-full py-1.5 bg-primary text-primary-foreground text-xs font-bold rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                        >
+                          {creatingSupplier ? "Salvando..." : "Cadastrar"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <select
+                  value={supplierId}
+                  onChange={(e) => setSupplierId(e.target.value)}
+                  className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary cursor-pointer font-medium"
+                >
+                  <option value="">Nenhum fornecedor inicial vinculado</option>
+                  {localSuppliers.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.trade_name || s.name} {s.cnpj ? `(${s.cnpj})` : ""}
+                    </option>
+                  ))}
+                </select>
+                <span className="text-[10px] text-muted-foreground mt-1 block">
+                  Fornecedor vinculado para reposição e histórico de preços.
                 </span>
               </div>
 
-              {/* Localização Física */}
-              <div className="sm:col-span-4">
+              {/* Localização Física no Estoque */}
+              <div className="sm:col-span-6">
                 <label className="block text-xs font-semibold text-foreground mb-1">
-                  Localização no Estoque / Prateleira
+                  Localização Física no Almoxarifado / TI
                 </label>
                 <input
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  placeholder="Ex: Prateleira B2 - Gaveta 04"
+                  placeholder="Ex: Prateleira A2 - Gaveta 04"
                   className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary"
                 />
-                <span className="text-[10px] text-muted-foreground">
-                  Identifica onde o técnico busca a peça.
-                </span>
               </div>
 
-              {/* Estoque Mínimo */}
+              {/* Unidade de Medida */}
               <div className="sm:col-span-3">
                 <label className="block text-xs font-semibold text-foreground mb-1">
-                  Estoque Mínimo (Alerta)
+                  Unidade Medida
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={minStock}
-                  onChange={(e) => setMinStock(e.target.value)}
-                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
-                />
-                <span className="text-[10px] text-amber-500/90 font-medium">
-                  Gera alerta visual crítico
-                </span>
+                <select
+                  value={unit}
+                  onChange={(e) => setUnit(e.target.value)}
+                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary cursor-pointer"
+                >
+                  <option value="UN">Unidade (UN)</option>
+                  <option value="PAR">Par (PAR)</option>
+                  <option value="KIT">Kit / Conjunto (KIT)</option>
+                  <option value="M">Metro Linear (M)</option>
+                  <option value="L">Litro (L)</option>
+                  <option value="CX">Caixa (CX)</option>
+                  <option value="PCT">Pacote (PCT)</option>
+                </select>
               </div>
 
-              {/* Ponto de Reposição */}
-              <div className="sm:col-span-3">
-                <label className="block text-xs font-semibold text-foreground mb-1">
-                  Ponto de Reposição
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={reorderPoint}
-                  onChange={(e) => setReorderPoint(e.target.value)}
-                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
-                />
-                <span className="text-[10px] text-blue-400 font-medium">
-                  Gatilho de compra / cotação
-                </span>
-              </div>
-
-              {/* Último Custo / Custo de Referência */}
-              <div className="sm:col-span-3">
-                <label className="block text-xs font-semibold text-foreground mb-1">
-                  Último Custo (R$)
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={lastCost}
-                  onChange={(e) => setLastCost(e.target.value)}
-                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
-                />
-                <span className="text-[10px] text-muted-foreground">
-                  Valor unitário em Reais
-                </span>
-              </div>
-
-              {/* Status */}
+              {/* Status do Cadastro */}
               <div className="sm:col-span-3">
                 <label className="block text-xs font-semibold text-foreground mb-1">
                   Status do Cadastro
@@ -516,46 +903,75 @@ export default function ModalProduct({
                 </select>
               </div>
 
-              {/* Se for Novo Produto: Estoque Inicial & Fornecedor */}
-              {!isEditing && (
-                <>
-                  <div className="sm:col-span-4 p-3 bg-surface-elevated/40 border border-border/80 rounded-xl">
-                    <label className="block text-xs font-semibold text-foreground mb-1">
-                      Estoque Físico Inicial
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      value={initialStock}
-                      onChange={(e) => setInitialStock(e.target.value)}
-                      className="w-full bg-surface border border-border rounded-lg px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
-                    />
-                    <span className="text-[10px] text-muted-foreground mt-0.5 block">
-                      Lançará movimentação inicial automática no Kardex.
-                    </span>
-                  </div>
+              {/* Estoque Mínimo */}
+              <div className="sm:col-span-4">
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Estoque Mínimo (Alerta de Ruptura)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={minStock}
+                  onChange={(e) => setMinStock(e.target.value)}
+                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
+                />
+                <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                  Dispara alerta vermelho quando saldo for menor ou igual.
+                </span>
+              </div>
 
-                  <div className="sm:col-span-8 p-3 bg-surface-elevated/40 border border-border/80 rounded-xl">
-                    <label className="block text-xs font-semibold text-foreground mb-1">
-                      Fornecedor Principal (Opcional)
-                    </label>
-                    <select
-                      value={supplierId}
-                      onChange={(e) => setSupplierId(e.target.value)}
-                      className="w-full bg-surface border border-border rounded-lg px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-primary cursor-pointer"
-                    >
-                      <option value="">Nenhum fornecedor inicial vinculado</option>
-                      {suppliers.map((s) => (
-                        <option key={s.id} value={s.id}>
-                          {s.trade_name || s.name} {s.cnpj ? `(${s.cnpj})` : ""}
-                        </option>
-                      ))}
-                    </select>
-                    <span className="text-[10px] text-muted-foreground mt-0.5 block">
-                      Você pode vincular múltiplos fornecedores e cotações na aba de fornecedores.
-                    </span>
-                  </div>
-                </>
+              {/* Ponto de Reposição */}
+              <div className="sm:col-span-4">
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Ponto de Reposição (Gatilho de Compra)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={reorderPoint}
+                  onChange={(e) => setReorderPoint(e.target.value)}
+                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
+                />
+                <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                  Sinaliza a hora exata de solicitar cotação a fornecedores.
+                </span>
+              </div>
+
+              {/* Último Custo */}
+              <div className="sm:col-span-4">
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Último Custo de Aquisição (R$)
+                </label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={lastCost}
+                  onChange={(e) => setLastCost(e.target.value)}
+                  className="w-full bg-surface-elevated border border-border rounded-xl px-3.5 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono"
+                />
+                <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                  Valor unitário em Reais
+                </span>
+              </div>
+
+              {/* Se for Novo Produto: Estoque Inicial */}
+              {!isEditing && (
+                <div className="sm:col-span-12 p-3 bg-surface-elevated/40 border border-border/80 rounded-xl">
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Estoque Físico Inicial (Saldo de Abertura)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={initialStock}
+                    onChange={(e) => setInitialStock(e.target.value)}
+                    className="w-full bg-surface border border-border rounded-lg px-3 py-1.5 text-sm text-foreground focus:outline-none focus:border-primary font-mono max-w-[200px]"
+                  />
+                  <span className="text-[10px] text-muted-foreground mt-0.5 block">
+                    Lançará automaticamente a primeira movimentação de entrada no Kardex e valorizará o estoque.
+                  </span>
+                </div>
               )}
             </div>
           </div>

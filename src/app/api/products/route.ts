@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { resolveCurrentUser } from "@/lib/currentUser";
 import { NextResponse } from "next/server";
+import { generateSmartSku } from "@/lib/skuGenerator";
 
 // Cache em memória de alta performance para a listagem padrão de produtos (reduz latência de 450ms para < 2ms)
 let cachedDefaultProducts: { data: any; expiresAt: number; companyId: string } | null = null;
@@ -11,32 +12,18 @@ export function invalidateProductsCache() {
   cachedDefaultProducts = null;
 }
 
-// Função para gerar próximo SKU sequencial (ex: SKU-TI-0001)
-async function generateNextSku(companyId: string, prefix = "SKU-TI-"): Promise<string> {
-  const latestProduct = await prisma.product.findFirst({
-    where: {
-      company_id: companyId,
-      sku: { startsWith: prefix }
-    },
-    orderBy: { sku: "desc" },
-    select: { sku: true }
+// Função para gerar próximo SKU inteligente (ex: SEN-PR-0001, PLA-CTI-0002, IMP-EM-0003)
+async function generateNextSmartSku(
+  companyId: string, 
+  name: string, 
+  type: string, 
+  customTypeName?: string, 
+  customAcronym?: string
+): Promise<string> {
+  const count = await prisma.product.count({
+    where: { company_id: companyId }
   });
-
-  if (!latestProduct || !latestProduct.sku) {
-    return `${prefix}0001`;
-  }
-
-  const numberPart = latestProduct.sku.replace(prefix, "");
-  const nextNum = parseInt(numberPart, 10);
-  if (isNaN(nextNum)) {
-    // Se o sufixo não for numérico, conta o total de registros existentes com o prefixo
-    const count = await prisma.product.count({
-      where: { company_id: companyId, sku: { startsWith: prefix } }
-    });
-    return `${prefix}${String(count + 1).padStart(4, "0")}`;
-  }
-
-  return `${prefix}${String(nextNum + 1).padStart(4, "0")}`;
+  return generateSmartSku(name, type, count + 1, customTypeName, customAcronym);
 }
 
 export async function GET(req: Request) {
@@ -193,11 +180,18 @@ export async function POST(req: Request) {
     // Gerar SKU automaticamente se não informado
     let sku = body.sku?.trim();
     if (!sku) {
-      sku = await generateNextSku(currentUser.company_id, "SKU-TI-");
+      sku = await generateNextSmartSku(
+        currentUser.company_id, 
+        name, 
+        body.type || "PART", 
+        body.custom_type_name, 
+        body.custom_acronym
+      );
     } else {
       // Verificar se SKU já existe na empresa
       const existingSku = await prisma.product.findFirst({
         where: {
+          company_id: currentUser.company_id,
           sku: { equals: sku, mode: "insensitive" }
         }
       });

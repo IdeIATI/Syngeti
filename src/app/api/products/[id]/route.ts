@@ -151,6 +151,24 @@ export async function PUT(
       }
     });
 
+    // Se fornecedor foi indicado na edição, vincula caso ainda não esteja associado
+    if (body.supplier_id) {
+      const existingLink = await prisma.productSupplier.findFirst({
+        where: { product_id: product.id, supplier_id: body.supplier_id }
+      });
+      if (!existingLink) {
+        await prisma.productSupplier.create({
+          data: {
+            product_id: product.id,
+            supplier_id: body.supplier_id,
+            is_preferred: true,
+            last_price: Number(body.last_cost) || 0,
+            company_id: currentUser.company_id,
+          }
+        });
+      }
+    }
+
     invalidateProductsCache();
     return NextResponse.json(updated);
   } catch (error: any) {

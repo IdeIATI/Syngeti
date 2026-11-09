@@ -37,6 +37,7 @@ import ModalProduct from "@/components/stock/ModalProduct";
 import ModalMovement from "@/components/stock/ModalMovement";
 import ModalSupplierQuote from "@/components/stock/ModalSupplierQuote";
 import ModalImportExport from "@/components/stock/ModalImportExport";
+import { DEFAULT_ITEM_TYPES, ItemTypeOption } from "@/lib/skuGenerator";
 
 export default function StockManagementPage() {
   // Navigation tabs within Stock module
@@ -73,6 +74,29 @@ export default function StockManagementPage() {
   // Modals
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [productToEdit, setProductToEdit] = useState<any | null>(null);
+
+  // Tipos de Item disponíveis (Padrões + Customizados pelo usuário)
+  const [customItemTypes, setCustomItemTypes] = useState<ItemTypeOption[]>([]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("syngeti_custom_product_types");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) setCustomItemTypes(parsed);
+        }
+      } catch (e) {}
+    }
+  }, [isProductModalOpen]);
+
+  const allFilterTypes = useMemo(() => {
+    const list = [...DEFAULT_ITEM_TYPES];
+    customItemTypes.forEach((ct) => {
+      if (!list.some((item) => item.id === ct.id)) list.push(ct);
+    });
+    return list;
+  }, [customItemTypes]);
 
   const [isMovementModalOpen, setIsMovementModalOpen] = useState(false);
   const [preSelectedProductId, setPreSelectedProductId] = useState<string | undefined>(undefined);
@@ -459,10 +483,11 @@ export default function StockManagementPage() {
                 className="w-full bg-surface-elevated border border-border rounded-xl px-3 py-2 text-xs sm:text-sm text-foreground focus:outline-none focus:border-primary cursor-pointer"
               >
                 <option value="ALL">Todos os Tipos</option>
-                <option value="PART">Peças de Reposição</option>
-                <option value="EQUIPMENT">Equipamentos</option>
-                <option value="SUPPLY">Insumos DTF</option>
-                <option value="CONSUMABLE">Consumíveis</option>
+                {allFilterTypes.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.name}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -1056,6 +1081,7 @@ export default function StockManagementPage() {
         categories={categories}
         suppliers={suppliers}
         onReloadCategories={fetchData}
+        onReloadSuppliers={fetchData}
       />
 
       <ModalMovement
