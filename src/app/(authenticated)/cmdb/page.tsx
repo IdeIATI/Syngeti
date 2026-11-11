@@ -4,31 +4,35 @@ import { Server, Monitor, Printer, Network, ChevronLeft, ChevronRight, Boxes } f
 import RowActions from "../problems/RowActions";
 import CMDBFilters from "./CMDBFilters";
 
+export const dynamic = "force-dynamic";
+
 export default async function CMDBPage({
   searchParams,
 }: {
-  searchParams: { q?: string; status?: string; type?: string; page?: string }
+  searchParams: Promise<{ q?: string; status?: string; type?: string; page?: string }>;
 }) {
-  const page = Number(searchParams.page) || 1;
+  const resolvedSearch = await searchParams;
+  const page = Number(resolvedSearch.page) || 1;
   const take = 10;
   const skip = (page - 1) * take;
 
   const where: any = {};
   
-  if (searchParams.q) {
+  if (resolvedSearch.q) {
     where.OR = [
-      { name: { contains: searchParams.q } },
-      { asset_tag: { contains: searchParams.q } },
-      { serial_number: { contains: searchParams.q } },
+      { name: { contains: resolvedSearch.q, mode: "insensitive" } },
+      { asset_tag: { contains: resolvedSearch.q, mode: "insensitive" } },
+      { internal_id: { contains: resolvedSearch.q, mode: "insensitive" } },
+      { serial_number: { contains: resolvedSearch.q, mode: "insensitive" } },
     ];
   }
 
-  if (searchParams.status) {
-    where.status = searchParams.status;
+  if (resolvedSearch.status) {
+    where.status = resolvedSearch.status;
   }
 
-  if (searchParams.type) {
-    where.type = searchParams.type;
+  if (resolvedSearch.type) {
+    where.type = resolvedSearch.type;
   }
 
   const [assets, totalCount] = await Promise.all([
@@ -165,7 +169,7 @@ export default async function CMDBPage({
             </span>
             <div className="flex items-center gap-2">
               {page > 1 ? (
-                <Link href={`/cmdb?page=${page - 1}${searchParams.q ? `&q=${searchParams.q}` : ''}`} className="p-2 border border-border rounded bg-surface hover:bg-surface-hover text-foreground">
+                <Link href={`/cmdb?page=${page - 1}${resolvedSearch.q ? `&q=${resolvedSearch.q}` : ''}`} className="p-2 border border-border rounded bg-surface hover:bg-surface-hover text-foreground">
                   <ChevronLeft className="w-4 h-4" />
                 </Link>
               ) : (
@@ -177,7 +181,7 @@ export default async function CMDBPage({
               <span className="text-sm font-medium px-4">Página {page} de {totalPages}</span>
 
               {page < totalPages ? (
-                <Link href={`/cmdb?page=${page + 1}${searchParams.q ? `&q=${searchParams.q}` : ''}`} className="p-2 border border-border rounded bg-surface hover:bg-surface-hover text-foreground">
+                <Link href={`/cmdb?page=${page + 1}${resolvedSearch.q ? `&q=${resolvedSearch.q}` : ''}`} className="p-2 border border-border rounded bg-surface hover:bg-surface-hover text-foreground">
                   <ChevronRight className="w-4 h-4" />
                 </Link>
               ) : (

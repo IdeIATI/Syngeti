@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-type Entity = { id: string; name?: string; corporate_name?: string };
+type Entity = { id: string; name?: string; corporate_name?: string; trade_name?: string };
 type UserEntity = { id: string; name: string };
 
 export default function AssetForm({
@@ -161,7 +161,7 @@ export default function AssetForm({
             <select required value={formData.company_id} onChange={e => setFormData({...formData, company_id: e.target.value})} className="mt-2 block w-full rounded-md border-border bg-background px-3 py-2 text-foreground focus:ring-primary focus:border-primary sm:text-sm">
               <option value="">Selecione...</option>
               {companies.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
+                <option key={c.id} value={c.id}>{c.name || c.trade_name || c.corporate_name}</option>
               ))}
             </select>
           </div>

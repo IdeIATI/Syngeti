@@ -796,7 +796,7 @@ export function PCDetailsDrawer({
                           >
                             <div className="space-y-1">
                               <div className="flex items-center gap-2">
-                                <span className="font-mono font-bold text-xs text-primary">#{t.ticket_number}</span>
+                                <span className="font-mono font-bold text-xs text-primary">#{t.code || t.ticket_number}</span>
                                 <h5 className="text-sm font-bold text-foreground">{t.title}</h5>
                                 <span
                                   className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${

@@ -32,7 +32,7 @@ export async function PUT(
       model: data.model || null,
       serial_number: data.serial_number || null,
       status: data.status || 'IN_USE',
-      company_id: data.company_id || null,
+      ...(data.company_id ? { company_id: data.company_id } : {}),
       location_id: data.location_id || null,
       department_id: data.department_id || null,
       user_id: data.user_id || null,

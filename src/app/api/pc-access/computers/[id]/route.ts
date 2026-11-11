@@ -64,7 +64,7 @@ export async function GET(
         Ticket: {
           select: {
             id: true,
-            ticket_number: true,
+            code: true,
             title: true,
             status: true,
             priority: true,
@@ -149,7 +149,10 @@ export async function GET(
       assignments: asset.computer?.assignments || [],
       accounts: sanitizedAccounts,
       email_accounts: asset.computer?.email_accounts || [],
-      tickets: asset.Ticket || [],
+      tickets: (asset.Ticket || []).map((t) => ({
+        ...t,
+        ticket_number: t.code,
+      })),
       audit_logs: auditLogs,
     });
   } catch (error: any) {
