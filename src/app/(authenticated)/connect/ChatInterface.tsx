@@ -346,6 +346,7 @@ export default function ChatInterface({
   // Estados PWA e Janela Independente
   const [canInstallPwa, setCanInstallPwa] = useState(false);
   const [isStandaloneApp, setIsStandaloneApp] = useState(false);
+  const [showInstallHelpModal, setShowInstallHelpModal] = useState(false);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Estados para Upload de Arquivos
@@ -1758,6 +1759,53 @@ export default function ChatInterface({
         onToggleMuteChannel={toggleMuteChannel}
       />
 
+      {showInstallHelpModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-surface border border-border rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                <Download className="w-4 h-4 text-primary" />
+                Instalar CONNECT CHAT no Windows
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowInstallHelpModal(false)}
+                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface-hover"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="text-xs text-muted-foreground space-y-2.5 leading-relaxed">
+              <p>Para abrir o <strong>CONNECT CHAT</strong> como aplicativo independente na Área de Trabalho e Barra de Tarefas:</p>
+              <ul className="list-disc pl-4 space-y-1.5 text-foreground/90">
+                <li><strong>1.</strong> Abra o chat na rota exclusiva clicando em <strong>Abrir App (/chat)</strong> abaixo.</li>
+                <li><strong>2. Google Chrome:</strong> Clique no ícone de instalação na barra de endereço ou em <code className="px-1 py-0.5 bg-muted rounded">⋮ &gt; Transmitir, salvar e compartilhar &gt; Instalar página como app...</code></li>
+                <li><strong>3. Microsoft Edge:</strong> Clique em <code className="px-1 py-0.5 bg-muted rounded">⋯ &gt; Aplicativos &gt; Instalar este site como um aplicativo</code>.</li>
+              </ul>
+            </div>
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowInstallHelpModal(false);
+                  window.open("/chat", "ConnectChatStandalone", "width=1200,height=800,menubar=no,status=no,toolbar=no");
+                }}
+                className="px-3.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover transition-colors"
+              >
+                Abrir App (/chat)
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowInstallHelpModal(false)}
+                className="px-3.5 py-2 rounded-xl bg-surface-elevated border border-border text-xs font-bold text-foreground hover:bg-surface-hover transition-colors"
+              >
+                Fechar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ========================================================================= */}
       {/* SIDEBAR DE CANAIS, GRUPOS E MENSAGENS DIRETAS                             */}
       {/* ========================================================================= */}
@@ -1771,11 +1819,18 @@ export default function ChatInterface({
               <span className="truncate">{isStandaloneApp ? "CONNECT CHAT" : "SYNGETI Connect 2.0"}</span>
             </h2>
             <div className="flex items-center gap-1 shrink-0">
-              {/* Botão Instalar App PWA quando suportado pelo navegador */}
-              {canInstallPwa && !isStandaloneApp && (
+              {/* Botão Instalar App PWA (nativo quando suportado, ou instruções de atalho como fallback) */}
+              {!isStandaloneApp && (
                 <button
                   type="button"
-                  onClick={promptPWAInstall}
+                  onClick={async () => {
+                    if (canInstallPwa) {
+                      const ok = await promptPWAInstall();
+                      if (!ok) setShowInstallHelpModal(true);
+                    } else {
+                      setShowInstallHelpModal(true);
+                    }
+                  }}
                   className="p-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors flex items-center gap-1 text-[11px] font-bold"
                   title="Instalar CONNECT CHAT no Windows como aplicativo independente"
                 >

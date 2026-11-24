@@ -11,6 +11,7 @@ import { SentinelaClientTelemetry } from "@/components/sentinela/SentinelaClient
 import { AuthUserProvider, AuthUser } from "@/contexts/AuthUserContext";
 import { supabase } from "@/lib/supabaseClient";
 import { soundManager } from "@/lib/sound";
+import { registerChatServiceWorker } from "@/lib/chatNotificationCoordination";
 import { MessageSquare, X } from "lucide-react";
 
 interface MobileMenuContextType {
@@ -85,6 +86,11 @@ export function AuthenticatedShell({
       setChatToast(null);
     }
   }, [pathname]);
+
+  // Registra o Service Worker do PWA logo ao entrar no sistema
+  useEffect(() => {
+    registerChatServiceWorker();
+  }, []);
 
   // Monitoramento global de mensagens não lidas do CONNECT CHAT em todas as telas do ERP
   useEffect(() => {
