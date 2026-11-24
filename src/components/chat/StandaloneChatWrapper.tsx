@@ -69,6 +69,7 @@ export function StandaloneChatWrapper({
           channels={channels}
           mainChannelId={mainChannelId}
           departments={departments}
+          onConnectionStateChange={setConnectionState}
         />
       </main>
     </div>

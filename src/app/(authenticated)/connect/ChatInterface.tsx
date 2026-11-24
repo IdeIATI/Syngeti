@@ -22,6 +22,7 @@ import { QUICK_REACTION_EMOJIS } from "@/lib/emojiCatalog";
 import { soundManager } from "@/lib/sound";
 import { supabase } from "@/lib/supabaseClient";
 import {
+  registerChatServiceWorker,
   promptPWAInstall,
   subscribeToInstallPrompt,
   isRunningStandalone,
@@ -301,12 +302,14 @@ export default function ChatInterface({
   channels: initialChannels,
   mainChannelId,
   departments = [],
+  onConnectionStateChange,
 }: { 
   currentUser: { id: string; name: string; avatar?: string | null };
   users: User[];
   channels: Channel[];
   mainChannelId: string;
   departments?: Array<{ id: string; name: string }>;
+  onConnectionStateChange?: (state: "realtime" | "polling" | "connecting" | "offline") => void;
 }) {
   const [channels, setChannels] = useState<Channel[]>(initialChannels);
   const [userList, setUserList] = useState<User[]>(initialUsers);
@@ -438,10 +441,20 @@ export default function ChatInterface({
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Coordenação PWA inter-janelas e foco do canal ativo
+  // Coordenação PWA inter-janelas, Service Worker e foco do canal ativo
   useEffect(() => {
+    registerChatServiceWorker();
     setIsStandaloneApp(isRunningStandalone());
     const unsub = subscribeToInstallPrompt((avail) => setCanInstallPwa(avail));
+
+    // Suporte a abertura direta via parâmetro ?channel=<id> (ex.: clique em notificação)
+    try {
+      const urlChannel = new URLSearchParams(window.location.search).get("channel");
+      if (urlChannel) {
+        setActiveChannelId(urlChannel);
+        setMobileView("chat");
+      }
+    } catch {}
 
     const handleCoordination = (e: MessageEvent) => {
       if (e.data?.type === "SWITCH_TO_CHANNEL" && e.data?.channelId) {
@@ -479,6 +492,10 @@ export default function ChatInterface({
   useEffect(() => {
     setActiveChannelFocus(activeChannelId);
   }, [activeChannelId]);
+
+  useEffect(() => {
+    onConnectionStateChange?.(connectionState);
+  }, [connectionState, onConnectionStateChange]);
 
   // Carrega preferências de emojis do usuário (cache local + sincronização com Supabase)
   useEffect(() => {
@@ -822,6 +839,19 @@ export default function ChatInterface({
       setUnreadByChannel(byChannel);
       setUnreadByUser(byUser);
 
+      // Sincroniza lista de canais/grupos novos recebidos no sync
+      if (Array.isArray(data.channels) && data.channels.length > 0) {
+        setChannels((prev) => {
+          const prevMap = new Map(prev.map((c: any) => [c.id, c]));
+          let changed = prev.length !== data.channels.length;
+          for (const c of data.channels) {
+            if (!prevMap.has(c.id)) changed = true;
+            prevMap.set(c.id, { ...(prevMap.get(c.id) || {}), ...c });
+          }
+          return changed ? Array.from(prevMap.values()) : prev;
+        });
+      }
+
       // Recibos de ENTREGA reais: o app do destinatário recebeu as mensagens
       const ids: string[] = (data.unreadIds || []).filter((id: string) => !deliveredIdsRef.current.has(id));
       if (ids.length > 0) {
@@ -896,6 +926,12 @@ export default function ChatInterface({
       ch.on("broadcast", { event: "reaction" }, ({ payload }: any) => {
         if (payload?.channelId === activeChannelIdRef.current) fetchMessages(true);
       });
+      ch.on("broadcast", { event: "update" }, ({ payload }: any) => {
+        if (payload?.channelId === activeChannelIdRef.current) fetchMessages(true);
+      });
+      ch.on("broadcast", { event: "channel" }, () => {
+        notifyNewMessages();
+      });
       ch.subscribe((status: string) => {
         if (disposed) return;
         if (status === "SUBSCRIBED") {
@@ -936,20 +972,18 @@ export default function ChatInterface({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Publica "ping" de nova mensagem, recibo ou reação (sem conteúdo). O destinatário busca pela API autenticada.
-  const broadcastPing = (event: "message" | "receipt" | "reaction", channelId: string, messageId?: string) => {
+  // Publica "ping" de nova mensagem, recibo, reação, edição ou canal (sem conteúdo). O destinatário busca pela API autenticada.
+  const broadcastPing = (
+    event: "message" | "receipt" | "reaction" | "update" | "channel",
+    channelId: string,
+    messageId?: string
+  ) => {
     try {
       realtimeChannelRef.current?.send({
         type: "broadcast",
         event,
         payload: { channelId, messageId, senderId: currentUser.id },
       });
-      // Notifica o shell global do ERP instantaneamente (< 50ms)
-      supabase.channel("connect-chat-global-shell").send({
-        type: "broadcast",
-        event: "message",
-        payload: { channelId, messageId, senderId: currentUser.id },
-      }).catch(() => {});
     } catch {}
   };
 
@@ -1446,6 +1480,7 @@ export default function ChatInterface({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messageId: msg.id, isPinned: nextPin })
       });
+      broadcastPing("update", activeChannelIdRef.current, msg.id);
       showToast(nextPin ? "📌 Mensagem fixada no canal!" : "Mensagem desafixada.");
     } catch (e) {
       fetchMessages();
@@ -1470,6 +1505,7 @@ export default function ChatInterface({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messageId: msgId, content: editInput.trim() })
       });
+      broadcastPing("update", activeChannelIdRef.current, msgId);
       showToast("Mensagem atualizada.");
     } catch (e) {
       fetchMessages();
@@ -1483,6 +1519,7 @@ export default function ChatInterface({
     updateMessagesAndCache(prev => prev.filter(m => m.id !== msgId));
     try {
       await fetch(`/api/chat?messageId=${msgId}`, { method: "DELETE" });
+      broadcastPing("update", activeChannelIdRef.current, msgId);
       showToast("Mensagem excluída.");
     } catch (e) {
       fetchMessages();
@@ -1664,6 +1701,7 @@ export default function ChatInterface({
         onGroupCreated={(created) => {
           setChannels(prev => [...prev, created]);
           setActiveChannelId(created.id);
+          broadcastPing("channel", created.id);
           showToast(`Grupo "${created.name}" criado com sucesso!`);
         }}
       />

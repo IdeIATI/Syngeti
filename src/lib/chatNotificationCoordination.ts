@@ -38,11 +38,10 @@ if (typeof window !== "undefined") {
 export function registerChatServiceWorker(): void {
   if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
 
-  window.addEventListener("load", () => {
+  const doRegister = () => {
     navigator.serviceWorker
       .register("/sw.js")
       .then((reg) => {
-        // Verifica se há novas versões do service worker
         reg.onupdatefound = () => {
           const installingWorker = reg.installing;
           if (installingWorker) {
@@ -57,7 +56,13 @@ export function registerChatServiceWorker(): void {
       .catch((err) => {
         console.warn("[PWA] Falha ao registrar Service Worker:", err);
       });
-  });
+  };
+
+  if (document.readyState === "complete") {
+    doRegister();
+  } else {
+    window.addEventListener("load", doRegister, { once: true });
+  }
 }
 
 /**

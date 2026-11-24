@@ -199,7 +199,7 @@ export function AuthenticatedShell({
     };
     document.addEventListener("visibilitychange", handleVis);
 
-    const ch = supabase.channel("connect-chat-global-shell", { config: { broadcast: { self: false } } });
+    const ch = supabase.channel("connect-chat-events", { config: { broadcast: { self: false } } });
     ch.on("broadcast", { event: "message" }, () => {
       checkChatSync();
     });

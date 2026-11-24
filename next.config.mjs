@@ -19,6 +19,11 @@ const nextConfig = {
         destination: '/users',
         permanent: true,
       },
+      {
+        source: '/connect-chat',
+        destination: '/chat',
+        permanent: false,
+      },
     ];
   },
 };

@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'CONNECT CHAT • Syngeti',
+    name: 'CONNECT CHAT — SYNGETI',
     short_name: 'Connect Chat',
     description: 'Comunicação corporativa e mensageria em tempo real do Syngeti',
     start_url: '/chat',

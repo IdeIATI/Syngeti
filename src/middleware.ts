@@ -66,6 +66,8 @@ export const config = {
     "/problems/:path*",
     "/knowledge/:path*",
     "/connect/:path*",
+    "/chat/:path*",
+    "/connect-chat/:path*",
     "/suppliers/:path*",
   ],
 };
