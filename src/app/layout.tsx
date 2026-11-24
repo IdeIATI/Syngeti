@@ -9,6 +9,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'SYNGETI - Sistema Integrado de Gestão de TI',
     description: 'Plataforma centralizada de ITSM, CMDB, e gestão de TI',
+    manifest: '/manifest.webmanifest',
     icons: {
       icon: branding?.favicon || '/branding/logo-icon.png',
       shortcut: branding?.favicon || '/branding/logo-icon.png',

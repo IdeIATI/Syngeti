@@ -92,8 +92,8 @@ export function AuthenticatedShell({
 
     const checkChatSync = async () => {
       if (disposed) return;
-      // Quando o usuário já está no Connect Chat visível, o próprio ChatInterface gerencia o sync da tela ativa (evita requisições duplicadas)
-      if (pathnameRef.current?.startsWith("/connect") && typeof document !== "undefined" && !document.hidden) {
+      // Quando o usuário já está no Connect Chat visível (no ERP ou no App Independente), o próprio ChatInterface gerencia o sync da tela ativa
+      if ((pathnameRef.current?.startsWith("/connect") || pathnameRef.current?.startsWith("/chat")) && typeof document !== "undefined" && !document.hidden) {
         return;
       }
       try {

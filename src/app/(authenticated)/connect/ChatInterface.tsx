@@ -6,7 +6,7 @@ import {
   Smile, Heart, ThumbsUp, Sparkles, Star, Trash2, X, Image as ImageIcon, Flame, Check, CheckCheck, Loader2,
   Paperclip, Mic, MicOff, Video, Phone, PhoneOff, Pin, PinOff, Edit2, Share2, Download,
   FileText, Film, Volume2, Plus, Users, Shield, Play, Pause, CornerDownLeft, Eye,
-  Settings, Wifi, WifiOff, RefreshCw, AlertCircle, Ticket, BellOff
+  Settings, Wifi, WifiOff, RefreshCw, AlertCircle, Ticket, BellOff, ExternalLink, AppWindow
 } from "lucide-react";
 import Image from "next/image";
 import { CreateGroupModal } from "@/components/chat/CreateGroupModal";
@@ -21,6 +21,13 @@ import { EmojiPickerPanel } from "@/components/chat/EmojiPickerPanel";
 import { QUICK_REACTION_EMOJIS } from "@/lib/emojiCatalog";
 import { soundManager } from "@/lib/sound";
 import { supabase } from "@/lib/supabaseClient";
+import {
+  promptPWAInstall,
+  subscribeToInstallPrompt,
+  isRunningStandalone,
+  dispatchSmartNotification,
+  setActiveChannelFocus,
+} from "@/lib/chatNotificationCoordination";
 
 // Gera chave de idempotência única por tentativa lógica de envio
 function newClientId() {
@@ -332,6 +339,10 @@ export default function ChatInterface({
   const [recordingSeconds, setRecordingSeconds] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+
+  // Estados PWA e Janela Independente
+  const [canInstallPwa, setCanInstallPwa] = useState(false);
+  const [isStandaloneApp, setIsStandaloneApp] = useState(false);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Estados para Upload de Arquivos
@@ -426,6 +437,48 @@ export default function ChatInterface({
     setToastMessage(text);
     setTimeout(() => setToastMessage(null), 3000);
   };
+
+  // Coordenação PWA inter-janelas e foco do canal ativo
+  useEffect(() => {
+    setIsStandaloneApp(isRunningStandalone());
+    const unsub = subscribeToInstallPrompt((avail) => setCanInstallPwa(avail));
+
+    const handleCoordination = (e: MessageEvent) => {
+      if (e.data?.type === "SWITCH_TO_CHANNEL" && e.data?.channelId) {
+        setActiveChannelId(e.data.channelId);
+        setMobileView("chat");
+      }
+    };
+
+    const handleSwMessage = (e: MessageEvent) => {
+      if (e.data?.type === "OPEN_CHANNEL" && e.data?.channelId) {
+        setActiveChannelId(e.data.channelId);
+        setMobileView("chat");
+      }
+    };
+
+    let bc: BroadcastChannel | null = null;
+    if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+      try {
+        bc = new BroadcastChannel("connect_chat_coordination_v1");
+        bc.addEventListener("message", handleCoordination);
+      } catch {}
+    }
+    navigator.serviceWorker?.addEventListener("message", handleSwMessage);
+
+    return () => {
+      unsub();
+      if (bc) {
+        bc.removeEventListener("message", handleCoordination);
+        bc.close();
+      }
+      navigator.serviceWorker?.removeEventListener("message", handleSwMessage);
+    };
+  }, []);
+
+  useEffect(() => {
+    setActiveChannelFocus(activeChannelId);
+  }, [activeChannelId]);
 
   // Carrega preferências de emojis do usuário (cache local + sincronização com Supabase)
   useEffect(() => {
@@ -790,51 +843,31 @@ export default function ChatInterface({
       if (!latest || notifiedIdsRef.current.has(latest.id)) return;
       notifiedIdsRef.current.add(latest.id);
 
-      // Não notifica se a conversa já está aberta e visível
-      if (visibleActive && latest.channel_id === activeId) return;
-      if (mutedChannels.includes(latest.channel_id)) return;
+      // Despacha notificação inteligente coordenada entre janelas (evita duplicidades e respeita silenciados)
+      const previewBody =
+        latest.type === "sticker"
+          ? "✨ Figurinha"
+          : latest.type === "gif"
+            ? "🎬 GIF"
+            : latest.type === "image"
+              ? "📷 Imagem compartilhada"
+              : latest.type === "video"
+                ? "🎥 Vídeo"
+                : latest.type === "audio"
+                  ? "🎤 Mensagem de voz"
+                  : latest.type === "file"
+                    ? "📄 Arquivo anexado"
+                    : String(latest.content || "").slice(0, 140);
 
-      // Coordenação entre múltiplas abas: apenas a primeira aba notifica
-      const lockKey = `connect_notified_${latest.id}`;
-      try {
-        if (localStorage.getItem(lockKey)) return;
-        localStorage.setItem(lockKey, String(Date.now()));
-      } catch {}
-
-      const soundOn = localStorage.getItem("connect_chat_sound") !== "false";
-      const desktopOn = localStorage.getItem("connect_chat_desktop") !== "false";
-      const privacy = localStorage.getItem("connect_chat_privacy") === "true";
-
-      if (soundOn) soundManager.playMessageReceived();
-
-      if (desktopOn && document.hidden && "Notification" in window && Notification.permission === "granted") {
-        const previewBody =
-          latest.type === "sticker"
-            ? "✨ Figurinha"
-            : latest.type === "gif"
-              ? "🎬 GIF"
-              : latest.type === "image"
-                ? "📷 Imagem compartilhada"
-                : latest.type === "video"
-                  ? "🎥 Vídeo"
-                  : latest.type === "audio"
-                    ? "🎤 Mensagem de voz"
-                    : latest.type === "file"
-                      ? "📄 Arquivo anexado"
-                      : String(latest.content || "").slice(0, 140);
-
-        const n = new Notification(privacy ? "CONNECT CHAT" : `Nova mensagem de ${latest.sender?.name || "colega"}`, {
-          body: privacy ? "Nova mensagem no CONNECT CHAT" : previewBody,
-          tag: `connect-${latest.channel_id}`,
-          icon: "/favicon.ico",
-        });
-        n.onclick = () => {
-          window.focus();
-          setActiveChannelId(latest.channel_id);
-          setMobileView("chat");
-          n.close();
-        };
-      }
+      dispatchSmartNotification({
+        title: `Nova mensagem de ${latest.sender?.name || "colega"}`,
+        body: previewBody,
+        channelId: latest.channel_id,
+        messageId: latest.id,
+        senderId: latest.sender_id,
+        currentUserId: currentUser.id,
+        icon: "/branding/connect-chat-192.png",
+      });
     } catch {}
   };
 
@@ -911,6 +944,12 @@ export default function ChatInterface({
         event,
         payload: { channelId, messageId, senderId: currentUser.id },
       });
+      // Notifica o shell global do ERP instantaneamente (< 50ms)
+      supabase.channel("connect-chat-global-shell").send({
+        type: "broadcast",
+        event: "message",
+        payload: { channelId, messageId, senderId: currentUser.id },
+      }).catch(() => {});
     } catch {}
   };
 
@@ -1691,9 +1730,37 @@ export default function ChatInterface({
           <div className="flex items-center justify-between gap-2">
             <h2 className="text-xs font-bold text-foreground tracking-wider uppercase flex items-center gap-2 truncate">
               <MessageSquare className="w-4 h-4 text-primary shrink-0" />
-              <span className="truncate">SYNGETI Connect 2.0</span>
+              <span className="truncate">{isStandaloneApp ? "CONNECT CHAT" : "SYNGETI Connect 2.0"}</span>
             </h2>
             <div className="flex items-center gap-1 shrink-0">
+              {/* Botão Instalar App PWA quando suportado pelo navegador */}
+              {canInstallPwa && !isStandaloneApp && (
+                <button
+                  type="button"
+                  onClick={promptPWAInstall}
+                  className="p-1.5 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary transition-colors flex items-center gap-1 text-[11px] font-bold"
+                  title="Instalar CONNECT CHAT no Windows como aplicativo independente"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Instalar</span>
+                </button>
+              )}
+
+              {/* Botão Abrir em Janela Própria (se estiver no ERP) */}
+              {!isStandaloneApp && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.open("/chat", "ConnectChatStandalone", "width=1200,height=800,menubar=no,status=no,toolbar=no");
+                  }}
+                  className="p-1.5 rounded-lg bg-surface-elevated hover:bg-surface-hover text-muted-foreground hover:text-foreground border border-border transition-colors"
+                  title="Abrir CONNECT CHAT em janela própria independente (sem menus do ERP)"
+                  aria-label="Abrir em Janela Independente"
+                >
+                  <AppWindow className="w-3.5 h-3.5" />
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={() => setIsSettingsOpen(true)}
