@@ -10,20 +10,20 @@ import { useAuthUser } from "@/contexts/AuthUserContext";
 import { Menu } from "lucide-react";
 
 const MODULE_DATA: Record<string, { title: string, subtitle: string }> = {
-  'dashboard': { title: 'Módulo de Gestão', subtitle: 'SYNGETI • Visão Geral e Indicadores' },
-  'cmdb': { title: 'Módulo de Inventário', subtitle: 'SYNGETI • Gestão de Ativos e Licenças' },
-  'service-desk': { title: 'Módulo de Atendimento', subtitle: 'SYNGETI • Service Desk e Chamados' },
-  'problems': { title: 'Módulo de Problemas', subtitle: 'SYNGETI • Gestão de Incidentes Maiores' },
-  'changes': { title: 'Módulo de Mudanças', subtitle: 'SYNGETI • Planejamento e Risco' },
-  'projects': { title: 'Módulo de Projetos', subtitle: 'SYNGETI • Planejamento e Tarefas' },
-  'bookings': { title: 'Módulo de Reservas', subtitle: 'SYNGETI • Alocação de Recursos' },
-  'contracts': { title: 'Módulo de Contratos', subtitle: 'SYNGETI • Parceiros e Fornecedores' },
-  'knowledge': { title: 'Módulo de Conhecimento', subtitle: 'SYNGETI • Wiki e Procedimentos' },
-  'connect': { title: 'CONNECT CHAT', subtitle: 'SYNGETI • Comunicação Corporativa' },
-  'users': { title: 'Gestão de Usuários', subtitle: 'SYNGETI • Colaboradores e Acessos' },
-  'pc-access': { title: 'Gestão de Acessos', subtitle: 'SYNGETI • E-mails, PCs e Senhas' },
-  'sentinela': { title: 'SYNGETI SENTINELA IA', subtitle: 'SYNGETI • Auditoria & SRE Contínuo' },
-  'settings': { title: 'Módulo de Configurações', subtitle: 'SYNGETI • Sistema e Parâmetros' },
+  'dashboard': { title: 'Módulo de Gestão', subtitle: 'SyngeTI • Visão Geral e Indicadores' },
+  'cmdb': { title: 'Módulo de Inventário', subtitle: 'SyngeTI • Gestão de Ativos e Licenças' },
+  'service-desk': { title: 'Módulo de Atendimento', subtitle: 'SyngeTI • Service Desk e Chamados' },
+  'problems': { title: 'Módulo de Problemas', subtitle: 'SyngeTI • Gestão de Incidentes Maiores' },
+  'changes': { title: 'Módulo de Mudanças', subtitle: 'SyngeTI • Planejamento e Risco' },
+  'projects': { title: 'Módulo de Projetos', subtitle: 'SyngeTI • Planejamento e Tarefas' },
+  'bookings': { title: 'Módulo de Reservas', subtitle: 'SyngeTI • Alocação de Recursos' },
+  'contracts': { title: 'Módulo de Contratos', subtitle: 'SyngeTI • Parceiros e Fornecedores' },
+  'knowledge': { title: 'Módulo de Conhecimento', subtitle: 'SyngeTI • Wiki e Procedimentos' },
+  'connect': { title: 'CONNECT CHAT', subtitle: 'SyngeTI • Comunicação Corporativa' },
+  'users': { title: 'Gestão de Usuários', subtitle: 'SyngeTI • Colaboradores e Acessos' },
+  'pc-access': { title: 'Gestão de Acessos', subtitle: 'SyngeTI • E-mails, PCs e Senhas' },
+  'sentinela': { title: 'SyngeTI SENTINELA IA', subtitle: 'SyngeTI • Auditoria & SRE Contínuo' },
+  'settings': { title: 'Módulo de Configurações', subtitle: 'SyngeTI • Sistema e Parâmetros' },
 };
 
 import { useMobileMenu } from "./AuthenticatedShell";
@@ -79,28 +79,28 @@ export function Topbar({
   
   const moduleInfo = MODULE_DATA[rootPath] || { 
     title: 'Módulo do Sistema', 
-    subtitle: 'SYNGETI • Gestão Inteligente' 
+    subtitle: 'SyngeTI • Sistema de Integração e Gestão de TI' 
   };
 
   return (
-    <header className="h-[60px] sm:h-[72px] bg-background border-b border-border flex items-center justify-between px-3 sm:px-6 sticky top-0 z-30 transition-colors duration-300">
+    <header className="h-16 bg-bg-header border-b border-border flex items-center justify-between px-3 sm:px-6 sticky top-0 z-30 transition-colors duration-200">
       
       {/* Title area (Hamburger + Titles) */}
       <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1 mr-2">
         <button 
           type="button"
           onClick={toggleMobileMenu}
-          className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-surface border border-border flex items-center justify-center text-foreground hover:bg-surface-hover transition-colors shadow-xs shrink-0"
+          className="w-9 h-9 rounded-xl bg-surface-2 border border-border flex items-center justify-center text-foreground hover:bg-surface-3 transition-colors shrink-0 cursor-pointer"
           title="Abrir menu de navegação"
           aria-label="Abrir menu lateral"
         >
           <Menu className="w-5 h-5" />
         </button>
         <div className="flex flex-col min-w-0">
-          <h1 className="text-sm sm:text-lg md:text-xl font-bold text-foreground leading-tight truncate">
+          <h1 className="font-display text-base sm:text-lg font-bold text-foreground leading-tight truncate">
             {moduleInfo.title}
           </h1>
-          <p className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase mt-0.5 truncate hidden sm:block">
+          <p className="text-xs font-medium text-muted-foreground truncate hidden sm:block">
             {moduleInfo.subtitle}
           </p>
         </div>
@@ -113,8 +113,8 @@ export function Topbar({
         
         <div className="flex items-center space-x-2 sm:space-x-3 border-l border-border pl-2 sm:pl-4">
           <div className="text-sm text-right hidden lg:block">
-            <p className="font-bold text-foreground leading-tight truncate max-w-[120px]">{activeUserName}</p>
-            <p className="text-[11px] font-semibold text-muted-foreground uppercase">{activeRole}</p>
+            <p className="text-xs font-semibold text-foreground leading-tight truncate max-w-[140px]">{activeUserName}</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase">{activeRole}</p>
           </div>
           
           <UserAvatar

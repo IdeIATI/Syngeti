@@ -76,7 +76,7 @@ export function SessionGuard() {
 
   if (redirecting) {
     return (
-      <div className="fixed inset-0 z-[99999] bg-[#050D1B] flex flex-col items-center justify-center text-foreground select-none">
+      <div className="fixed inset-0 z-[99999] bg-background flex flex-col items-center justify-center text-foreground select-none">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-3"></div>
         <p className="text-sm text-muted-foreground font-medium">Sessão finalizada. Redirecionando para o login...</p>
       </div>

@@ -4,6 +4,7 @@ import { signIn } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Network, Mail, Lock, Eye, EyeOff, ArrowRight, Check, KeyRound, X, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -176,15 +177,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#050D1B] text-foreground font-sans selection:bg-primary/30">
+    <div className="relative flex min-h-screen bg-background text-foreground font-sans selection:bg-primary-soft">
+      {/* Seletor de tema acessível no canto superior direito */}
+      <div className="fixed top-4 right-4 z-40">
+        <ThemeSwitcher />
+      </div>
+
       {/* Lado Esquerdo - Branding */}
       <div 
-        className="hidden lg:flex flex-col justify-between w-1/2 p-12 border-r border-border/50 bg-cover bg-center relative"
+        className="hidden lg:flex flex-col justify-between w-1/2 p-12 border-r border-border bg-surface-2 bg-cover bg-center relative"
         style={{ backgroundImage: branding?.loginBackground ? `url(${branding.loginBackground})` : 'none' }}
       >
         {/* Overlay caso haja imagem de fundo para garantir legibilidade */}
         {branding?.loginBackground && (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/90 via-[#050D1B]/95 to-[#050D1B] z-0"></div>
+          <div className="absolute inset-0 bg-background/85 backdrop-blur-[2px] z-0"></div>
         )}
 
         <div className="relative z-10 flex flex-col justify-between h-full">
@@ -193,31 +199,31 @@ export default function LoginPage() {
             {branding?.loginLogo && !imageError ? (
               <img 
                 src={branding.loginLogo} 
-                alt="SYNGETI" 
+                alt="SyngeTI — Sistema de Integração e Gestão de TI" 
                 onError={() => setImageError(true)}
-                className="w-full max-w-[350px] h-auto max-h-[350px] object-contain object-left" 
+                className="w-full max-w-[320px] h-auto max-h-[280px] object-contain object-left" 
               />
             ) : (
               <>
-                <svg width="40" height="46" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#0E1628"/>
+                <svg width="40" height="46" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#081522"/>
                   <path d="M75 37.5L50 25L25 37.5V62.5L50 75L75 62.5V37.5Z" fill="url(#paint0_linear)"/>
-                  <path d="M50 25V75" stroke="#00C2FF" strokeWidth="8"/>
-                  <path d="M25 37.5L50 50L75 37.5" stroke="#007BFF" strokeWidth="8"/>
-                  <path d="M25 62.5L50 50L75 62.5" stroke="#007BFF" strokeWidth="8"/>
+                  <path d="M50 25V75" stroke="#22D3EE" strokeWidth="8"/>
+                  <path d="M25 37.5L50 50L75 37.5" stroke="#0EA5E9" strokeWidth="8"/>
+                  <path d="M25 62.5L50 50L75 62.5" stroke="#0EA5E9" strokeWidth="8"/>
                   <defs>
                     <linearGradient id="paint0_linear" x1="25" y1="25" x2="75" y2="75" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#007BFF"/>
-                      <stop offset="1" stopColor="#00C2FF"/>
+                      <stop stopColor="#0EA5E9"/>
+                      <stop offset="1" stopColor="#22D3EE"/>
                     </linearGradient>
                   </defs>
                 </svg>
                 <div className="flex flex-col">
-                  <span className="text-3xl font-extrabold tracking-widest text-white leading-none">
-                    SYNGE<span className="text-[#00C2FF]">TI</span>
+                  <span className="font-display text-3xl font-bold tracking-wide text-foreground leading-none">
+                    Synge<span className="text-primary">TI</span>
                   </span>
-                  <span className="text-[0.65rem] tracking-[0.2em] text-muted-foreground font-semibold mt-1">
-                    GESTÃO DE TI E COMUNICAÇÃO INTERNA
+                  <span className="text-xs tracking-wide text-text-secondary font-medium mt-1">
+                    Sistema de Integração e Gestão de TI
                   </span>
                 </div>
               </>
@@ -226,58 +232,56 @@ export default function LoginPage() {
 
           {/* Copy / Texto Central */}
           <div className="max-w-lg">
-            <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-tight tracking-tight mb-4">
+            <h1 className="font-display text-4xl lg:text-[42px] font-bold text-foreground leading-tight tracking-tight mb-4">
               GESTÃO INTELIGENTE<br />
               PARA A SUA <span className="text-primary">TI</span>
             </h1>
-            <p className="mt-4 text-muted-foreground text-lg leading-relaxed">
-              Centralize chamados, monitore ativos e gerencie toda a 
-              operação de tecnologia da sua empresa em uma plataforma 
-              unificada e de alta performance.
+            <p className="mt-4 text-text-secondary text-base lg:text-lg leading-relaxed">
+              Sistema de Integração e Gestão de TI. Centralize chamados, monitore ativos e gerencie toda a operação tecnológica em uma plataforma unificada e de alta legibilidade.
             </p>
           </div>
 
           {/* Rodapé do lado esquerdo */}
-          <div className="text-xs text-muted-foreground/60 font-medium">
-            © 2026 SYNGETI. Todos os direitos reservados. By IdeIA, Joao Marcos Alves
+          <div className="text-xs text-muted-foreground font-medium">
+            © 2026 SyngeTI — Sistema de Integração e Gestão de TI. Todos os direitos reservados.
           </div>
         </div>
       </div>
 
       {/* Lado Direito - Formulário de Login */}
-      <div className="flex w-full lg:w-1/2 items-center justify-center p-4 sm:p-6 md:p-8 bg-[#050D1B]">
-        <div className="w-full max-w-md bg-[#0f172a] p-6 sm:p-8 md:p-10 rounded-2xl sm:rounded-[24px] border border-border/60 shadow-2xl">
+      <div className="flex w-full lg:w-1/2 items-center justify-center p-4 sm:p-6 md:p-8 bg-background">
+        <div className="w-full max-w-md bg-surface p-6 sm:p-8 md:p-10 rounded-2xl border border-border shadow-xl">
           
           {/* Logo com ícone visível no Mobile / Smartphone (< lg) */}
           <div className="flex lg:hidden flex-col items-center justify-center mb-6">
             {branding?.loginLogo && !imageError ? (
               <img 
                 src={branding.loginLogo} 
-                alt="SYNGETI Gestão de TI" 
+                alt="SyngeTI — Sistema de Integração e Gestão de TI" 
                 onError={() => setImageError(true)}
-                className="h-14 sm:h-16 w-auto max-w-[220px] object-contain drop-shadow-md mb-1" 
+                className="h-14 sm:h-16 w-auto max-w-[220px] object-contain mb-1" 
               />
             ) : (
               <div className="flex items-center gap-3 py-1">
-                <svg width="36" height="42" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                  <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#0E1628"/>
+                <svg width="36" height="42" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true">
+                  <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#081522"/>
                   <path d="M75 37.5L50 25L25 37.5V62.5L50 75L75 62.5V37.5Z" fill="url(#paint0_linear_mobile)"/>
-                  <path d="M50 25V75" stroke="#00C2FF" strokeWidth="8"/>
-                  <path d="M25 37.5L50 50L75 37.5" stroke="#007BFF" strokeWidth="8"/>
-                  <path d="M25 62.5L50 50L75 62.5" stroke="#007BFF" strokeWidth="8"/>
+                  <path d="M50 25V75" stroke="#22D3EE" strokeWidth="8"/>
+                  <path d="M25 37.5L50 50L75 37.5" stroke="#0EA5E9" strokeWidth="8"/>
+                  <path d="M25 62.5L50 50L75 62.5" stroke="#0EA5E9" strokeWidth="8"/>
                   <defs>
                     <linearGradient id="paint0_linear_mobile" x1="25" y1="25" x2="75" y2="75" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#007BFF"/>
-                      <stop offset="1" stopColor="#00C2FF"/>
+                      <stop stopColor="#0EA5E9"/>
+                      <stop offset="1" stopColor="#22D3EE"/>
                     </linearGradient>
                   </defs>
                 </svg>
                 <div className="flex flex-col text-left">
-                  <span className="text-2xl font-extrabold tracking-widest text-white leading-none">
-                    SYNGE<span className="text-[#00C2FF]">TI</span>
+                  <span className="font-display text-2xl font-bold tracking-wide text-foreground leading-none">
+                    Synge<span className="text-primary">TI</span>
                   </span>
-                  <span className="text-[0.6rem] tracking-[0.18em] text-muted-foreground font-semibold mt-1">
-                    GESTÃO DE TI
+                  <span className="text-xs text-text-secondary font-medium mt-1">
+                    Sistema de Integração e Gestão de TI
                   </span>
                 </div>
               </div>
@@ -285,20 +289,21 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-6 sm:mb-8 text-center lg:text-left">
-            <h2 className="text-xl sm:text-2xl font-bold text-white mb-1.5 sm:mb-2">Bem-vindo de volta</h2>
-            <p className="text-xs sm:text-sm text-muted-foreground">Insira suas credenciais para acessar o painel</p>
+            <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-1.5">Bem-vindo de volta</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">Insira suas credenciais para acessar a plataforma</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             
             {/* Campo E-mail */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-foreground ml-1">E-mail ou Usuário</label>
+              <label htmlFor="login-email" className="text-xs font-semibold text-foreground ml-1 block">E-mail ou Usuário</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Mail className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <input
+                  id="login-email"
                   type="text"
                   required
                   value={email}
@@ -311,20 +316,21 @@ export default function LoginPage() {
                       try { router.prefetch("/dashboard"); } catch {}
                     }
                   }}
-                  className="w-full bg-[#050D1B] border border-border text-foreground text-sm rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground"
-                  placeholder="admin"
+                  className="w-full bg-input border border-border text-foreground text-sm rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors placeholder:text-muted-foreground"
+                  placeholder="ex: joao.marcos ou compras@dlamb.ind.br"
                 />
               </div>
             </div>
 
             {/* Campo Senha */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-foreground ml-1">Senha</label>
+              <label htmlFor="login-password" className="text-xs font-semibold text-foreground ml-1 block">Senha</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                   <Lock className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <input
+                  id="login-password"
                   type={showPassword ? "text" : "password"}
                   required
                   value={password}
@@ -332,13 +338,14 @@ export default function LoginPage() {
                     try { router.prefetch("/dashboard"); } catch {}
                   }}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#050D1B] border border-border text-foreground text-sm rounded-xl py-3.5 pl-11 pr-12 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground"
+                  className="w-full bg-input border border-border text-foreground text-sm rounded-xl py-3 pl-11 pr-12 focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors placeholder:text-muted-foreground"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -352,12 +359,12 @@ export default function LoginPage() {
                 role="checkbox"
                 aria-checked={rememberMe}
                 onClick={handleToggleRememberMe}
-                className="flex items-center gap-2 cursor-pointer group focus:outline-none select-none text-left"
+                className="flex items-center gap-2 cursor-pointer group select-none text-left"
               >
-                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${rememberMe ? 'bg-primary-hover border-primary-hover' : 'border-slate-700 bg-[#050D1B] group-hover:border-primary'}`}>
-                  {rememberMe && <Check className="w-3 h-3 text-white" />}
+                <div className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${rememberMe ? 'bg-primary border-primary' : 'border-border-strong bg-input group-hover:border-primary'}`}>
+                  {rememberMe && <Check className="w-3 h-3 text-primary-foreground" />}
                 </div>
-                <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors">Lembrar-me</span>
+                <span className="text-xs text-text-secondary group-hover:text-foreground transition-colors">Lembrar-me</span>
               </button>
               <button
                 type="button"
@@ -367,14 +374,14 @@ export default function LoginPage() {
                   setForgotMessage("");
                   setForgotIdentifier("");
                 }}
-                className="text-xs text-primary hover:text-blue-400 font-medium transition-colors"
+                className="text-xs text-primary hover:text-primary-hover font-semibold transition-colors cursor-pointer"
               >
                 Esqueceu a senha?
               </button>
             </div>
 
             {error && (
-              <div className="text-red-400 text-sm text-center font-medium bg-red-500/10 py-2 rounded-lg border border-red-500/20">
+              <div className="text-danger text-sm text-center font-medium bg-danger/10 py-2.5 px-3 rounded-xl border border-danger/25" role="alert">
                 {error}
               </div>
             )}
@@ -383,7 +390,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary-hover hover:bg-primary text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-70 shadow-lg shadow-primary-hover/20 mt-4"
+              className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-70 shadow-sm mt-4 cursor-pointer"
             >
               {loading ? "Acessando..." : "Acessar Sistema"}
               {!loading && <ArrowRight className="w-4 h-4" />}
@@ -395,38 +402,39 @@ export default function LoginPage() {
 
       {/* Modal - Recuperação de Senha */}
       {isForgotOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-[#0f172a] p-8 rounded-[24px] border border-border/80 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-surface p-8 rounded-2xl border border-border-strong shadow-2xl relative">
             
             {/* Fechar Modal */}
             <button
               type="button"
               onClick={() => setIsForgotOpen(false)}
-              className="absolute top-6 right-6 text-muted-foreground hover:text-white transition-colors p-1 rounded-lg hover:bg-surface"
+              aria-label="Fechar modal de recuperação de senha"
+              className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-lg hover:bg-surface-hover cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="flex items-center gap-2 mb-4">
               <KeyRound className="w-5 h-5 text-primary" />
-              <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 Recuperação de Acesso
               </span>
             </div>
 
-            <h3 className="text-xl font-bold text-white mb-2">Esqueceu sua senha?</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed mb-6">
+            <h3 className="font-display text-xl font-bold text-foreground mb-2">Esqueceu sua senha?</h3>
+            <p className="text-xs text-text-secondary leading-relaxed mb-6">
               Informe seu e-mail ou nome de usuário cadastrado. Uma notificação será encaminhada à administração de TI para validação e atendimento seguro.
             </p>
 
             {forgotMessage ? (
               <div className="space-y-6">
-                <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl space-y-2">
-                  <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                <div className="p-4 bg-success/10 border border-success/25 rounded-xl space-y-2">
+                  <div className="flex items-center gap-2 text-success font-bold text-sm">
                     <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
                     <span>Solicitação Encaminhada</span>
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-text-secondary leading-relaxed">
                     {forgotMessage}
                   </p>
                 </div>
@@ -434,7 +442,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => setIsForgotOpen(false)}
-                  className="w-full bg-primary hover:bg-primary-hover text-white text-sm font-semibold py-3 rounded-xl transition-colors"
+                  className="w-full bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-semibold py-3 rounded-xl transition-colors cursor-pointer"
                 >
                   Concluir e Voltar ao Login
                 </button>
@@ -442,25 +450,26 @@ export default function LoginPage() {
             ) : (
               <form onSubmit={handleForgotSubmit} className="space-y-4">
                 {forgotError && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2.5 text-red-400 text-xs font-medium">
+                  <div className="p-3 bg-danger/10 border border-danger/25 rounded-xl flex items-center gap-2.5 text-danger text-xs font-medium" role="alert">
                     <AlertCircle className="w-4 h-4 flex-shrink-0" />
                     <span>{forgotError}</span>
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-foreground ml-1">E-mail ou Usuário</label>
+                  <label htmlFor="forgot-identifier" className="text-xs font-semibold text-foreground ml-1 block">E-mail ou Usuário</label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
                       <Mail className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <input
+                      id="forgot-identifier"
                       type="text"
                       required
                       value={forgotIdentifier}
                       onChange={(e) => setForgotIdentifier(e.target.value)}
                       placeholder="ex: joao.marcos ou compras@dlamb.ind.br"
-                      className="w-full bg-[#050D1B] border border-border text-foreground text-sm rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground"
+                      className="w-full bg-input border border-border text-foreground text-sm rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors placeholder:text-muted-foreground"
                       disabled={forgotLoading}
                     />
                   </div>
@@ -471,14 +480,14 @@ export default function LoginPage() {
                     type="button"
                     onClick={() => setIsForgotOpen(false)}
                     disabled={forgotLoading}
-                    className="w-1/3 bg-surface hover:bg-surface-hover text-foreground text-xs font-semibold py-3 rounded-xl border border-border transition-colors"
+                    className="w-1/3 bg-surface-2 hover:bg-surface-3 text-foreground text-xs font-semibold py-3 rounded-xl border border-border transition-colors cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={forgotLoading || !forgotIdentifier.trim()}
-                    className="w-2/3 bg-primary hover:bg-primary-hover text-white text-xs font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-md shadow-primary/20"
+                    className="w-2/3 bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     {forgotLoading ? (
                       <>

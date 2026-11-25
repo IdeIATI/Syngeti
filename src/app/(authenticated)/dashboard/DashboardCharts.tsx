@@ -102,13 +102,14 @@ export default function DashboardCharts({
             </Pie>
             <Tooltip 
               contentStyle={{
-                backgroundColor: '#0B1528',
-                borderColor: 'rgba(255,255,255,0.1)',
-                borderRadius: '8px',
-                color: '#fff',
+                backgroundColor: 'var(--surface-1)',
+                borderColor: 'var(--border-strong)',
+                borderRadius: '10px',
+                color: 'var(--text-primary)',
                 fontSize: '12px',
+                boxShadow: 'var(--shadow-card)',
               }}
-              itemStyle={{ color: '#fff' }}
+              itemStyle={{ color: 'var(--text-primary)' }}
               formatter={(value: any, name: any) => [`${value} chamados`, name]}
             />
           </PieChart>
@@ -116,8 +117,8 @@ export default function DashboardCharts({
         
         {/* Número Total 100% Centralizado no Vazio do Círculo */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-          <span className="text-3xl font-black text-foreground leading-none tracking-tight">{total}</span>
-          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Total</span>
+          <span className="font-display text-3xl font-bold text-foreground leading-none tracking-tight tabular-nums">{total}</span>
+          <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mt-1">Total</span>
         </div>
       </div>
 
@@ -126,20 +127,21 @@ export default function DashboardCharts({
         {enrichedData.map((item, index) => (
           <div 
             key={index} 
-            className="flex items-center justify-between gap-2 text-xs py-1 px-2 rounded-lg hover:bg-muted/40 transition-colors"
+            className="flex items-center justify-between gap-2 text-xs py-1.5 px-2.5 rounded-lg hover:bg-surface-hover transition-colors"
           >
             <div className="flex items-center gap-2 min-w-0 flex-1">
               <span 
-                className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" 
+                className="w-2.5 h-2.5 rounded-full shrink-0" 
                 style={{ backgroundColor: item.color }}
+                aria-hidden="true"
               />
-              <span className="text-foreground/90 font-medium truncate text-[11px] sm:text-xs">
+              <span className="text-foreground font-medium truncate text-xs">
                 {item.name}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground font-mono text-[11px]">
+            <div className="flex items-center gap-1.5 shrink-0 text-muted-foreground font-mono text-xs tabular-nums">
               <span className="font-semibold text-foreground">{item.quantidade}</span>
-              <span className="text-[10px] opacity-75">({item.percent}%)</span>
+              <span className="text-xs">({item.percent}%)</span>
             </div>
           </div>
         ))}

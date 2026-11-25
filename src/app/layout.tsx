@@ -1,14 +1,35 @@
 import './globals.css';
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { Inter, Exo_2 } from 'next/font/google';
 import Script from 'next/script';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { getBranding } from '@/lib/branding';
 
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
+  display: 'swap',
+});
+
+const exo2 = Exo_2({
+  subsets: ['latin'],
+  weight: ['600', '700'],
+  variable: '--font-exo2',
+  display: 'swap',
+});
+
+export const viewport: Viewport = {
+  colorScheme: 'light dark',
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export async function generateMetadata(): Promise<Metadata> {
   const branding = getBranding();
   return {
-    title: 'SYNGETI - Sistema Integrado de Gestão de TI',
-    description: 'Plataforma centralizada de ITSM, CMDB, e gestão de TI',
+    title: 'SyngeTI — Sistema de Integração e Gestão de TI',
+    description: 'Sistema de Integração e Gestão de TI — ITSM, CMDB, Estoque, Service Desk e Connect Chat',
     manifest: '/manifest.webmanifest',
     icons: {
       icon: branding?.favicon || '/branding/logo-icon.png',
@@ -24,10 +45,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" className={`${inter.variable} ${exo2.variable}`} suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className="h-full text-foreground bg-background antialiased transition-colors duration-300"
+        className="h-full font-sans text-foreground bg-background antialiased"
       >
         <Script
           id="unhandled-rejection-guard"

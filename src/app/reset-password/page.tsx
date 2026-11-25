@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, ArrowRight, ShieldCheck } from "lucide-react";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -66,34 +67,34 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-[#0f172a] p-10 rounded-[24px] border border-border/60 shadow-2xl">
+    <div className="w-full max-w-md bg-surface p-8 sm:p-10 rounded-2xl border border-border shadow-2xl">
       <div className="flex items-center gap-2 mb-6">
         <ShieldCheck className="w-6 h-6 text-primary" />
         <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-          SYNGETI LOG • Segurança
+          SyngeTI • Segurança
         </span>
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-white mb-2">Redefinir Senha</h2>
-        <p className="text-sm text-muted-foreground">
+        <h2 className="font-display text-2xl font-bold text-foreground mb-2">Redefinir Senha</h2>
+        <p className="text-sm text-text-secondary">
           Crie uma nova senha segura para acessar sua conta na plataforma.
         </p>
       </div>
 
       {success ? (
         <div className="space-y-6">
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-center space-y-2">
-            <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto" />
-            <h3 className="text-base font-bold text-white">Senha alterada com sucesso!</h3>
-            <p className="text-xs text-muted-foreground">
+          <div className="p-4 bg-success/10 border border-success/25 rounded-xl text-center space-y-2">
+            <CheckCircle2 className="w-10 h-10 text-success mx-auto" />
+            <h3 className="font-display text-base font-bold text-foreground">Senha alterada com sucesso!</h3>
+            <p className="text-xs text-text-secondary">
               Suas novas credenciais já estão ativas no sistema.
             </p>
           </div>
 
           <Link
             href="/login"
-            className="w-full bg-primary text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all hover:bg-primary-hover shadow-lg shadow-primary/20"
+            className="w-full bg-primary text-primary-foreground font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors hover:bg-primary-hover shadow-sm"
           >
             <span>Ir para o Login</span>
             <ArrowRight className="w-4 h-4" />
@@ -102,7 +103,7 @@ function ResetPasswordForm() {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-3 text-red-400 text-xs font-medium">
+            <div className="p-3 bg-danger/10 border border-danger/25 rounded-xl flex items-center gap-3 text-danger text-xs font-medium" role="alert">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
@@ -110,24 +111,26 @@ function ResetPasswordForm() {
 
           {/* Nova Senha */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-foreground ml-1">Nova Senha</label>
+            <label htmlFor="reset-password" className="text-xs font-semibold text-foreground ml-1 block">Nova Senha</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="h-4 w-4 text-muted-foreground" />
               </div>
               <input
+                id="reset-password"
                 type={showPassword ? "text" : "password"}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#050D1B] border border-border text-foreground text-sm rounded-xl py-3.5 pl-11 pr-12 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground"
+                className="w-full bg-input border border-border text-foreground text-sm rounded-xl py-3.5 pl-11 pr-12 focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors placeholder:text-muted-foreground"
                 placeholder="Mínimo 6 caracteres"
                 disabled={!token || loading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-foreground transition-colors"
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -136,17 +139,18 @@ function ResetPasswordForm() {
 
           {/* Confirmar Senha */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold text-foreground ml-1">Confirmar Nova Senha</label>
+            <label htmlFor="reset-confirm" className="text-xs font-semibold text-foreground ml-1 block">Confirmar Nova Senha</label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="h-4 w-4 text-muted-foreground" />
               </div>
               <input
+                id="reset-confirm"
                 type={showPassword ? "text" : "password"}
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full bg-[#050D1B] border border-border text-foreground text-sm rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all placeholder:text-muted-foreground"
+                className="w-full bg-input border border-border text-foreground text-sm rounded-xl py-3.5 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors placeholder:text-muted-foreground"
                 placeholder="Repita a nova senha"
                 disabled={!token || loading}
               />
@@ -156,7 +160,7 @@ function ResetPasswordForm() {
           <button
             type="submit"
             disabled={!token || loading}
-            className="w-full bg-primary hover:bg-primary-hover text-white font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-50 shadow-lg shadow-primary/20 mt-4"
+            className="w-full bg-primary hover:bg-primary-hover text-primary-foreground font-semibold py-3.5 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 shadow-sm mt-4 cursor-pointer"
           >
             {loading ? "Salvando nova senha..." : "Redefinir e Salvar Senha"}
           </button>
@@ -174,8 +178,11 @@ function ResetPasswordForm() {
 
 export default function ResetPasswordPage() {
   return (
-    <div className="flex min-h-screen bg-[#050D1B] text-foreground font-sans items-center justify-center p-6">
-      <Suspense fallback={<div className="text-white text-sm">Carregando...</div>}>
+    <div className="relative flex min-h-screen bg-background text-foreground font-sans items-center justify-center p-6">
+      <div className="fixed top-4 right-4 z-40">
+        <ThemeSwitcher />
+      </div>
+      <Suspense fallback={<div className="text-muted-foreground text-sm">Carregando...</div>}>
         <ResetPasswordForm />
       </Suspense>
     </div>

@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: [
@@ -8,21 +8,25 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'Inter', 'Manrope', 'Arial', 'sans-serif'],
+        display: ['var(--font-exo2)', 'Exo 2', 'var(--font-inter)', 'Arial', 'sans-serif'],
+      },
       colors: {
-        background: 'var(--background)',
-        foreground: 'var(--foreground)',
+        background: 'var(--bg-app)',
+        foreground: 'var(--text-primary)',
         primary: {
-          DEFAULT: '#0f172a',
-          foreground: '#f8fafc',
+          DEFAULT: 'var(--primary)',
+          foreground: 'var(--primary-foreground)',
         },
         secondary: {
-          DEFAULT: '#f1f5f9',
-          foreground: '#0f172a',
+          DEFAULT: 'var(--secondary)',
+          foreground: 'var(--secondary-foreground)',
         },
-        border: '#e2e8f0',
+        border: 'var(--border-subtle)',
       },
     },
   },
   plugins: [],
-}
-export default config
+};
+export default config;

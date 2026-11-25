@@ -272,35 +272,35 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
     <aside
       className={`
         fixed inset-y-0 left-0 z-50 bg-sidebar border-r border-border h-full flex flex-col transition-transform duration-300 select-none
-        ${isMobileOpen ? "translate-x-0 w-[280px] shadow-2xl" : "-translate-x-full"}
+        ${isMobileOpen ? "translate-x-0 w-[256px] shadow-2xl" : "-translate-x-full"}
         md:relative md:z-20 md:translate-x-0
-        ${isCollapsed ? "md:w-[76px]" : "md:w-[280px]"}
+        ${isCollapsed ? "md:w-[76px]" : "md:w-[256px]"}
       `}
     >
       {/* Brand Header */}
-      <div className={`h-[60px] sm:h-[72px] flex items-center ${isCollapsed ? 'md:justify-center md:px-2' : ''} justify-between px-3.5 border-b border-border/50`}>
+      <div className={`h-16 flex items-center ${isCollapsed ? 'md:justify-center md:px-2' : ''} justify-between px-3.5 border-b border-border`}>
         {/* Expanded mode or Mobile drawer (always expanded on mobile) */}
         <div className={`items-center gap-3 flex-1 h-full min-w-0 mr-1.5 ${isCollapsed ? 'hidden md:hidden' : 'flex'}`}>
           {/* CAMPO SEPARADO SOMENTE PARA O ÍCONE */}
-          <div className="w-10 h-10 rounded-xl bg-surface/50 border border-border/60 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-1">
+          <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center flex-shrink-0 overflow-hidden p-1">
             {branding?.appIcon && !iconError ? (
               <img 
                 src={branding.appIcon} 
-                alt="Ícone" 
+                alt="Ícone SyngeTI" 
                 onError={() => setIconError(true)}
                 className="w-full h-full object-contain" 
               />
             ) : (
               <svg width="26" height="30" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#0E1628"/>
+                <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#081522"/>
                 <path d="M75 37.5L50 25L25 37.5V62.5L50 75L75 62.5V37.5Z" fill="url(#paint0_linear)"/>
-                <path d="M50 25V75" stroke="#00C2FF" strokeWidth="8"/>
-                <path d="M25 37.5L50 50L75 37.5" stroke="#007BFF" strokeWidth="8"/>
-                <path d="M25 62.5L50 50L75 62.5" stroke="#007BFF" strokeWidth="8"/>
+                <path d="M50 25V75" stroke="#22D3EE" strokeWidth="8"/>
+                <path d="M25 37.5L50 50L75 37.5" stroke="#0EA5E9" strokeWidth="8"/>
+                <path d="M25 62.5L50 50L75 62.5" stroke="#0EA5E9" strokeWidth="8"/>
                 <defs>
                   <linearGradient id="paint0_linear" x1="25" y1="25" x2="75" y2="75" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#007BFF"/>
-                    <stop offset="1" stopColor="#00C2FF"/>
+                    <stop stopColor="#0EA5E9"/>
+                    <stop offset="1" stopColor="#22D3EE"/>
                   </linearGradient>
                 </defs>
               </svg>
@@ -312,17 +312,17 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
             {branding?.appLogo && !logoError ? (
               <img 
                 src={branding.appLogo} 
-                alt="Logotipo" 
+                alt="Logotipo SyngeTI" 
                 onError={() => setLogoError(true)}
-                className="max-h-[44px] w-auto max-w-full object-contain object-left transition-all" 
+                className="max-h-[42px] w-auto max-w-full object-contain object-left transition-all" 
               />
             ) : (
               <div className="flex flex-col justify-center min-w-0">
-                <span className="font-extrabold text-foreground text-xl tracking-wider leading-none block truncate">
-                  SYNGE<span className="text-[#00C2FF]">TI</span>
+                <span className="font-display font-bold text-foreground text-xl tracking-wide leading-none block truncate">
+                  Synge<span className="text-primary">TI</span>
                 </span>
-                <span className="text-[9px] text-muted-foreground tracking-[0.14em] font-semibold mt-1 uppercase truncate">
-                  GESTÃO INTEGRADA DE TI
+                <span className="text-[11px] text-muted-foreground font-medium mt-1 truncate">
+                  Sistema de Integração e Gestão de TI
                 </span>
               </div>
             )}
@@ -332,25 +332,25 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
         {/* Collapsed Mode (Desktop only) */}
         {isCollapsed && (
           <div className="hidden md:flex items-center justify-center w-full">
-            <div className="w-10 h-10 rounded-xl bg-surface/50 border border-border/60 flex items-center justify-center flex-shrink-0 shadow-sm overflow-hidden p-1">
+            <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center flex-shrink-0 overflow-hidden p-1">
               {branding?.appIcon && !iconError ? (
                 <img 
                   src={branding.appIcon} 
-                  alt="Ícone" 
+                  alt="Ícone SyngeTI" 
                   onError={() => setIconError(true)}
                   className="w-full h-full object-contain" 
                 />
               ) : (
                 <svg width="26" height="30" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#0E1628"/>
+                  <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#081522"/>
                   <path d="M75 37.5L50 25L25 37.5V62.5L50 75L75 62.5V37.5Z" fill="url(#paint0_linear_icon)"/>
-                  <path d="M50 25V75" stroke="#00C2FF" strokeWidth="8"/>
-                  <path d="M25 37.5L50 50L75 37.5" stroke="#007BFF" strokeWidth="8"/>
-                  <path d="M25 62.5L50 50L75 62.5" stroke="#007BFF" strokeWidth="8"/>
+                  <path d="M50 25V75" stroke="#22D3EE" strokeWidth="8"/>
+                  <path d="M25 37.5L50 50L75 37.5" stroke="#0EA5E9" strokeWidth="8"/>
+                  <path d="M25 62.5L50 50L75 62.5" stroke="#0EA5E9" strokeWidth="8"/>
                   <defs>
                     <linearGradient id="paint0_linear_icon" x1="25" y1="25" x2="75" y2="75" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#007BFF"/>
-                      <stop offset="1" stopColor="#00C2FF"/>
+                      <stop stopColor="#0EA5E9"/>
+                      <stop offset="1" stopColor="#22D3EE"/>
                     </linearGradient>
                   </defs>
                 </svg>
@@ -407,15 +407,15 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                   closeMobileMenu();
                 }}
                 title={item.name}
-                className={`relative flex items-center justify-center w-full h-11 rounded-xl transition-all duration-200 ${
+                className={`relative flex items-center justify-center w-full h-11 rounded-xl transition-colors duration-200 ${
                   active 
-                    ? 'bg-primary/10 text-primary border border-primary/20' 
-                    : 'text-muted-foreground hover:bg-sidebar-active/50 hover:text-foreground'
+                    ? 'bg-primary-soft text-primary' 
+                    : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
                 }`}
               >
                 <item.icon className="w-5 h-5" />
                 {isConnectItem && chatUnreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-extrabold leading-none shadow-sm">
+                  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-danger text-white text-[11px] font-bold leading-none shadow-sm">
                     {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
                   </span>
                 )}
@@ -426,31 +426,31 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
           const isConnectItem = item.href === "/connect";
           const ItemContent = (
             <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-3">
-                <item.icon className={`w-5 h-5 ${active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
-                <div className="flex flex-col text-left">
+              <div className="flex items-center gap-3 min-w-0">
+                <item.icon className={`w-5 h-5 shrink-0 ${active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
+                <div className="flex flex-col text-left min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className={`text-sm font-bold ${active ? 'text-primary' : 'text-foreground'}`}>
+                    <span className={`text-sm font-semibold truncate ${active ? 'text-primary' : 'text-foreground'}`}>
                       {item.name}
                     </span>
                     {(item as any).badge && (
-                      <span className="px-1.5 py-0.2 rounded-md bg-primary/15 text-primary text-[9px] font-black uppercase tracking-wider border border-primary/25">
+                      <span className="px-1.5 py-0.5 rounded-md bg-primary-soft text-primary text-[11px] font-bold uppercase tracking-wide shrink-0">
                         {(item as any).badge}
                       </span>
                     )}
                   </div>
-                  <span className="text-[11px] font-medium text-muted-foreground leading-tight">
+                  <span className="text-xs font-normal text-muted-foreground leading-tight truncate">
                     {item.subtitle}
                   </span>
                 </div>
               </div>
               {isConnectItem && chatUnreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-extrabold leading-none shadow-sm animate-pulse">
+                <span className="px-2 py-0.5 rounded-full bg-danger text-white text-xs font-bold leading-none shrink-0">
                   {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
                 </span>
               )}
               {hasSubItems && (
-                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 shrink-0 ${isExpanded ? 'rotate-180' : ''}`} />
               )}
             </div>
           );
@@ -470,8 +470,8 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                     e.preventDefault();
                     toggleMenu(item.name);
                   }}
-                  className={`w-full text-left flex items-center px-3 py-2.5 rounded-lg transition-all duration-200 group
-                    ${active ? 'bg-sidebar-active/30' : 'hover:bg-sidebar-active/50'}`}
+                  className={`w-full text-left flex items-center px-3 py-2.5 rounded-xl transition-colors duration-200 group cursor-pointer
+                    ${active ? 'bg-primary-soft/60 text-primary' : 'hover:bg-surface-hover'}`}
                 >
                   {ItemContent}
                 </button>
@@ -485,10 +485,10 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                     startNavigation(item.href!);
                     closeMobileMenu();
                   }}
-                  className={`flex items-center px-3 py-2.5 rounded-xl transition-all duration-200 group
+                  className={`flex items-center px-3 py-2.5 rounded-xl transition-colors duration-200 group
                     ${active 
-                      ? 'bg-primary/10 border-l-4 border-primary rounded-l-none' 
-                      : 'border-l-4 border-transparent hover:bg-sidebar-active/50'
+                      ? 'bg-primary-soft text-primary' 
+                      : 'hover:bg-surface-hover'
                     }`}
                 >
                   {ItemContent}
@@ -513,10 +513,10 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                           startNavigation(subItem.href);
                           closeMobileMenu();
                         }}
-                        className={`pl-11 pr-3 py-2 text-xs font-semibold rounded-lg transition-all duration-200
+                        className={`pl-11 pr-3 py-2 text-xs font-medium rounded-lg transition-colors duration-200
                           ${subActive 
-                            ? 'bg-primary/10 text-primary' 
-                            : 'text-muted-foreground hover:bg-sidebar-active/50 hover:text-foreground'
+                            ? 'bg-primary-soft text-primary font-semibold' 
+                            : 'text-text-secondary hover:bg-surface-hover hover:text-foreground'
                           }`}
                       >
                         {subItem.name}

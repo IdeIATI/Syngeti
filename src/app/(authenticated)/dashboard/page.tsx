@@ -227,160 +227,152 @@ export default async function DashboardPage() {
     : 100;
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in duration-500">
+    <div className="flex flex-col gap-5 animate-in fade-in duration-300">
       
       {/* Header Profile / Date */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">Olá, {userName}!</h2>
-          <p className="text-xs sm:text-sm font-medium text-muted-foreground mt-0.5">
-            Painel Estratégico de TI. Métricas operacionais, criticidade e suporte para tomada de decisões.
+          <h2 className="font-display text-2xl sm:text-[28px] font-bold text-foreground tracking-tight">Olá, {userName}!</h2>
+          <p className="text-sm font-normal text-text-secondary mt-1">
+            Painel Estratégico de TI — Métricas operacionais, criticidade e suporte para tomada de decisões.
           </p>
         </div>
         <DashboardClock initialDate={formattedDate} initialTime={formattedTime} />
       </div>
       
       {/* KPI Cards Principais */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         
         {/* Chamados Abertos */}
-        <div className="bg-surface rounded-2xl shadow-xs border border-border p-4 sm:p-6 flex flex-col group hover:border-primary/50 transition-colors">
-          <div className="flex items-center gap-3.5 mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-[0_0_15px_rgba(23,101,245,0.4)] shrink-0">
-              <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-primary-soft text-primary border border-primary/20 flex items-center justify-center shrink-0">
+              <MessageSquare className="w-5 h-5" />
             </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-bold text-foreground">Fila de Chamados</h3>
-              <span className="text-[10px] text-muted-foreground">Abertos / Pendentes</span>
+            <div className="min-w-0">
+              <h3 className="font-display text-[15px] font-semibold text-foreground truncate">Fila de Chamados</h3>
+              <span className="text-xs text-muted-foreground block">Abertos / Pendentes</span>
             </div>
           </div>
-          <div className="flex items-end justify-between">
-            <p className="text-3xl sm:text-4xl font-black text-foreground">{chamadosAbertos}</p>
-            <div className="text-right">
-              <span className={`text-[10px] sm:text-[11px] font-bold uppercase tracking-wider block px-2 py-0.5 rounded border ${
-                chamadosAbertos > 0 
-                  ? "bg-amber-500/10 text-amber-500 border-amber-500/20" 
-                  : "bg-success/10 text-success border-success/20"
-              }`}>
-                {chamadosAbertos > 0 ? "Ação Necessária" : "Fila Limpa"}
-              </span>
-            </div>
+          <div className="flex items-end justify-between gap-2">
+            <p className="font-display text-3xl sm:text-4xl font-bold text-foreground tabular-nums leading-none">{chamadosAbertos}</p>
+            <span className={`text-xs font-semibold px-2.5 py-1 rounded-md border ${
+              chamadosAbertos > 0 
+                ? "bg-warning/15 text-warning border-warning/30" 
+                : "bg-success/15 text-success border-success/30"
+            }`}>
+              {chamadosAbertos > 0 ? "Ação Necessária" : "Fila Limpa"}
+            </span>
           </div>
         </div>
 
         {/* Em Atendimento */}
-        <div className="bg-surface rounded-2xl shadow-xs border border-border p-4 sm:p-6 flex flex-col group hover:border-[#8B5CF6]/50 transition-colors">
-          <div className="flex items-center gap-3.5 mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-[#8B5CF6] flex items-center justify-center text-white shadow-[0_0_15px_rgba(139,92,246,0.4)] shrink-0">
-              <Clock className="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-info/15 text-info border border-info/25 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5" />
             </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-bold text-foreground">Em Atendimento</h3>
-              <span className="text-[10px] text-muted-foreground">Em execução agora</span>
+            <div className="min-w-0">
+              <h3 className="font-display text-[15px] font-semibold text-foreground truncate">Em Atendimento</h3>
+              <span className="text-xs text-muted-foreground block">Em execução agora</span>
             </div>
           </div>
-          <div className="flex items-end justify-between">
-            <p className="text-3xl sm:text-4xl font-black text-foreground">{emAtendimento}</p>
-            <div className="text-right">
-              <span className="text-[10px] sm:text-[11px] text-muted-foreground font-semibold uppercase tracking-wider block mt-0.5">
-                Work in progress
-              </span>
-            </div>
+          <div className="flex items-end justify-between gap-2">
+            <p className="font-display text-3xl sm:text-4xl font-bold text-foreground tabular-nums leading-none">{emAtendimento}</p>
+            <span className="text-xs text-muted-foreground font-medium">
+              Em andamento
+            </span>
           </div>
         </div>
 
         {/* Taxa de Resolução & MTTR */}
-        <div className="bg-surface rounded-2xl shadow-xs border border-border p-4 sm:p-6 flex flex-col group hover:border-success/50 transition-colors">
-          <div className="flex items-center gap-3.5 mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-success flex items-center justify-center text-white shadow-[0_0_15px_rgba(16,185,129,0.4)] shrink-0">
-              <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-success/15 text-success border border-success/25 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5" />
             </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-bold text-foreground">Taxa de Resolução</h3>
-              <span className="text-[10px] text-muted-foreground">Eficiência de SLA</span>
+            <div className="min-w-0">
+              <h3 className="font-display text-[15px] font-semibold text-foreground truncate">Taxa de Resolução</h3>
+              <span className="text-xs text-muted-foreground block">Eficiência de SLA</span>
             </div>
           </div>
-          <div className="flex items-end justify-between">
+          <div className="flex items-end justify-between gap-2">
             <div>
-              <p className="text-3xl sm:text-4xl font-black text-foreground">{taxaResolucao}%</p>
-              <span className="text-[11px] text-muted-foreground font-medium">
+              <p className="font-display text-3xl sm:text-4xl font-bold text-foreground tabular-nums leading-none">{taxaResolucao}%</p>
+              <span className="text-xs text-muted-foreground font-medium mt-1 block">
                 {chamadosResolvidos} resolvidos
               </span>
             </div>
-            <div className="text-right">
-              <span className="text-[10px] sm:text-[11px] text-primary font-bold uppercase tracking-wider block bg-primary/10 border border-primary/20 px-2 py-0.5 rounded">
-                MTTR ~ {mttrFormatted}
-              </span>
-            </div>
+            <span className="text-xs text-primary font-semibold bg-primary-soft border border-primary/20 px-2.5 py-1 rounded-md">
+              MTTR ~ {mttrFormatted}
+            </span>
           </div>
         </div>
 
         {/* Equipamentos Ativos */}
-        <div className="bg-surface rounded-2xl shadow-xs border border-border p-4 sm:p-6 flex flex-col group hover:border-info/50 transition-colors">
-          <div className="flex items-center gap-3.5 mb-3 sm:mb-4">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-info flex items-center justify-center text-white shadow-[0_0_15px_rgba(0,213,242,0.4)] shrink-0">
-              <Monitor className="w-5 h-5 sm:w-6 sm:h-6" />
+        <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-secondary/15 text-secondary border border-secondary/25 flex items-center justify-center shrink-0">
+              <Monitor className="w-5 h-5" />
             </div>
-            <div>
-              <h3 className="text-xs sm:text-sm font-bold text-foreground">Ativos em Operação</h3>
-              <span className="text-[10px] text-muted-foreground">Parque computacional</span>
+            <div className="min-w-0">
+              <h3 className="font-display text-[15px] font-semibold text-foreground truncate">Ativos em Operação</h3>
+              <span className="text-xs text-muted-foreground block">Parque computacional</span>
             </div>
           </div>
-          <div className="flex items-end justify-between">
-            <p className="text-3xl sm:text-4xl font-black text-foreground">{equipamentosAtivos}</p>
-            <div className="text-right">
-              <Link href="/cmdb" className="text-[10px] sm:text-[11px] text-info font-bold uppercase tracking-wider hover:underline flex items-center gap-1">
-                Ver inventário <ArrowUpRight className="w-3 h-3" />
-              </Link>
-            </div>
+          <div className="flex items-end justify-between gap-2">
+            <p className="font-display text-3xl sm:text-4xl font-bold text-foreground tabular-nums leading-none">{equipamentosAtivos}</p>
+            <Link href="/cmdb" className="text-xs text-primary font-semibold hover:underline flex items-center gap-1">
+              Ver inventário <ArrowUpRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
 
       </div>
 
       {/* Seção Estratégica: Matriz de Criticidade & Continuidade de Estoque */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         
         {/* Matriz de Criticidade e Risco Operacional */}
-        <div className="bg-surface p-4 sm:p-6 rounded-2xl shadow-xs border border-border flex flex-col">
+        <div className="syngeti-card flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-rose-500/10 text-rose-500 border border-rose-500/20">
+              <div className="p-2 rounded-lg bg-danger/15 text-danger border border-danger/25">
                 <ShieldAlert className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs sm:text-sm font-bold text-foreground">Matriz de Criticidade & Risco Operacional</h3>
-                <p className="text-[11px] text-muted-foreground">Distribuição de severidade dos chamados para alocação de equipe</p>
+                <h3 className="font-display text-[15px] font-semibold text-foreground">Matriz de Criticidade & Risco Operacional</h3>
+                <p className="text-xs text-muted-foreground">Distribuição de severidade dos chamados para alocação de equipe</p>
               </div>
             </div>
-            <span className="text-xs font-mono font-bold text-muted-foreground">{totalTicketsCount} total</span>
+            <span className="text-xs font-mono font-semibold text-muted-foreground">{totalTicketsCount} total</span>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
             
             {/* Crítico */}
-            <div className="p-3 rounded-xl bg-rose-500/5 border border-rose-500/20 flex flex-col justify-between">
+            <div className="p-3 rounded-xl bg-danger/10 border border-danger/25 flex flex-col justify-between">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-bold text-rose-500 uppercase tracking-wider">Crítico</span>
-                <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                <span className="text-xs font-bold text-danger uppercase tracking-wide">Crítico</span>
+                <span className="w-2 h-2 rounded-full bg-danger" aria-hidden="true"></span>
               </div>
-              <p className="text-2xl font-black text-foreground">{priorityStats.CRITICAL || 0}</p>
-              <div className="w-full bg-muted rounded-full h-1.5 mt-2 overflow-hidden">
+              <p className="font-display text-2xl font-bold text-foreground tabular-nums">{priorityStats.CRITICAL || 0}</p>
+              <div className="w-full bg-surface-3 rounded-full h-1.5 mt-2 overflow-hidden">
                 <div 
-                  className="bg-rose-500 h-full rounded-full transition-all"
+                  className="bg-danger h-full rounded-full transition-all"
                   style={{ width: `${totalTicketsCount > 0 ? ((priorityStats.CRITICAL || 0) / totalTicketsCount) * 100 : 0}%` }}
                 />
               </div>
             </div>
 
             {/* Alto */}
-            <div className="p-3 rounded-xl bg-orange-500/5 border border-orange-500/20 flex flex-col justify-between">
+            <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/25 flex flex-col justify-between">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-bold text-orange-500 uppercase tracking-wider">Alto</span>
-                <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+                <span className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wide">Alto</span>
+                <span className="w-2 h-2 rounded-full bg-orange-500" aria-hidden="true"></span>
               </div>
-              <p className="text-2xl font-black text-foreground">{priorityStats.HIGH || 0}</p>
-              <div className="w-full bg-muted rounded-full h-1.5 mt-2 overflow-hidden">
+              <p className="font-display text-2xl font-bold text-foreground tabular-nums">{priorityStats.HIGH || 0}</p>
+              <div className="w-full bg-surface-3 rounded-full h-1.5 mt-2 overflow-hidden">
                 <div 
                   className="bg-orange-500 h-full rounded-full transition-all"
                   style={{ width: `${totalTicketsCount > 0 ? ((priorityStats.HIGH || 0) / totalTicketsCount) * 100 : 0}%` }}
@@ -389,30 +381,30 @@ export default async function DashboardPage() {
             </div>
 
             {/* Médio */}
-            <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 flex flex-col justify-between">
+            <div className="p-3 rounded-xl bg-warning/10 border border-warning/25 flex flex-col justify-between">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-bold text-amber-500 uppercase tracking-wider">Médio</span>
-                <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span className="text-xs font-bold text-warning uppercase tracking-wide">Médio</span>
+                <span className="w-2 h-2 rounded-full bg-warning" aria-hidden="true"></span>
               </div>
-              <p className="text-2xl font-black text-foreground">{priorityStats.MEDIUM || 0}</p>
-              <div className="w-full bg-muted rounded-full h-1.5 mt-2 overflow-hidden">
+              <p className="font-display text-2xl font-bold text-foreground tabular-nums">{priorityStats.MEDIUM || 0}</p>
+              <div className="w-full bg-surface-3 rounded-full h-1.5 mt-2 overflow-hidden">
                 <div 
-                  className="bg-amber-500 h-full rounded-full transition-all"
+                  className="bg-warning h-full rounded-full transition-all"
                   style={{ width: `${totalTicketsCount > 0 ? ((priorityStats.MEDIUM || 0) / totalTicketsCount) * 100 : 0}%` }}
                 />
               </div>
             </div>
 
             {/* Baixo */}
-            <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 flex flex-col justify-between">
+            <div className="p-3 rounded-xl bg-info/10 border border-info/25 flex flex-col justify-between">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-bold text-blue-500 uppercase tracking-wider">Baixo</span>
-                <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                <span className="text-xs font-bold text-info uppercase tracking-wide">Baixo</span>
+                <span className="w-2 h-2 rounded-full bg-info" aria-hidden="true"></span>
               </div>
-              <p className="text-2xl font-black text-foreground">{priorityStats.LOW || 0}</p>
-              <div className="w-full bg-muted rounded-full h-1.5 mt-2 overflow-hidden">
+              <p className="font-display text-2xl font-bold text-foreground tabular-nums">{priorityStats.LOW || 0}</p>
+              <div className="w-full bg-surface-3 rounded-full h-1.5 mt-2 overflow-hidden">
                 <div 
-                  className="bg-blue-500 h-full rounded-full transition-all"
+                  className="bg-info h-full rounded-full transition-all"
                   style={{ width: `${totalTicketsCount > 0 ? ((priorityStats.LOW || 0) / totalTicketsCount) * 100 : 0}%` }}
                 />
               </div>
@@ -422,18 +414,18 @@ export default async function DashboardPage() {
         </div>
 
         {/* Continuidade de TI & Alerta de Reposição de Estoque */}
-        <div className="bg-surface p-4 sm:p-6 rounded-2xl shadow-xs border border-border flex flex-col justify-between">
+        <div className="syngeti-card flex flex-col justify-between">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-primary/10 text-primary border border-primary/20">
+              <div className="p-2 rounded-lg bg-primary-soft text-primary border border-primary/20">
                 <Package className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs sm:text-sm font-bold text-foreground">Suprimentos & Continuidade de TI</h3>
-                <p className="text-[11px] text-muted-foreground">Monitoramento de peças críticas para manutenção preventiva/corretiva</p>
+                <h3 className="font-display text-[15px] font-semibold text-foreground">Suprimentos & Continuidade de TI</h3>
+                <p className="text-xs text-muted-foreground">Monitoramento de peças críticas para manutenção preventiva/corretiva</p>
               </div>
             </div>
-            <Link href="/cmdb/stock" className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1">
+            <Link href="/cmdb/stock" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1 shrink-0">
               Estoque <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -441,38 +433,38 @@ export default async function DashboardPage() {
           {criticalStockItems.length > 0 ? (
             <div className="space-y-2 mt-2">
               {criticalStockItems.map((prod) => (
-                <div key={prod.id} className="flex items-center justify-between p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs">
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0" />
-                    <span className="font-medium text-foreground">{prod.name}</span>
+                <div key={prod.id} className="flex items-center justify-between p-2.5 rounded-lg bg-danger/10 border border-danger/25 text-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <AlertTriangle className="w-4 h-4 text-danger shrink-0" />
+                    <span className="font-medium text-foreground truncate">{prod.name}</span>
                   </div>
-                  <span className="font-mono text-rose-500 font-bold">
+                  <span className="font-mono text-danger font-semibold shrink-0 ml-2">
                     {prod.current_stock} unid. (Mín: {prod.min_stock || 1})
                   </span>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col sm:flex-row items-center justify-between p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 gap-3 mt-1">
+            <div className="flex flex-col sm:flex-row items-center justify-between p-4 rounded-xl bg-success/10 border border-success/25 gap-3 mt-1">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 shrink-0">
+                <div className="w-10 h-10 rounded-full bg-success/15 flex items-center justify-center text-success shrink-0">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-foreground">Estoque de TI Regular</h4>
-                  <p className="text-[11px] text-muted-foreground">Nenhuma peça ou componente abaixo do limite de segurança operacional.</p>
+                  <h4 className="font-display text-sm font-semibold text-foreground">Estoque de TI Regular</h4>
+                  <p className="text-xs text-text-secondary">Nenhuma peça ou componente abaixo do limite de segurança operacional.</p>
                 </div>
               </div>
               <Link 
                 href="/cmdb/stock" 
-                className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-colors shrink-0 text-center"
+                className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-success text-white hover:opacity-90 transition-opacity shrink-0 text-center"
               >
                 Auditar Peças
               </Link>
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-3 text-[11px] text-muted-foreground border-t border-border/40 mt-3">
+          <div className="flex items-center justify-between pt-3 text-xs text-muted-foreground border-t border-border mt-3">
             <span>Reposição automática conectada com compras</span>
             <span className="font-mono text-foreground font-semibold">100% SLA Ativo</span>
           </div>
@@ -481,16 +473,16 @@ export default async function DashboardPage() {
       </div>
 
       {/* Grid Principal: Categorias (Donut), Demandas por Setor, Últimos Chamados */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         
         {/* Chamados por Categoria com Cores 100% Exclusivas */}
-        <div className="bg-surface p-4 sm:p-6 rounded-2xl shadow-xs border border-border flex flex-col">
+        <div className="syngeti-card flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-xs sm:text-sm font-bold text-foreground">Chamados por Categoria</h3>
-              <p className="text-[11px] text-muted-foreground">Cores exclusivas e proporção por tipo</p>
+              <h3 className="font-display text-[15px] font-semibold text-foreground">Chamados por Categoria</h3>
+              <p className="text-xs text-muted-foreground">Cores exclusivas e proporção por tipo</p>
             </div>
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-muted text-muted-foreground">
+            <span className="text-xs font-mono font-semibold px-2.5 py-0.5 rounded-md bg-surface-2 text-text-secondary border border-border">
               {chartData.length} categorias
             </span>
           </div>
@@ -498,13 +490,13 @@ export default async function DashboardPage() {
         </div>
         
         {/* Demandas por Departamento (Gargalos por Setor) */}
-        <div className="bg-surface p-4 sm:p-6 rounded-2xl shadow-xs border border-border flex flex-col">
+        <div className="syngeti-card flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Building2 className="w-4 h-4 text-primary" />
               <div>
-                <h3 className="text-xs sm:text-sm font-bold text-foreground">Demandas por Departamento</h3>
-                <p className="text-[11px] text-muted-foreground">Setores com maior volume de solicitações</p>
+                <h3 className="font-display text-[15px] font-semibold text-foreground">Demandas por Departamento</h3>
+                <p className="text-xs text-muted-foreground">Setores com maior volume de solicitações</p>
               </div>
             </div>
           </div>
@@ -512,7 +504,7 @@ export default async function DashboardPage() {
           <div className="flex flex-col gap-3 flex-1 justify-center">
             {departmentData.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-                <Building2 className="w-8 h-8 mb-2 opacity-30 text-muted-foreground" />
+                <Building2 className="w-8 h-8 mb-2 opacity-40 text-muted-foreground" />
                 <p className="text-sm font-semibold text-foreground">Sem dados departamentais</p>
                 <p className="text-xs text-muted-foreground mt-0.5">As demandas por setor aparecerão aqui.</p>
               </div>
@@ -521,15 +513,15 @@ export default async function DashboardPage() {
                 const maxVal = departmentData[0]?.quantidade || 1;
                 const pct = Math.round((dept.quantidade / maxVal) * 100);
                 return (
-                  <div key={idx} className="space-y-1">
+                  <div key={idx} className="space-y-1.5">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-foreground truncate max-w-[200px]">{dept.name}</span>
-                      <span className="font-mono text-muted-foreground font-semibold">{dept.quantidade} ch.</span>
+                      <span className="font-medium text-foreground truncate max-w-[210px]">{dept.name}</span>
+                      <span className="font-mono text-text-secondary font-semibold tabular-nums">{dept.quantidade} ch.</span>
                     </div>
-                    <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                    <div className="w-full bg-surface-3 rounded-full h-2 overflow-hidden">
                       <div 
                         className="bg-primary h-full rounded-full transition-all"
-                        style={{ width: `${pct}%`, opacity: Math.max(0.4, 1 - idx * 0.12) }}
+                        style={{ width: `${pct}%`, opacity: Math.max(0.45, 1 - idx * 0.12) }}
                       />
                     </div>
                   </div>
@@ -540,13 +532,13 @@ export default async function DashboardPage() {
         </div>
 
         {/* Últimos Chamados & Ação Rápida */}
-        <div className="bg-surface p-4 sm:p-6 rounded-2xl shadow-xs border border-border flex flex-col">
+        <div className="syngeti-card flex flex-col">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h3 className="text-xs sm:text-sm font-bold text-foreground">Últimos Chamados</h3>
-              <p className="text-[11px] text-muted-foreground">Atendimento recente da equipe</p>
+              <h3 className="font-display text-[15px] font-semibold text-foreground">Últimos Chamados</h3>
+              <p className="text-xs text-muted-foreground">Atendimento recente da equipe</p>
             </div>
-            <Link href="/service-desk" className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1">
+            <Link href="/service-desk" className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
               Ver todos <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
@@ -554,7 +546,7 @@ export default async function DashboardPage() {
           <div className="flex flex-col gap-2.5 flex-1 justify-center">
             {ultimosChamados.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center text-muted-foreground">
-                <MessageSquare className="w-8 h-8 mb-2 opacity-30 text-muted-foreground" />
+                <MessageSquare className="w-8 h-8 mb-2 opacity-40 text-muted-foreground" />
                 <p className="text-sm font-semibold text-foreground">Nenhum chamado registrado</p>
                 <p className="text-xs text-muted-foreground mt-0.5">Os novos chamados aparecerão aqui.</p>
               </div>
@@ -563,7 +555,7 @@ export default async function DashboardPage() {
                 <Link 
                   key={ticket.id}
                   href={`/service-desk?ticketId=${ticket.id}`}
-                  className="flex items-center justify-between py-2 px-2.5 rounded-xl border border-border/50 hover:border-primary/40 hover:bg-muted/40 transition-all gap-2 min-w-0"
+                  className="flex items-center justify-between py-2.5 px-3 rounded-xl border border-border hover:border-border-strong hover:bg-surface-hover transition-colors gap-2 min-w-0"
                 >
                   <div className="flex flex-col min-w-0 flex-1">
                     <div className="flex items-center gap-2 min-w-0">
@@ -574,7 +566,7 @@ export default async function DashboardPage() {
                         {ticket.title}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-0.5">
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
                       <span>{formatShortDateTimeBR(ticket.created_at)}</span>
                       {ticket.department?.name && (
                         <>
@@ -586,23 +578,23 @@ export default async function DashboardPage() {
                   </div>
                   
                   <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded border uppercase tracking-wider ${
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded border ${
                       ticket.priority === 'CRITICAL' 
-                        ? 'bg-rose-500/10 text-rose-500 border-rose-500/20' 
+                        ? 'bg-danger/10 text-danger border-danger/25' 
                         : ticket.priority === 'HIGH' 
-                        ? 'bg-orange-500/10 text-orange-500 border-orange-500/20' 
+                        ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/25' 
                         : ticket.priority === 'LOW'
-                        ? 'bg-blue-500/10 text-blue-500 border-blue-500/20'
-                        : 'bg-amber-500/10 text-amber-500 border-amber-500/20'
+                        ? 'bg-info/10 text-info border-info/25'
+                        : 'bg-warning/10 text-warning border-warning/25'
                     }`}>
                       {ticket.priority === 'CRITICAL' ? 'Crítico' : ticket.priority === 'HIGH' ? 'Alto' : ticket.priority === 'LOW' ? 'Baixo' : 'Médio'}
                     </span>
-                    <span className={`text-[10px] font-semibold ${
+                    <span className={`text-xs font-semibold ${
                       ticket.status === 'RESOLVED' || ticket.status === 'CLOSED'
-                        ? 'text-emerald-500'
+                        ? 'text-success'
                         : ticket.status === 'IN_PROGRESS'
-                        ? 'text-purple-400'
-                        : 'text-sky-400'
+                        ? 'text-primary'
+                        : 'text-info'
                     }`}>
                       {ticket.status === 'RESOLVED' || ticket.status === 'CLOSED' 
                         ? 'Resolvido' 
