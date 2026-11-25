@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { normalizePermissions, isAdminRole, PermissionLevel } from "@/lib/permissions";
 
 export interface AuthUser {
   id: string;
@@ -9,6 +10,7 @@ export interface AuthUser {
   role?: string;
   avatar?: string | null;
   company_id?: string;
+  permissions?: Record<string, PermissionLevel>;
 }
 
 interface AuthUserContextType {
@@ -57,6 +59,11 @@ export function AuthUserProvider({
               : `/api/users/${data.id}/avatar?v=${Date.now()}`
             : null,
           role: data.role?.name || prev.role,
+          permissions: data.role
+            ? (isAdminRole(data.role?.name)
+                ? normalizePermissions({ all: true })
+                : normalizePermissions(data.role?.permissions))
+            : prev.permissions,
         }));
       }
     } catch (e) {

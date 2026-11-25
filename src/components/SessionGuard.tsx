@@ -60,9 +60,15 @@ export function SessionGuard() {
       sessionStorage.removeItem("syngeti_login_time");
       sessionStorage.removeItem("syngeti_login_entry_consumed");
 
+      const isStandalonePWA =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        (window.navigator as any).standalone === true;
+      const isChatRoute = window.location.pathname.startsWith("/chat");
+      const loginTarget = isStandalonePWA || isChatRoute ? "/login?callbackUrl=/chat" : "/login";
+
       // Encerra a sessão NextAuth e redireciona de volta para a tela de login
       signOut({ redirect: false }).finally(() => {
-        window.location.replace("/login");
+        window.location.replace(loginTarget);
       });
       return;
     }

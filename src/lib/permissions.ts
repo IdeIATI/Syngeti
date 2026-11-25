@@ -86,6 +86,18 @@ export const SYSTEM_MODULES: ModulePermissionDef[] = [
     category: "Administração",
     description: "Logotipos, ícones, tela de login e configurações gerais da plataforma.",
   },
+  {
+    id: "pc_access",
+    name: "Gestão de Acessos (PCs & E-mails)",
+    category: "Administração",
+    description: "Inventário de computadores, contas de e-mail, colaboradores e cofre de credenciais.",
+  },
+  {
+    id: "sentinela",
+    name: "Sentinela IA (SRE)",
+    category: "Administração",
+    description: "Auditoria automatizada, saúde do sistema e assistente operacional SRE IA.",
+  },
 ];
 
 export const PERMISSION_LEVEL_LABELS: Record<PermissionLevel, { label: string; badge: string; desc: string }> = {
@@ -226,4 +238,18 @@ export function canAdmin(permissions: any, moduleId: string): boolean {
   const norm = normalizePermissions(permissions);
   const lvl = norm[moduleId];
   return lvl === "admin";
+}
+
+/**
+ * Verifica se o perfil possui privilégio irrestrito de administrador do sistema
+ */
+export function isAdminRole(roleName?: string | null): boolean {
+  if (!roleName) return false;
+  const normalized = roleName.trim().toUpperCase();
+  return (
+    normalized === "ADMINISTRADOR" ||
+    normalized === "ADMIN" ||
+    normalized === "SUPER_ADMIN" ||
+    normalized === "ADMIN_MASTER"
+  );
 }

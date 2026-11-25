@@ -121,7 +121,11 @@ export default function LoginPage() {
       }
 
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-      const callback = params?.get("callbackUrl") || "/dashboard";
+      const isStandalonePWA =
+        typeof window !== "undefined" &&
+        (window.matchMedia("(display-mode: standalone)").matches ||
+          (window.navigator as any).standalone === true);
+      const callback = params?.get("callbackUrl") || (isStandalonePWA ? "/chat" : "/dashboard");
       
       // Transição instantânea SPA via Next.js router (< 50ms, sem reload branco)
       router.replace(callback);

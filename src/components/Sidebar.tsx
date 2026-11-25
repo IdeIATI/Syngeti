@@ -10,6 +10,8 @@ import {
   Users, ChevronDown, ChevronRight, FileText, Database, Shield, X, Monitor, Sparkles
 } from "lucide-react";
 import { useMobileMenu } from "./AuthenticatedShell";
+import { useAuthUser } from "@/contexts/AuthUserContext";
+import { canRead, isAdminRole } from "@/lib/permissions";
 
 // Cache em memória do branding para evitar fetch repetido a cada troca de aba
 let brandingMemoryCache: any = null;
@@ -17,6 +19,7 @@ let brandingCacheFetching = false;
 
 export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
   const router = useRouter();
+  const { user } = useAuthUser();
   const { isMobileOpen, closeMobileMenu, navigatingTo, startNavigation, chatUnreadCount } = useMobileMenu();
   const pathname = usePathname();
 
@@ -150,84 +153,120 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
       name: "Dashboard", 
       subtitle: "Visão geral logística",
       href: "/dashboard", 
-      icon: LayoutDashboard 
+      icon: LayoutDashboard,
+      moduleId: "dashboard",
     },
     { 
       name: "CMDB / ESTOQUE", 
       subtitle: "Ativos & Peças de TI",
       icon: Server,
+      moduleId: "cmdb",
       subItems: [
-        { name: "Ativos & Equipamentos", href: "/cmdb" },
-        { name: "Peças & Estoque de TI", href: "/cmdb/stock" },
+        { name: "Ativos & Equipamentos", href: "/cmdb", moduleId: "cmdb" },
+        { name: "Peças & Estoque de TI", href: "/cmdb/stock", moduleId: "cmdb" },
       ]
     },
     { 
       name: "Service Desk", 
       subtitle: "Chamados e suporte",
       href: "/service-desk", 
-      icon: HeadphonesIcon 
+      icon: HeadphonesIcon,
+      moduleId: "service_desk",
     },
     { 
       name: "Gestão de Acessos", 
       subtitle: "E-mails, PCs e senhas",
       icon: Shield,
+      moduleId: "pc_access",
       subItems: [
-        { name: "Computadores (PCs)", href: "/pc-access" },
-        { name: "Contas de E-mail dos Domínios", href: "/pc-access?tab=emails" },
-        { name: "Colaboradores & Vínculos", href: "/pc-access?tab=collaborators" },
-        { name: "Trilha de Auditoria & Cofre", href: "/pc-access?tab=audit" },
+        { name: "Computadores (PCs)", href: "/pc-access", moduleId: "pc_access" },
+        { name: "Contas de E-mail dos Domínios", href: "/pc-access?tab=emails", moduleId: "pc_access" },
+        { name: "Colaboradores & Vínculos", href: "/pc-access?tab=collaborators", moduleId: "pc_access" },
+        { name: "Trilha de Auditoria & Cofre", href: "/pc-access?tab=audit", moduleId: "pc_access" },
       ]
     },
     { 
       name: "Projetos", 
       subtitle: "Gestão e tarefas",
       href: "/projects", 
-      icon: Briefcase 
+      icon: Briefcase,
+      moduleId: "projects",
     },
     { 
       name: "Contratos", 
       subtitle: "Financeiro e parceiros",
       href: "/contracts", 
-      icon: FileText 
+      icon: FileText,
+      moduleId: "contracts",
     },
     { 
       name: "Usuários", 
       subtitle: "Gestão de colaboradores",
       href: "/users", 
-      icon: Users 
+      icon: Users,
+      moduleId: "users",
     },
     { 
       name: "CONNECT CHAT", 
       subtitle: "Comunicação integrada",
       href: "/connect", 
-      icon: MessageSquare 
+      icon: MessageSquare,
+      moduleId: "connect",
     },
     { 
       name: "Wiki TI", 
       subtitle: "Base de conhecimento",
       href: "/knowledge", 
-      icon: BookOpen 
+      icon: BookOpen,
+      moduleId: "knowledge",
     },
     { 
       name: "SENTINELA IA", 
       subtitle: "Auditoria & SRE contínuo",
       href: "/sentinela", 
       icon: Sparkles,
-      badge: "SRE IA"
+      badge: "SRE IA",
+      moduleId: "sentinela",
     },
     { 
       name: "Configurações", 
       subtitle: "Sistema e segurança",
       icon: Settings,
       subItems: [
-        { name: "Visão Geral", href: "/settings" },
-        { name: "Identidade Visual", href: "/settings/branding" },
-        { name: "Departamentos", href: "/settings/departments" },
-        { name: "Perfis e Permissões", href: "/settings/roles" },
-        { name: "Recuperação de Senha", href: "/settings/password-resets" },
+        { name: "Visão Geral", href: "/settings", moduleId: "_settings_overview" },
+        { name: "Identidade Visual", href: "/settings/branding", moduleId: "branding" },
+        { name: "Departamentos", href: "/settings/departments", moduleId: "users" },
+        { name: "Perfis e Permissões", href: "/settings/roles", moduleId: "roles" },
+        { name: "Recuperação de Senha", href: "/settings/password-resets", moduleId: "users_or_roles" },
       ]
     },
   ];
+
+  // Filtra abas e subitens da Sidebar de acordo com o perfil/permissões do usuário logado
+  const hasUnrestrictedAdmin = isAdminRole(user?.role) || !user?.permissions;
+  const canViewModule = (moduleId?: string): boolean => {
+    if (hasUnrestrictedAdmin || !moduleId) return true;
+    if (moduleId === "users_or_roles") {
+      return canRead(user.permissions, "users") || canRead(user.permissions, "roles");
+    }
+    return canRead(user.permissions, moduleId);
+  };
+
+  const visibleNavItems = navItems
+    .map((item) => {
+      if (item.subItems) {
+        const concreteSubs = item.subItems.filter(
+          (sub) => sub.moduleId !== "_settings_overview" && canViewModule(sub.moduleId)
+        );
+        if (concreteSubs.length === 0) return null;
+        const filteredSubs = item.subItems.filter((sub) =>
+          sub.moduleId === "_settings_overview" ? concreteSubs.length > 0 : canViewModule(sub.moduleId)
+        );
+        return { ...item, subItems: filteredSubs };
+      }
+      return canViewModule(item.moduleId) ? item : null;
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null);
 
   return (
     <aside
@@ -344,7 +383,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
 
       {/* Nav */}
       <nav className={`flex-1 overflow-y-auto py-5 ${isCollapsed ? 'md:px-2 px-3' : 'px-3'} space-y-1.5 custom-scrollbar`}>
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const hasSubItems = !!item.subItems;
           const active = hasSubItems 
             ? item.subItems!.some(sub => isNavActive(sub.href))

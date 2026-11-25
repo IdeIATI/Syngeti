@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { normalizePermissions, isAdminRole, PermissionLevel } from "./permissions";
 
 export interface ResolvedUser {
   id: string;
@@ -8,6 +9,7 @@ export interface ResolvedUser {
   company_id: string;
   role_id?: string;
   role?: string;
+  permissions?: Record<string, PermissionLevel>;
 }
 
 // Cache em memória de usuários resolvidos (evita roundtrips repetidos de 100-200ms a cada navegação)
@@ -128,6 +130,11 @@ export async function resolveCurrentUser(session: any): Promise<ResolvedUser | n
     });
   }
 
+  const roleName = user.role?.name || "ADMINISTRADOR";
+  const normalizedPerms = isAdminRole(roleName)
+    ? normalizePermissions({ all: true })
+    : normalizePermissions(user.role?.permissions);
+
   const resolved: ResolvedUser = {
     id: user.id,
     name: user.name,
@@ -139,7 +146,8 @@ export async function resolveCurrentUser(session: any): Promise<ResolvedUser | n
       : null,
     company_id: user.company_id,
     role_id: user.role_id,
-    role: user.role?.name || "ADMINISTRADOR",
+    role: roleName,
+    permissions: normalizedPerms,
   };
 
   currentUserCache.set(cacheKey, { data: resolved, expiresAt: Date.now() + 5 * 60 * 1000 });

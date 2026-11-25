@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { signOut } from "next-auth/react";
 import { 
   Download, 
@@ -80,7 +79,7 @@ export function StandaloneChatHeader({
       sessionStorage.removeItem("syngeti_login_time");
       sessionStorage.removeItem("syngeti_login_entry_consumed");
     }
-    signOut({ callbackUrl: "/login" });
+    signOut({ callbackUrl: "/login?callbackUrl=/chat" });
   };
 
   const statusConfig = {
@@ -187,15 +186,17 @@ export function StandaloneChatHeader({
           {/* Seletor de Tema Visual (Dark, Dlamb, Light, Tokyo Night) */}
           <ThemeSwitcher />
 
-          {/* Atalho para abrir o ERP completo */}
-          <Link
+          {/* Atalho para abrir o ERP completo em janela/aba do navegador */}
+          <a
             href="/dashboard"
+            target="_blank"
+            rel="noopener noreferrer"
             className="p-1.5 sm:p-2 rounded-xl bg-surface border border-border text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors flex items-center justify-center shrink-0"
             title="Ir para o painel principal do Syngeti ERP"
             aria-label="Abrir ERP"
           >
             <ExternalLink className="w-4 h-4" />
-          </Link>
+          </a>
 
           {/* Separador */}
           <div className="h-5 w-[1px] bg-border mx-0.5 sm:mx-1" />

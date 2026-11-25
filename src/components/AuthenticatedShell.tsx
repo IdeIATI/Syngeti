@@ -11,7 +11,8 @@ import { SentinelaClientTelemetry } from "@/components/sentinela/SentinelaClient
 import { AuthUserProvider, AuthUser } from "@/contexts/AuthUserContext";
 import { supabase } from "@/lib/supabaseClient";
 import { soundManager } from "@/lib/sound";
-import { registerChatServiceWorker } from "@/lib/chatNotificationCoordination";
+import { registerChatServiceWorker, isRunningStandalone } from "@/lib/chatNotificationCoordination";
+import { canRead, isAdminRole } from "@/lib/permissions";
 import { MessageSquare, X } from "lucide-react";
 
 interface MobileMenuContextType {
@@ -91,6 +92,34 @@ export function AuthenticatedShell({
   useEffect(() => {
     registerChatServiceWorker();
   }, []);
+
+  // Isola o aplicativo PWA instalado exclusivamente em /chat e protege acesso à rota inicial /dashboard
+  useEffect(() => {
+    if (isRunningStandalone()) {
+      router.replace("/chat");
+      return;
+    }
+
+    if (
+      pathname === "/dashboard" &&
+      effectiveUser.permissions &&
+      !isAdminRole(effectiveUser.role) &&
+      !canRead(effectiveUser.permissions, "dashboard")
+    ) {
+      const fallbackRoutes: Array<{ moduleId: string; href: string }> = [
+        { moduleId: "connect", href: "/connect" },
+        { moduleId: "service_desk", href: "/service-desk" },
+        { moduleId: "cmdb", href: "/cmdb" },
+        { moduleId: "projects", href: "/projects" },
+        { moduleId: "knowledge", href: "/knowledge" },
+        { moduleId: "users", href: "/users" },
+      ];
+      const allowed = fallbackRoutes.find((r) => canRead(effectiveUser.permissions, r.moduleId));
+      if (allowed) {
+        router.replace(allowed.href);
+      }
+    }
+  }, [pathname, effectiveUser.permissions, effectiveUser.role, router]);
 
   // Monitoramento global de mensagens não lidas do CONNECT CHAT em todas as telas do ERP
   useEffect(() => {

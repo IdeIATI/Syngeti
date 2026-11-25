@@ -59,6 +59,7 @@ export default async function AuthenticatedLayout({
     role: currentUser?.role || "ADMINISTRADOR",
     avatar: userAvatar,
     company_id: currentUser?.company_id,
+    permissions: currentUser?.permissions,
   };
 
   const branding = getBranding();
