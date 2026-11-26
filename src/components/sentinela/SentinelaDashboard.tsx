@@ -223,7 +223,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
             type="button"
             onClick={triggerManualAudit}
             disabled={isAuditing}
-            className="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-xs flex items-center gap-2 disabled:opacity-50"
+            className="px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold transition-all shadow-xs flex items-center gap-2 disabled:opacity-50"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isAuditing ? "animate-spin" : ""}`} />
             <span>{isAuditing ? "Auditanando Plataforma..." : "Executar Auditoria Geral"}</span>
@@ -240,7 +240,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
           onClick={() => setActiveTab("overview")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === "overview"
-              ? "bg-primary text-white shadow-xs"
+              ? "bg-primary text-primary-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground hover:bg-surface-hover"
           }`}
         >
@@ -253,7 +253,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
           onClick={() => setActiveTab("monitoring")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === "monitoring"
-              ? "bg-primary text-white shadow-xs"
+              ? "bg-primary text-primary-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground hover:bg-surface-hover"
           }`}
         >
@@ -266,7 +266,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
           onClick={() => setActiveTab("incidents")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === "incidents"
-              ? "bg-primary text-white shadow-xs"
+              ? "bg-primary text-primary-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground hover:bg-surface-hover"
           }`}
         >
@@ -279,7 +279,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
           onClick={() => setActiveTab("actions")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === "actions"
-              ? "bg-primary text-white shadow-xs"
+              ? "bg-primary text-primary-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground hover:bg-surface-hover"
           }`}
         >
@@ -292,7 +292,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
           onClick={() => setActiveTab("chat")}
           className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0 ${
             activeTab === "chat"
-              ? "bg-primary text-white shadow-xs"
+              ? "bg-primary text-primary-foreground shadow-xs"
               : "text-muted-foreground hover:text-foreground hover:bg-surface-hover"
           }`}
         >
@@ -755,7 +755,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
                 <div
                   className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold shadow-xs ${
                     msg.role === "user"
-                      ? "bg-primary text-white"
+                      ? "bg-primary text-primary-foreground"
                       : "bg-surface border border-border text-primary"
                   }`}
                 >
@@ -766,7 +766,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
                   <div
                     className={`p-3.5 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap ${
                       msg.role === "user"
-                        ? "bg-primary text-white rounded-tr-xs"
+                        ? "bg-primary text-primary-foreground rounded-tr-xs"
                         : "bg-surface border border-border text-foreground rounded-tl-xs shadow-xs"
                     }`}
                   >
@@ -796,7 +796,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
                             }),
                           }).then(() => triggerManualAudit());
                         }}
-                        className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-white text-xs font-bold shrink-0 transition-colors shadow-xs"
+                        className="px-3 py-1.5 rounded-lg bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold shrink-0 transition-colors shadow-xs"
                       >
                         Executar Ação
                       </button>
@@ -839,7 +839,7 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
               type="button"
               onClick={() => handleSendMessage()}
               disabled={!chatInput.trim() || isChatLoading}
-              className="p-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white transition-colors disabled:opacity-40 shadow-xs"
+              className="p-2.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground transition-colors disabled:opacity-40 shadow-xs"
             >
               <Send className="w-4 h-4" />
             </button>

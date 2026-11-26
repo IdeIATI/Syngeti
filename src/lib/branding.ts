@@ -11,10 +11,10 @@ export interface BrandingData {
 }
 
 const DEFAULT_BRANDING: BrandingData = {
-  loginLogo: '/api/branding/logo',
-  appLogo: '/api/branding/logo',
-  appIcon: '/branding/logo-icon.png',
-  favicon: '/branding/logo-icon.png',
+  loginLogo: null,
+  appLogo: null,
+  appIcon: null,
+  favicon: '/branding/syngeti-icon.svg',
   loginBackground: null,
   updatedAt: Date.now(),
 };

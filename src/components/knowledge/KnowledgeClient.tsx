@@ -88,7 +88,7 @@ export function KnowledgeClient({
             onClick={() => setActiveTab("manuals")}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === "manuals"
-                ? "bg-primary text-white shadow-xs"
+                ? "bg-primary text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -101,7 +101,7 @@ export function KnowledgeClient({
             onClick={() => setActiveTab("articles")}
             className={`px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
               activeTab === "articles"
-                ? "bg-primary text-white shadow-xs"
+                ? "bg-primary text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
@@ -148,7 +148,7 @@ export function KnowledgeClient({
                   onClick={() => setSelectedModule(mod)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold capitalize whitespace-nowrap transition-colors ${
                     selectedModule === mod
-                      ? "bg-primary text-white shadow-xs"
+                      ? "bg-primary text-primary-foreground shadow-xs"
                       : "bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-surface-hover"
                   }`}
                 >
@@ -247,7 +247,7 @@ export function KnowledgeClient({
             <h3 className="text-sm font-bold text-foreground">Artigos Publicados</h3>
             <Link
               href="/knowledge/new"
-              className="px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs"
+              className="px-3.5 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs"
             >
               + Novo Artigo
             </Link>

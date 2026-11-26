@@ -950,7 +950,7 @@ export default function ServiceDeskClient({
                     <button
                       type="button"
                       onClick={() => setIsPeriodMenuOpen(false)}
-                      className="px-3 py-1 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary-hover"
+                      className="px-3 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover"
                     >
                       Aplicar Período
                     </button>
@@ -973,7 +973,7 @@ export default function ServiceDeskClient({
               <SlidersHorizontal className="w-3.5 h-3.5" />
               <span>Filtros</span>
               {activeFiltersCount > 0 && (
-                <span className="w-4 h-4 rounded-full bg-primary text-white text-[10px] font-black flex items-center justify-center">
+                <span className="w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-black flex items-center justify-center">
                   {activeFiltersCount}
                 </span>
               )}
@@ -987,7 +987,7 @@ export default function ServiceDeskClient({
                 onClick={() => setViewMode("table")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                   viewMode === "table"
-                    ? "bg-primary text-white shadow-xs"
+                    ? "bg-primary text-primary-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
                 title="Visualização em Tabela"
@@ -1000,7 +1000,7 @@ export default function ServiceDeskClient({
                 onClick={() => setViewMode("kanban")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                   viewMode === "kanban"
-                    ? "bg-primary text-white shadow-xs"
+                    ? "bg-primary text-primary-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
                 title="Visualização em Kanban"
@@ -1013,7 +1013,7 @@ export default function ServiceDeskClient({
                 onClick={() => setViewMode("reports")}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all ${
                   viewMode === "reports"
-                    ? "bg-primary text-white shadow-xs"
+                    ? "bg-primary text-primary-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
                 title="Visualização de Relatórios & SLAs"

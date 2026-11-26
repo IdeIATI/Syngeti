@@ -142,7 +142,7 @@ export function CreateGroupModal({
               type="button"
               onClick={() => setType("group")}
               className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                type === "group" ? "bg-primary text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
+                type === "group" ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Users className="w-4 h-4" />
@@ -152,7 +152,7 @@ export function CreateGroupModal({
               type="button"
               onClick={() => setType("channel")}
               className={`py-2 px-3 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 ${
-                type === "channel" ? "bg-primary text-white shadow-xs" : "text-muted-foreground hover:text-foreground"
+                type === "channel" ? "bg-primary text-primary-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <Hash className="w-4 h-4" />
@@ -286,7 +286,7 @@ export function CreateGroupModal({
                       </div>
                       <div
                         className={`w-5 h-5 rounded-md border flex items-center justify-center transition-colors ${
-                          isSelected ? "bg-primary border-primary text-white" : "border-border bg-background"
+                          isSelected ? "bg-primary border-primary text-primary-foreground" : "border-border bg-background"
                         }`}
                       >
                         {isSelected && <Check className="w-3.5 h-3.5 stroke-[3]" />}
@@ -311,7 +311,7 @@ export function CreateGroupModal({
             <button
               type="submit"
               disabled={loading || !name.trim()}
-              className="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover disabled:opacity-50 transition-colors shadow-sm flex items-center gap-1.5"
+              className="px-5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover disabled:opacity-50 transition-colors shadow-sm flex items-center gap-1.5"
             >
               {loading ? "Criando..." : type === "channel" ? "Criar Canal" : "Criar Grupo"}
             </button>

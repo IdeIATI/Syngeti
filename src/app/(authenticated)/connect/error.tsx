@@ -44,7 +44,7 @@ export default function ConnectChatError({
           <button
             type="button"
             onClick={() => reset()}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-xs shadow-sm transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground font-bold text-xs shadow-sm transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             Recarregar Connect Chat

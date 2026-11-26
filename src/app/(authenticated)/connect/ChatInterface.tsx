@@ -202,7 +202,7 @@ const ChannelListItem = memo(function ChannelListItem({
         onClick={() => onSelect(channel.id)}
         className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold transition-all text-left ${
           isActive 
-            ? 'bg-primary text-white shadow-xs' 
+            ? 'bg-primary text-primary-foreground shadow-xs' 
             : unreadCount > 0
               ? 'bg-primary/10 text-foreground font-bold border border-primary/30'
               : 'text-foreground hover:bg-surface-hover'
@@ -2083,7 +2083,7 @@ export default function ChatInterface({
                 if (showChatSearch) setChatSearchQuery("");
               }}
               className={`p-2 rounded-xl transition-colors ${
-                showChatSearch ? "bg-primary text-white" : "bg-surface-elevated text-muted-foreground hover:text-foreground hover:bg-surface-hover"
+                showChatSearch ? "bg-primary text-primary-foreground" : "bg-surface-elevated text-muted-foreground hover:text-foreground hover:bg-surface-hover"
               }`}
               title="Pesquisar mensagens"
             >
@@ -2111,7 +2111,7 @@ export default function ChatInterface({
                 setCallType("video");
                 setIsCallModalOpen(true);
               }}
-              className="p-2 sm:px-3 sm:py-2 rounded-xl bg-primary text-white hover:bg-primary-hover transition-colors flex items-center gap-1.5 text-xs font-bold shadow-sm"
+              className="p-2 sm:px-3 sm:py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary-hover transition-colors flex items-center gap-1.5 text-xs font-bold shadow-sm"
               title="Iniciar Chamada de Vídeo"
             >
               <Video className="w-4 h-4" />
@@ -2318,7 +2318,7 @@ export default function ChatInterface({
                             <button
                               type="button"
                               onClick={() => handleSaveEdit(msg.id)}
-                              className="px-3 py-1 rounded bg-primary text-white text-[11px] font-bold hover:bg-primary-hover"
+                              className="px-3 py-1 rounded bg-primary text-primary-foreground text-[11px] font-bold hover:bg-primary-hover"
                             >
                               Salvar
                             </button>
@@ -2374,7 +2374,7 @@ export default function ChatInterface({
                           {/* 3. Gravação de Áudio / Mensagem de Voz */}
                           {msg.type === "audio" && (
                             <div className={`p-3 rounded-2xl border shadow-xs flex flex-col gap-1.5 ${
-                              isMe ? 'bg-primary text-white rounded-tr-xs' : 'bg-surface border-border text-foreground rounded-tl-xs'
+                              isMe ? 'bg-primary text-primary-foreground rounded-tr-xs' : 'bg-surface border-border text-foreground rounded-tl-xs'
                             }`}>
                               <div className="flex items-center gap-2 text-xs font-bold">
                                 <Volume2 className="w-4 h-4 text-emerald-400" />
@@ -2456,7 +2456,7 @@ export default function ChatInterface({
                             <div 
                               className={`px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-2xl text-xs sm:text-sm leading-relaxed break-words whitespace-pre-wrap shadow-xs ${
                                 isMe 
-                                  ? 'bg-primary text-white rounded-tr-xs' 
+                                  ? 'bg-primary text-primary-foreground rounded-tr-xs' 
                                   : 'bg-surface border border-border text-foreground rounded-tl-xs'
                               }`}
                             >
@@ -2707,7 +2707,7 @@ export default function ChatInterface({
                   type="button"
                   onClick={() => setMediaTab('emojis')}
                   className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
-                    mediaTab === 'emojis' ? 'bg-primary text-white shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                    mediaTab === 'emojis' ? 'bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <Smile className="w-3.5 h-3.5" />
@@ -2719,7 +2719,7 @@ export default function ChatInterface({
                       type="button"
                       onClick={() => setMediaTab('stickers')}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
-                        mediaTab === 'stickers' ? 'bg-primary text-white shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                        mediaTab === 'stickers' ? 'bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <Star className="w-3.5 h-3.5" />
@@ -2729,7 +2729,7 @@ export default function ChatInterface({
                       type="button"
                       onClick={() => setMediaTab('gifs')}
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1.5 ${
-                        mediaTab === 'gifs' ? 'bg-primary text-white shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                        mediaTab === 'gifs' ? 'bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
                       }`}
                     >
                       <Sparkles className="w-3.5 h-3.5" />
@@ -2997,7 +2997,7 @@ export default function ChatInterface({
                 /* Botão Enviar Mensagem */
                 <button
                   type="submit"
-                  className="bg-primary text-white rounded-xl px-3.5 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold hover:bg-primary-hover transition-all shadow-sm flex items-center gap-1.5 sm:gap-2 flex-shrink-0"
+                  className="bg-primary text-primary-foreground rounded-xl px-3.5 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold hover:bg-primary-hover transition-all shadow-sm flex items-center gap-1.5 sm:gap-2 flex-shrink-0"
                   title="Enviar mensagem"
                 >
                   <span className="hidden sm:inline">Enviar</span>

@@ -100,6 +100,12 @@
     --danger: #EF4444;
     --info: #38BDF8;
 
+    --kpi-1: #0EA5E9;
+    --kpi-2: #8B5CF6;
+    --kpi-3: #10B981;
+    --kpi-4: #06B6D4;
+    --kpi-fg: #FFFFFF;
+
     /* Aliases legados */
     --background: var(--bg-app);
     --foreground: var(--text-primary);
@@ -158,6 +164,12 @@
       --warning: #B45309;
       --danger: #DC2626;
       --info: #0284C7;
+
+      --kpi-1: #0EA5E9;
+      --kpi-2: #7C3AED;
+      --kpi-3: #10B981;
+      --kpi-4: #06B6D4;
+      --kpi-fg: #FFFFFF;
     }
   }
 
@@ -201,6 +213,12 @@
     --warning: #B45309;
     --danger: #DC2626;
     --info: #0284C7;
+
+    --kpi-1: #0EA5E9;
+    --kpi-2: #7C3AED;
+    --kpi-3: #10B981;
+    --kpi-4: #06B6D4;
+    --kpi-fg: #FFFFFF;
   }
 
   /* =========================================================
@@ -243,6 +261,12 @@
     --warning: #E0AF68;
     --danger: #F7768E;
     --info: #7DCFFF;
+
+    --kpi-1: #7AA2F7;
+    --kpi-2: #9D7CD8;
+    --kpi-3: #73DACA;
+    --kpi-4: #2AC3DE;
+    --kpi-fg: #15161E;
   }
 
   /* =========================================================
@@ -287,6 +311,12 @@
     --warning: #B45309;
     --danger: #DC2626;
     --info: #0284C7;
+
+    --kpi-1: #821F1B;
+    --kpi-2: #821F1B;
+    --kpi-3: #821F1B;
+    --kpi-4: #821F1B;
+    --kpi-fg: #FFFFFF;
   }
 
   /* Controles nativos do navegador e acessibilidade global */
@@ -382,5 +412,19 @@
     border-radius: 14px;
     padding: 18px 20px;
     box-shadow: var(--shadow-card);
+  }
+
+  /* Padronização de leitura e contraste para tabelas e ações primárias */
+  table thead th {
+    color: var(--text-secondary);
+    border-color: var(--border-subtle);
+  }
+
+  table tbody td {
+    border-color: var(--border-subtle);
+  }
+
+  .bg-primary.text-white {
+    color: var(--primary-foreground);
   }
 }

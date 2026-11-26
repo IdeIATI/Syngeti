@@ -32,9 +32,9 @@ export async function generateMetadata(): Promise<Metadata> {
     description: 'Sistema de Integração e Gestão de TI — ITSM, CMDB, Estoque, Service Desk e Connect Chat',
     manifest: '/manifest.webmanifest',
     icons: {
-      icon: branding?.favicon || '/branding/logo-icon.png',
-      shortcut: branding?.favicon || '/branding/logo-icon.png',
-      apple: branding?.appIcon || '/branding/logo-icon.png',
+      icon: branding?.favicon || '/branding/syngeti-icon.svg',
+      shortcut: branding?.favicon || '/branding/syngeti-icon.svg',
+      apple: branding?.appIcon || '/branding/syngeti-icon.svg',
     },
   };
 }

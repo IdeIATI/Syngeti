@@ -35,7 +35,7 @@ const STATUS_CONFIG: Record<string, { label: string; badge: string; desc: string
   WAITING_USER: { label: "Aguardando Usuário", badge: "bg-orange-500/10 text-orange-500 border-orange-500/30", desc: "Pendente resposta" },
   WAITING_VENDOR: { label: "Aguardando Terceiro", badge: "bg-yellow-500/10 text-yellow-500 border-yellow-500/30", desc: "Fornecedor ou peça" },
   RESOLVED: { label: "Resolvido", badge: "bg-emerald-500/10 text-emerald-500 border-emerald-500/30", desc: "Solução técnica aplicada" },
-  CLOSED: { label: "Encerrado", badge: "bg-slate-500/10 text-slate-400 border-slate-500/30", desc: "Finalizado formalmente" },
+  CLOSED: { label: "Encerrado", badge: "bg-surface-2 text-muted-foreground border-border", desc: "Finalizado formalmente" },
   CANCELED: { label: "Cancelado", badge: "bg-red-500/10 text-red-500 border-red-500/30", desc: "Cancelado pelo solicitante" },
 };
 
@@ -505,7 +505,7 @@ export function TicketModal({
                 <button
                   type="button"
                   onClick={handleSaveGeneralDetails}
-                  className="px-2.5 py-1 rounded-lg bg-primary text-white text-xs font-bold"
+                  className="px-2.5 py-1 rounded-lg bg-primary text-primary-foreground text-xs font-bold"
                 >
                   Salvar
                 </button>
@@ -808,7 +808,7 @@ export function TicketModal({
                       type="button"
                       disabled={savingProperty}
                       onClick={handleSaveGeneralDetails}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs"
                     >
                       <Check className="w-4 h-4" />
                       <span>{savingProperty ? "Salvando alterações..." : "Salvar Dados Cadastrais"}</span>
@@ -852,7 +852,7 @@ export function TicketModal({
                       <button
                         type="button"
                         onClick={handleSaveGeneralDetails}
-                        className="px-4 py-1.5 rounded-lg bg-primary text-white text-xs font-bold"
+                        className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold"
                       >
                         Salvar Descrição
                       </button>
@@ -877,14 +877,14 @@ export function TicketModal({
                   <button
                     type="button"
                     onClick={() => setCommentsFilter("ALL")}
-                    className={`px-3 py-1.5 rounded-lg transition-colors ${commentsFilter === "ALL" ? "bg-primary text-white font-bold" : "text-muted-foreground hover:bg-surface"}`}
+                    className={`px-3 py-1.5 rounded-lg transition-colors ${commentsFilter === "ALL" ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-surface"}`}
                   >
                     Todos ({comments.length})
                   </button>
                   <button
                     type="button"
                     onClick={() => setCommentsFilter("PUBLIC")}
-                    className={`px-3 py-1.5 rounded-lg transition-colors ${commentsFilter === "PUBLIC" ? "bg-primary text-white font-bold" : "text-muted-foreground hover:bg-surface"}`}
+                    className={`px-3 py-1.5 rounded-lg transition-colors ${commentsFilter === "PUBLIC" ? "bg-primary text-primary-foreground font-bold" : "text-muted-foreground hover:bg-surface"}`}
                   >
                     Públicos ({comments.filter(c => !c.is_internal).length})
                   </button>
@@ -1012,7 +1012,7 @@ export function TicketModal({
                       type="button"
                       disabled={sendingComment || !commentText.trim()}
                       onClick={handleAddComment}
-                      className="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs disabled:opacity-50 flex items-center gap-1.5"
+                      className="px-5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs disabled:opacity-50 flex items-center gap-1.5"
                     >
                       <Send className="w-3.5 h-3.5" />
                       <span>{sendingComment ? "Enviando..." : "Responder"}</span>
@@ -1114,7 +1114,7 @@ export function TicketModal({
                     <button
                       type="submit"
                       disabled={savingItem}
-                      className="px-4 py-1.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover"
+                      className="px-4 py-1.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover"
                     >
                       {savingItem ? "Salvando..." : "Salvar Item"}
                     </button>
@@ -1302,7 +1302,7 @@ export function TicketModal({
               type="button"
               disabled={savingProperty}
               onClick={handleSaveGeneralDetails}
-              className="px-4 sm:px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs flex items-center gap-1.5 disabled:opacity-50"
+              className="px-4 sm:px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs flex items-center gap-1.5 disabled:opacity-50"
               title="Salvar alterações realizadas no chamado"
             >
               <Check className="w-4 h-4" />

@@ -1,8 +1,8 @@
 {
-  "loginLogo": "/api/branding/logo",
-  "appLogo": "/branding/logo-wordmark.png",
-  "appIcon": "/branding/logo-icon.png",
-  "favicon": "/branding/logo-icon.png",
+  "loginLogo": null,
+  "appLogo": null,
+  "appIcon": null,
+  "favicon": "/branding/syngeti-icon.svg",
   "loginBackground": null,
-  "updatedAt": 1791941714990
+  "updatedAt": 1795715431647
 }

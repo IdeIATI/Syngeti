@@ -96,7 +96,7 @@ export function TicketShareCard({ data, isMe }: { data: TicketShareData; isMe: b
 
         <Link
           href={`/service-desk/${data.ticketId}`}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-2xs"
+          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold transition-all shadow-2xs"
         >
           <span>Abrir Chamado</span>
           <ArrowRight className="w-3.5 h-3.5" />

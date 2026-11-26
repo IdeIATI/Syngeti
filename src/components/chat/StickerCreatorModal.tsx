@@ -296,7 +296,7 @@ export function StickerCreatorModal({
                     type="button"
                     onClick={() => setShape("rounded")}
                     className={`px-3 py-1 rounded-lg font-bold border transition-colors ${
-                      shape === "rounded" ? "bg-primary text-white border-primary" : "border-border text-muted-foreground"
+                      shape === "rounded" ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground"
                     }`}
                   >
                     Quadrado
@@ -305,7 +305,7 @@ export function StickerCreatorModal({
                     type="button"
                     onClick={() => setShape("circle")}
                     className={`px-3 py-1 rounded-lg font-bold border transition-colors ${
-                      shape === "circle" ? "bg-primary text-white border-primary" : "border-border text-muted-foreground"
+                      shape === "circle" ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground"
                     }`}
                   >
                     Circular

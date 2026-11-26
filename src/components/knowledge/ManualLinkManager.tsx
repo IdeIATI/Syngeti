@@ -158,7 +158,7 @@ export function ManualLinkManager({ initialManuals }: { initialManuals: any[] })
             <button
               type="submit"
               disabled={saving}
-              className="px-5 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover shadow-sm transition-colors disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover shadow-sm transition-colors disabled:opacity-50"
             >
               {saving ? "Salvando..." : "Cadastrar Manual Oficial"}
             </button>

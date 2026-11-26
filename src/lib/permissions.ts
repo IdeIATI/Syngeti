@@ -103,7 +103,7 @@ export const SYSTEM_MODULES: ModulePermissionDef[] = [
 export const PERMISSION_LEVEL_LABELS: Record<PermissionLevel, { label: string; badge: string; desc: string }> = {
   none: {
     label: "Sem Acesso",
-    badge: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
+    badge: "bg-surface-2 text-muted-foreground border-border",
     desc: "Bloqueado para este perfil (módulo oculto)",
   },
   read: {

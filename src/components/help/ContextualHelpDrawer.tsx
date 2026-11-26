@@ -285,7 +285,7 @@ export function ContextualHelpModal() {
                   onClick={handleFitPage}
                   className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border shadow-xs ${
                     scaleMode === "page-fit"
-                      ? "bg-primary text-white border-primary shadow-xs"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
                       : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-surface"
                   }`}
                   title="Ajustar à Página (Exibe a página inteira sem cortes ou rolagem)"
@@ -299,7 +299,7 @@ export function ContextualHelpModal() {
                   onClick={handleFitWidth}
                   className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border shadow-xs ${
                     scaleMode === "page-width"
-                      ? "bg-primary text-white border-primary shadow-xs"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
                       : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-surface"
                   }`}
                   title="Ajustar à Largura (Preenche a largura disponível para leitura confortável)"
@@ -406,7 +406,7 @@ export function ContextualHelpModal() {
               </div>
               <button
                 type="submit"
-                className="px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-colors shadow-xs"
+                className="px-3 py-1.5 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold transition-colors shadow-xs"
               >
                 Buscar
               </button>
@@ -430,7 +430,7 @@ export function ContextualHelpModal() {
         {/* ==================================================================== */}
         {/* CORPO DO MODAL: PAINEL DE MINIATURAS + ÁREA DO VISUALIZADOR PDF      */}
         {/* ==================================================================== */}
-        <div className="flex-1 flex overflow-hidden bg-neutral-900/10 relative min-h-0">
+        <div className="flex-1 flex overflow-hidden bg-surface-2/40 relative min-h-0">
           
           {/* PAINEL LATERAL DE MINIATURAS (RECOLHÍVEL — EXPANDIDO APENAS SE SOLICITADO) */}
           {showThumbnails && totalPages > 1 && (
@@ -483,7 +483,7 @@ export function ContextualHelpModal() {
           )}
 
           {/* ÁREA PRINCIPAL: VISUALIZADOR DE DOCUMENTO AMPLO */}
-          <main className="flex-1 h-full flex flex-col items-center justify-center relative overflow-hidden bg-neutral-900/30">
+          <main className="flex-1 h-full flex flex-col items-center justify-center relative overflow-hidden bg-surface-2/60">
             
             {isLoading ? (
               <div className="flex flex-col items-center justify-center h-full text-center p-8 space-y-3">
@@ -492,7 +492,7 @@ export function ContextualHelpModal() {
                 <p className="text-xs text-muted-foreground">Sincronizando com a Central de Conhecimento Wiki TI</p>
               </div>
             ) : manual ? (
-              <div className="w-full h-full flex flex-col relative overflow-hidden bg-neutral-900/20">
+              <div className="w-full h-full flex flex-col relative overflow-hidden bg-surface-2/50">
                 {/* Visualizador PDF em Iframe Nativo Isolado e Seguro */}
                 <iframe
                   ref={iframeRef}
@@ -518,7 +518,7 @@ export function ContextualHelpModal() {
                   <Link
                     href="/knowledge"
                     onClick={closeHelp}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover shadow-sm transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover shadow-sm transition-colors"
                   >
                     <BookOpen className="w-4 h-4" />
                     <span>Abrir Wiki TI</span>

@@ -198,7 +198,7 @@ export default function PasswordResetManager({
               onClick={() => setStatusFilter(tab.id)}
               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
                 statusFilter === tab.id 
-                  ? "bg-primary text-white shadow-sm" 
+                  ? "bg-primary text-primary-foreground shadow-sm" 
                   : "bg-background text-muted-foreground hover:bg-surface-hover hover:text-foreground border border-border"
               }`}
             >
@@ -394,7 +394,7 @@ export default function PasswordResetManager({
               <button
                 type="button"
                 onClick={() => copyToClipboard(generatedLinkInfo.url)}
-                className="px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary-hover flex items-center gap-1.5 flex-shrink-0 transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover flex items-center gap-1.5 flex-shrink-0 transition-colors"
               >
                 {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? "Copiado!" : "Copiar"}</span>
@@ -463,7 +463,7 @@ export default function PasswordResetManager({
                 <button
                   type="submit"
                   disabled={loading || newDirectPassword.length < 6}
-                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-colors disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-bold transition-colors disabled:opacity-50"
                 >
                   Salvar Nova Senha
                 </button>

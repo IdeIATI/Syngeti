@@ -246,7 +246,10 @@ export default async function DashboardPage() {
         {/* Chamados Abertos */}
         <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-primary-soft text-primary border border-primary/20 flex items-center justify-center shrink-0">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+              style={{ backgroundColor: "var(--kpi-1)", color: "var(--kpi-fg)" }}
+            >
               <MessageSquare className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -269,7 +272,10 @@ export default async function DashboardPage() {
         {/* Em Atendimento */}
         <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-info/15 text-info border border-info/25 flex items-center justify-center shrink-0">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+              style={{ backgroundColor: "var(--kpi-2)", color: "var(--kpi-fg)" }}
+            >
               <Clock className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -288,7 +294,10 @@ export default async function DashboardPage() {
         {/* Taxa de Resolução & MTTR */}
         <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-success/15 text-success border border-success/25 flex items-center justify-center shrink-0">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+              style={{ backgroundColor: "var(--kpi-3)", color: "var(--kpi-fg)" }}
+            >
               <CheckCircle2 className="w-5 h-5" />
             </div>
             <div className="min-w-0">
@@ -312,7 +321,10 @@ export default async function DashboardPage() {
         {/* Equipamentos Ativos */}
         <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl bg-secondary/15 text-secondary border border-secondary/25 flex items-center justify-center shrink-0">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
+              style={{ backgroundColor: "var(--kpi-4)", color: "var(--kpi-fg)" }}
+            >
               <Monitor className="w-5 h-5" />
             </div>
             <div className="min-w-0">

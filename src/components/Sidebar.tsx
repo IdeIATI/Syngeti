@@ -12,6 +12,7 @@ import {
 import { useMobileMenu } from "./AuthenticatedShell";
 import { useAuthUser } from "@/contexts/AuthUserContext";
 import { canRead, isAdminRole } from "@/lib/permissions";
+import { SyngetiIcon, SyngetiWordmark } from "@/components/branding/SyngetiBrand";
 
 // Cache em memória do branding para evitar fetch repetido a cada troca de aba
 let brandingMemoryCache: any = null;
@@ -291,19 +292,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                 className="w-full h-full object-contain" 
               />
             ) : (
-              <svg width="26" height="30" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#081522"/>
-                <path d="M75 37.5L50 25L25 37.5V62.5L50 75L75 62.5V37.5Z" fill="url(#paint0_linear)"/>
-                <path d="M50 25V75" stroke="#22D3EE" strokeWidth="8"/>
-                <path d="M25 37.5L50 50L75 37.5" stroke="#0EA5E9" strokeWidth="8"/>
-                <path d="M25 62.5L50 50L75 62.5" stroke="#0EA5E9" strokeWidth="8"/>
-                <defs>
-                  <linearGradient id="paint0_linear" x1="25" y1="25" x2="75" y2="75" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#0EA5E9"/>
-                    <stop offset="1" stopColor="#22D3EE"/>
-                  </linearGradient>
-                </defs>
-              </svg>
+              <SyngetiIcon size={32} className="shrink-0" />
             )}
           </div>
 
@@ -317,14 +306,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                 className="max-h-[42px] w-auto max-w-full object-contain object-left transition-all" 
               />
             ) : (
-              <div className="flex flex-col justify-center min-w-0">
-                <span className="font-display font-bold text-foreground text-xl tracking-wide leading-none block truncate">
-                  Synge<span className="text-primary">TI</span>
-                </span>
-                <span className="text-[11px] text-muted-foreground font-medium mt-1 truncate">
-                  Sistema de Integração e Gestão de TI
-                </span>
-              </div>
+              <SyngetiWordmark variant="sidebar" />
             )}
           </div>
         </div>
@@ -341,19 +323,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                   className="w-full h-full object-contain" 
                 />
               ) : (
-                <svg width="26" height="30" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#081522"/>
-                  <path d="M75 37.5L50 25L25 37.5V62.5L50 75L75 62.5V37.5Z" fill="url(#paint0_linear_icon)"/>
-                  <path d="M50 25V75" stroke="#22D3EE" strokeWidth="8"/>
-                  <path d="M25 37.5L50 50L75 37.5" stroke="#0EA5E9" strokeWidth="8"/>
-                  <path d="M25 62.5L50 50L75 62.5" stroke="#0EA5E9" strokeWidth="8"/>
-                  <defs>
-                    <linearGradient id="paint0_linear_icon" x1="25" y1="25" x2="75" y2="75" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#0EA5E9"/>
-                      <stop offset="1" stopColor="#22D3EE"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
+                <SyngetiIcon size={32} className="shrink-0" />
               )}
             </div>
           </div>
@@ -409,7 +379,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                 title={item.name}
                 className={`relative flex items-center justify-center w-full h-11 rounded-xl transition-colors duration-200 ${
                   active 
-                    ? 'bg-primary-soft text-primary' 
+                    ? 'bg-primary text-primary-foreground shadow-sm' 
                     : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
                 }`}
               >
@@ -424,22 +394,27 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
           }
 
           const isConnectItem = item.href === "/connect";
+          const isPillActive = !hasSubItems && active;
           const ItemContent = (
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-3 min-w-0">
-                <item.icon className={`w-5 h-5 shrink-0 ${active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
+                <item.icon className={`w-5 h-5 shrink-0 ${isPillActive ? 'text-primary-foreground' : active ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`} />
                 <div className="flex flex-col text-left min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <span className={`text-sm font-semibold truncate ${active ? 'text-primary' : 'text-foreground'}`}>
+                    <span className={`text-sm font-semibold truncate ${isPillActive ? 'text-primary-foreground' : active ? 'text-primary' : 'text-foreground'}`}>
                       {item.name}
                     </span>
                     {(item as any).badge && (
-                      <span className="px-1.5 py-0.5 rounded-md bg-primary-soft text-primary text-[11px] font-bold uppercase tracking-wide shrink-0">
+                      <span className={`px-1.5 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wide shrink-0 ${
+                        isPillActive
+                          ? 'bg-primary-foreground/20 text-primary-foreground'
+                          : 'bg-primary-soft text-primary'
+                      }`}>
                         {(item as any).badge}
                       </span>
                     )}
                   </div>
-                  <span className="text-xs font-normal text-muted-foreground leading-tight truncate">
+                  <span className={`text-xs font-normal leading-tight truncate ${isPillActive ? 'text-primary-foreground/85' : 'text-muted-foreground'}`}>
                     {item.subtitle}
                   </span>
                 </div>
@@ -471,7 +446,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                     toggleMenu(item.name);
                   }}
                   className={`w-full text-left flex items-center px-3 py-2.5 rounded-xl transition-colors duration-200 group cursor-pointer
-                    ${active ? 'bg-primary-soft/60 text-primary' : 'hover:bg-surface-hover'}`}
+                    ${active ? 'bg-primary-soft text-primary' : 'hover:bg-surface-hover'}`}
                 >
                   {ItemContent}
                 </button>
@@ -487,7 +462,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                   }}
                   className={`flex items-center px-3 py-2.5 rounded-xl transition-colors duration-200 group
                     ${active 
-                      ? 'bg-primary-soft text-primary' 
+                      ? 'bg-primary text-primary-foreground shadow-sm' 
                       : 'hover:bg-surface-hover'
                     }`}
                 >

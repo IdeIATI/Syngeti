@@ -277,7 +277,7 @@ export default function TicketItemsManager({
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold bg-primary text-white hover:bg-primary-hover disabled:opacity-50 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg text-xs font-bold bg-primary text-primary-foreground hover:bg-primary-hover disabled:opacity-50 transition-colors shadow-sm"
             >
               <Check className="w-3.5 h-3.5" />
               {loading ? "Salvando..." : "Salvar Item"}

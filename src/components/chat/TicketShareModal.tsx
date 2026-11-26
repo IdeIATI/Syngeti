@@ -116,7 +116,7 @@ export function TicketShareModal({ isOpen, onClose, onSelectTicket }: TicketShar
                 </div>
                 <button
                   type="button"
-                  className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-bold group-hover:bg-primary group-hover:text-white transition-all flex items-center gap-1 shrink-0"
+                  className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary text-[11px] font-bold group-hover:bg-primary group-hover:text-primary-foreground transition-all flex items-center gap-1 shrink-0"
                 >
                   <Send className="w-3 h-3" />
                   <span>Enviar</span>

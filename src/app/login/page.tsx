@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Network, Mail, Lock, Eye, EyeOff, ArrowRight, Check, KeyRound, X, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { SyngetiIcon, SyngetiWordmark } from "@/components/branding/SyngetiBrand";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,9 +16,9 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [branding, setBranding] = useState<any>({
-    loginLogo: '/api/branding/logo',
-    appIcon: '/branding/logo-icon.png',
-    appLogo: '/branding/logo-wordmark.png',
+    loginLogo: null,
+    appIcon: '/branding/syngeti-icon.svg',
+    appLogo: null,
   });
   const [imageError, setImageError] = useState(false);
 
@@ -195,7 +196,7 @@ export default function LoginPage() {
 
         <div className="relative z-10 flex flex-col justify-between h-full">
           {/* Logo */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             {branding?.loginLogo && !imageError ? (
               <img 
                 src={branding.loginLogo} 
@@ -205,27 +206,8 @@ export default function LoginPage() {
               />
             ) : (
               <>
-                <svg width="40" height="46" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                  <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#081522"/>
-                  <path d="M75 37.5L50 25L25 37.5V62.5L50 75L75 62.5V37.5Z" fill="url(#paint0_linear)"/>
-                  <path d="M50 25V75" stroke="#22D3EE" strokeWidth="8"/>
-                  <path d="M25 37.5L50 50L75 37.5" stroke="#0EA5E9" strokeWidth="8"/>
-                  <path d="M25 62.5L50 50L75 62.5" stroke="#0EA5E9" strokeWidth="8"/>
-                  <defs>
-                    <linearGradient id="paint0_linear" x1="25" y1="25" x2="75" y2="75" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#0EA5E9"/>
-                      <stop offset="1" stopColor="#22D3EE"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="flex flex-col">
-                  <span className="font-display text-3xl font-bold tracking-wide text-foreground leading-none">
-                    Synge<span className="text-primary">TI</span>
-                  </span>
-                  <span className="text-xs tracking-wide text-text-secondary font-medium mt-1">
-                    Sistema de Integração e Gestão de TI
-                  </span>
-                </div>
+                <SyngetiIcon size={64} className="shrink-0" />
+                <SyngetiWordmark variant="login" />
               </>
             )}
           </div>
@@ -263,27 +245,8 @@ export default function LoginPage() {
               />
             ) : (
               <div className="flex items-center gap-3 py-1">
-                <svg width="36" height="42" viewBox="0 0 100 115" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0" aria-hidden="true">
-                  <path d="M50 0L93.3013 25V75L50 100L6.69873 75V25L50 0Z" fill="#081522"/>
-                  <path d="M75 37.5L50 25L25 37.5V62.5L50 75L75 62.5V37.5Z" fill="url(#paint0_linear_mobile)"/>
-                  <path d="M50 25V75" stroke="#22D3EE" strokeWidth="8"/>
-                  <path d="M25 37.5L50 50L75 37.5" stroke="#0EA5E9" strokeWidth="8"/>
-                  <path d="M25 62.5L50 50L75 62.5" stroke="#0EA5E9" strokeWidth="8"/>
-                  <defs>
-                    <linearGradient id="paint0_linear_mobile" x1="25" y1="25" x2="75" y2="75" gradientUnits="userSpaceOnUse">
-                      <stop stopColor="#0EA5E9"/>
-                      <stop offset="1" stopColor="#22D3EE"/>
-                    </linearGradient>
-                  </defs>
-                </svg>
-                <div className="flex flex-col text-left">
-                  <span className="font-display text-2xl font-bold tracking-wide text-foreground leading-none">
-                    Synge<span className="text-primary">TI</span>
-                  </span>
-                  <span className="text-xs text-text-secondary font-medium mt-1">
-                    Sistema de Integração e Gestão de TI
-                  </span>
-                </div>
+                <SyngetiIcon size={44} className="shrink-0" />
+                <SyngetiWordmark variant="compact" />
               </div>
             )}
           </div>

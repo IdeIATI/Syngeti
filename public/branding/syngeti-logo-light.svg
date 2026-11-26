@@ -1,0 +1,20 @@
+<svg width="420" height="112" viewBox="0 0 420 112" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SyngeTI — Sistema de Integração e Gestão de TI">
+  <g transform="translate(8, 6) scale(0.78)">
+    <path d="M64 8L113.5 36.5V91.5L64 120L14.5 91.5V36.5L64 8Z" fill="#0B2038" stroke="#0EA5E9" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M27 56H37M27 72H37M91 56H101M91 72H101M64 93V103" stroke="#22D3EE" stroke-width="2.4" stroke-linecap="round"/>
+    <circle cx="24" cy="56" r="3" fill="#22D3EE"/><circle cx="24" cy="72" r="3" fill="#0EA5E9"/>
+    <circle cx="104" cy="56" r="3" fill="#22D3EE"/><circle cx="104" cy="72" r="3" fill="#0EA5E9"/>
+    <circle cx="64" cy="105" r="3" fill="#22D3EE"/>
+    <path d="M44 63C38.5 63 34 58.6 34 53.2C34 48.3 37.6 44.3 42.3 43.5C44.1 35.8 51.1 30 59.5 30C69.1 30 77 37.6 77.5 47.1C82.4 47.6 86 51.7 86 56.8C86 60.2 84.3 63 81.5 63" stroke="#22D3EE" stroke-width="3.2" stroke-linecap="round"/>
+    <rect x="40" y="57" width="48" height="14" rx="3.5" fill="#0F2942" stroke="#22D3EE" stroke-width="2.6"/>
+    <rect x="40" y="76" width="48" height="14" rx="3.5" fill="#0F2942" stroke="#0EA5E9" stroke-width="2.6"/>
+  </g>
+  <text x="118" y="56" font-family="Exo 2, Inter, Arial, sans-serif" font-size="44" font-weight="700" fill="#111827" letter-spacing="0.5">
+    Synge<tspan fill="#0EA5E9">TI</tspan>
+  </text>
+  <line x1="120" y1="74" x2="144" y2="74" stroke="#0EA5E9" stroke-width="1.5" stroke-opacity="0.7"/>
+  <text x="150" y="78" font-family="Inter, Arial, sans-serif" font-size="12.5" font-weight="500" fill="#475569">
+    Sistema de Integração e Gestão de TI
+  </text>
+  <line x1="382" y1="74" x2="406" y2="74" stroke="#0EA5E9" stroke-width="1.5" stroke-opacity="0.7"/>
+</svg>

@@ -282,7 +282,7 @@ export default function RoleManager({
                     </span>
                   )}
                   {blockedCount > 0 && (
-                    <span className="px-2 py-0.5 rounded-md bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 font-bold">
+                    <span className="px-2 py-0.5 rounded-md bg-surface-2 text-muted-foreground border border-border font-bold">
                       {blockedCount} Bloqueado
                     </span>
                   )}
@@ -362,7 +362,7 @@ export default function RoleManager({
               <button
                 type="button"
                 onClick={() => applyAll('none')}
-                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 hover:bg-zinc-500/20 transition-colors"
+                className="text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-surface-2 text-muted-foreground border border-border hover:bg-surface-3 transition-colors"
               >
                 Bloquear Tudo
               </button>

@@ -145,7 +145,7 @@ export function ForwardModal({
             type="button"
             onClick={handleSend}
             disabled={sending || !selectedChannelId}
-            className="px-5 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover disabled:opacity-50 transition-colors shadow-sm"
+            className="px-5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-hover disabled:opacity-50 transition-colors shadow-sm"
           >
             {sending ? "Encaminhando..." : "Encaminhar"}
           </button>
