@@ -457,3 +457,8 @@
     color: var(--primary-foreground);
   }
 }
+
+/* Impede flash da Sidebar/Topbar do ERP ao abrir o Connect Chat PWA instalado */
+html[data-pwa-standalone="true"] [data-erp-shell="true"] {
+  display: none !important;
+}

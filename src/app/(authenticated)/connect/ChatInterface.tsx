@@ -1826,7 +1826,11 @@ export default function ChatInterface({
                   onClick={async () => {
                     if (canInstallPwa) {
                       const ok = await promptPWAInstall();
-                      if (!ok) setShowInstallHelpModal(true);
+                      if (ok) {
+                        window.location.replace("/chat");
+                      } else {
+                        setShowInstallHelpModal(true);
+                      }
                     } else {
                       setShowInstallHelpModal(true);
                     }

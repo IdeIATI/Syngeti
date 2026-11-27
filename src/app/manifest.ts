@@ -9,7 +9,7 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: '/',
     id: '/chat',
     display: 'standalone',
-    display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
+    display_override: ['standalone', 'minimal-ui'],
     background_color: '#000000',
     theme_color: '#050D1B',
     orientation: 'any',

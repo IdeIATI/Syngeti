@@ -11,7 +11,7 @@ import { SentinelaClientTelemetry } from "@/components/sentinela/SentinelaClient
 import { AuthUserProvider, AuthUser } from "@/contexts/AuthUserContext";
 import { supabase } from "@/lib/supabaseClient";
 import { soundManager } from "@/lib/sound";
-import { registerChatServiceWorker, isRunningStandalone } from "@/lib/chatNotificationCoordination";
+import { registerChatServiceWorker, isRunningStandalone, subscribeToStandaloneChange } from "@/lib/chatNotificationCoordination";
 import { canRead, isAdminRole } from "@/lib/permissions";
 import { MessageSquare, X } from "lucide-react";
 
@@ -61,6 +61,7 @@ export function AuthenticatedShell({
   };
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isStandaloneMode, setIsStandaloneMode] = useState(false);
   const [navigatingTo, setNavigatingTo] = useState<string | null>(null);
   const [chatUnreadCount, setChatUnreadCount] = useState(0);
   const [chatToast, setChatToast] = useState<{
@@ -95,12 +96,35 @@ export function AuthenticatedShell({
 
   // Isola o aplicativo PWA instalado exclusivamente em /chat e protege acesso à rota inicial /dashboard
   useEffect(() => {
-    if (isRunningStandalone()) {
-      router.replace("/chat");
-      return;
-    }
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const enforceStandaloneChat = () => {
+      const standalone = isRunningStandalone();
+      setIsStandaloneMode(standalone);
+      if (standalone) {
+        if (typeof document !== "undefined") {
+          document.documentElement.setAttribute("data-pwa-standalone", "true");
+        }
+        router.replace("/chat");
+        fallbackTimer = setTimeout(() => {
+          if (typeof window !== "undefined" && !window.location.pathname.startsWith("/chat")) {
+            window.location.replace("/chat");
+          }
+        }, 600);
+        return true;
+      }
+      return false;
+    };
+
+    const redirected = enforceStandaloneChat();
+    const unsubStandalone = subscribeToStandaloneChange((standalone) => {
+      if (standalone) {
+        enforceStandaloneChat();
+      }
+    });
 
     if (
+      !redirected &&
       pathname === "/dashboard" &&
       effectiveUser.permissions &&
       !isAdminRole(effectiveUser.role) &&
@@ -119,6 +143,11 @@ export function AuthenticatedShell({
         router.replace(allowed.href);
       }
     }
+
+    return () => {
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      unsubStandalone();
+    };
   }, [pathname, effectiveUser.permissions, effectiveUser.role, router]);
 
   // Monitoramento global de mensagens não lidas do CONNECT CHAT em todas as telas do ERP
@@ -260,10 +289,17 @@ export function AuthenticatedShell({
     <AuthUserProvider initialUser={effectiveUser}>
       <ContextualHelpProvider>
         <MobileMenuContext.Provider value={{ isMobileOpen, setIsMobileOpen, toggleMobileMenu, closeMobileMenu, navigatingTo, startNavigation, chatUnreadCount }}>
-          <div className="flex h-screen overflow-hidden bg-background">
-            <SessionGuard />
-            <SentinelaClientTelemetry />
-            <ContextualHelpDrawer />
+          {isStandaloneMode ? (
+            <div className="h-screen w-screen flex flex-col items-center justify-center bg-background text-foreground select-none">
+              <SessionGuard />
+              <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-3" />
+              <p className="text-sm text-muted-foreground font-medium">Abrindo Connect Chat...</p>
+            </div>
+          ) : (
+            <div data-erp-shell="true" className="flex h-screen overflow-hidden bg-background">
+              <SessionGuard />
+              <SentinelaClientTelemetry />
+              <ContextualHelpDrawer />
 
         {/* Toast Global de Nova Mensagem (quando o usuário está em outros módulos como Service Desk, CMDB, etc.) */}
         {chatToast && (
@@ -336,6 +372,7 @@ export function AuthenticatedShell({
           )}
         </div>
       </div>
+          )}
     </MobileMenuContext.Provider>
   </ContextualHelpProvider>
 </AuthUserProvider>

@@ -45,6 +45,7 @@ export function Topbar({
 
   const pathname = usePathname();
   const { toggleMobileMenu } = useMobileMenu();
+  const [signingOut, setSigningOut] = useState(false);
   const heartbeatStarted = useRef(false);
 
   useEffect(() => {
@@ -127,17 +128,31 @@ export function Topbar({
 
           <button 
             type="button"
-            onClick={() => {
+            disabled={signingOut}
+            onClick={async () => {
+              if (signingOut) return;
+              setSigningOut(true);
               if (typeof window !== "undefined") {
-                sessionStorage.removeItem("syngeti_session_active");
-                sessionStorage.removeItem("syngeti_login_time");
-                sessionStorage.removeItem("syngeti_login_entry_consumed");
+                try {
+                  sessionStorage.removeItem("syngeti_session_active");
+                  sessionStorage.removeItem("syngeti_login_time");
+                  sessionStorage.removeItem("syngeti_login_entry_consumed");
+                } catch {}
               }
-              signOut({ callbackUrl: "/login" });
+              try {
+                await Promise.race([
+                  signOut({ redirect: false }),
+                  new Promise((resolve) => setTimeout(resolve, 2500)),
+                ]);
+              } catch {} finally {
+                if (typeof window !== "undefined") {
+                  window.location.replace("/login");
+                }
+              }
             }}
-            className="px-2 py-1 rounded text-xs font-bold text-danger hover:bg-danger/10 transition-colors cursor-pointer shrink-0"
+            className="px-2 py-1 rounded text-xs font-bold text-danger hover:bg-danger/10 transition-colors cursor-pointer shrink-0 disabled:opacity-60"
           >
-            Sair
+            {signingOut ? "Saindo..." : "Sair"}
           </button>
         </div>
       </div>

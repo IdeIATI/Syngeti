@@ -39,6 +39,8 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+const PWA_STANDALONE_INIT_SCRIPT = `(function(){try{var d=function(){var m=window.matchMedia;return (m&&(m('(display-mode: standalone)').matches||m('(display-mode: window-controls-overlay)').matches||m('(display-mode: minimal-ui)').matches))||window.navigator.standalone===true||document.referrer.indexOf('android-app://')!==-1;};if(d()){document.documentElement.setAttribute('data-pwa-standalone','true');}window.addEventListener('appinstalled',function(){document.documentElement.setAttribute('data-pwa-standalone','true');});}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: {
@@ -53,6 +55,7 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script dangerouslySetInnerHTML={{ __html: PWA_STANDALONE_INIT_SCRIPT }} />
       </head>
       <body
         suppressHydrationWarning

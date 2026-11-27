@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Network, Mail, Lock, Eye, EyeOff, ArrowRight, Check, KeyRound, CheckCircle2, AlertCircle } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { BrandIcon, BrandLogo, Button, Input, Modal } from "@/design-system/components";
+import { isRunningStandalone } from "@/lib/chatNotificationCoordination";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -123,11 +124,13 @@ export default function LoginPage() {
       }
 
       const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
-      const isStandalonePWA =
-        typeof window !== "undefined" &&
-        (window.matchMedia("(display-mode: standalone)").matches ||
-          (window.navigator as any).standalone === true);
-      const callback = params?.get("callbackUrl") || (isStandalonePWA ? "/chat" : "/dashboard");
+      const rawCallback = params?.get("callbackUrl");
+      const isStandalonePWA = isRunningStandalone();
+      const callback = isStandalonePWA
+        ? rawCallback && rawCallback.startsWith("/chat")
+          ? rawCallback
+          : "/chat"
+        : rawCallback || "/dashboard";
       
       // Transição instantânea SPA via Next.js router (< 50ms, sem reload branco)
       router.replace(callback);
@@ -271,12 +274,12 @@ export default function LoginPage() {
                   required
                   value={email}
                   onFocus={() => {
-                    try { router.prefetch("/dashboard"); } catch {}
+                    try { router.prefetch(isRunningStandalone() ? "/chat" : "/dashboard"); } catch {}
                   }}
                   onChange={(e) => {
                     setEmail(e.target.value);
                     if (e.target.value.length > 2) {
-                      try { router.prefetch("/dashboard"); } catch {}
+                      try { router.prefetch(isRunningStandalone() ? "/chat" : "/dashboard"); } catch {}
                     }
                   }}
                   className="w-full bg-input border border-border text-foreground text-sm rounded-xl py-3 pl-11 pr-4 focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors placeholder:text-muted-foreground"
@@ -298,7 +301,7 @@ export default function LoginPage() {
                   required
                   value={password}
                   onFocus={() => {
-                    try { router.prefetch("/dashboard"); } catch {}
+                    try { router.prefetch(isRunningStandalone() ? "/chat" : "/dashboard"); } catch {}
                   }}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full bg-input border border-border text-foreground text-sm rounded-xl py-3 pl-11 pr-12 focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors placeholder:text-muted-foreground"

@@ -5,12 +5,20 @@ import { prisma } from "./prisma";
 
 const isVercel = !!process.env.VERCEL;
 const isNetlify = !!process.env.NETLIFY || (!!process.env.URL && !process.env.URL.includes("localhost"));
+const isRender = !!process.env.RENDER || !!process.env.RENDER_EXTERNAL_URL;
 const nextAuthUrl = process.env.NEXTAUTH_URL || "";
-const isHttps = nextAuthUrl.startsWith("https://") || isVercel || (isNetlify && !nextAuthUrl.includes("localhost"));
+const isHttps =
+  nextAuthUrl.startsWith("https://") ||
+  isVercel ||
+  isRender ||
+  (isNetlify && !nextAuthUrl.includes("localhost"));
 
-// Resolução dinâmica de NEXTAUTH_URL para Netlify ou Vercel caso não esteja explícita no ambiente ou aponte para localhost
-if (!process.env.NEXTAUTH_URL || (process.env.NEXTAUTH_URL.includes("localhost") && (isNetlify || isVercel))) {
-  if (isNetlify || process.env.URL) {
+// Resolução dinâmica de NEXTAUTH_URL para Render, Netlify ou Vercel caso não esteja explícita no ambiente ou aponte para localhost
+if (!process.env.NEXTAUTH_URL || (process.env.NEXTAUTH_URL.includes("localhost") && (isRender || isNetlify || isVercel))) {
+  if (isRender && process.env.RENDER_EXTERNAL_URL) {
+    const renderUrl = process.env.RENDER_EXTERNAL_URL;
+    process.env.NEXTAUTH_URL = renderUrl.startsWith("http") ? renderUrl : `https://${renderUrl}`;
+  } else if (isNetlify || process.env.URL) {
     const netlifyUrl = process.env.URL || process.env.DEPLOY_PRIME_URL || "https://syngeti.netlify.app";
     process.env.NEXTAUTH_URL = netlifyUrl.startsWith("http") ? netlifyUrl : `https://${netlifyUrl}`;
   } else if (isVercel || process.env.VERCEL_URL) {

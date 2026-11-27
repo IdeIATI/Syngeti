@@ -42,6 +42,7 @@ export function StandaloneChatHeader({
   const [notificationsGranted, setNotificationsGranted] = useState(false);
   const [installSuccess, setInstallSuccess] = useState(false);
   const [showShortcutHelp, setShowShortcutHelp] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     setIsStandalone(isRunningStandalone());
@@ -73,13 +74,28 @@ export function StandaloneChatHeader({
     setNotificationsGranted(perm === "granted");
   };
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+
     if (typeof window !== "undefined") {
-      sessionStorage.removeItem("syngeti_session_active");
-      sessionStorage.removeItem("syngeti_login_time");
-      sessionStorage.removeItem("syngeti_login_entry_consumed");
+      try {
+        sessionStorage.removeItem("syngeti_session_active");
+        sessionStorage.removeItem("syngeti_login_time");
+        sessionStorage.removeItem("syngeti_login_entry_consumed");
+      } catch {}
     }
-    signOut({ callbackUrl: "/login?callbackUrl=/chat" });
+
+    try {
+      await Promise.race([
+        signOut({ redirect: false }),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]);
+    } catch {} finally {
+      if (typeof window !== "undefined") {
+        window.location.replace("/login?callbackUrl=/chat");
+      }
+    }
   };
 
   const statusConfig = {
@@ -224,11 +240,15 @@ export function StandaloneChatHeader({
           <button
             type="button"
             onClick={handleSignOut}
-            className="p-1.5 sm:p-2 rounded-xl text-danger hover:bg-danger/10 transition-colors cursor-pointer shrink-0"
-            title="Encerrar sessão"
+            disabled={signingOut}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:py-2 rounded-xl text-danger hover:bg-danger/10 transition-colors cursor-pointer shrink-0 disabled:opacity-60"
+            title="Encerrar sessão e voltar para o login"
             aria-label="Sair"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline text-xs font-bold">
+              {signingOut ? "Saindo..." : "Sair"}
+            </span>
           </button>
         </div>
       </header>

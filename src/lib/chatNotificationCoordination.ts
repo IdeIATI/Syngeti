@@ -100,9 +100,46 @@ export function isRunningStandalone(): boolean {
   if (typeof window === "undefined") return false;
   return (
     window.matchMedia("(display-mode: standalone)").matches ||
+    window.matchMedia("(display-mode: window-controls-overlay)").matches ||
+    window.matchMedia("(display-mode: minimal-ui)").matches ||
     (window.navigator as any).standalone === true ||
     document.referrer.includes("android-app://")
   );
+}
+
+/**
+ * Monitora alterações de modo PWA (ex.: logo após o usuário instalar o aplicativo)
+ */
+export function subscribeToStandaloneChange(callback: (standalone: boolean) => void): () => void {
+  if (typeof window === "undefined") return () => {};
+
+  const queries = [
+    "(display-mode: standalone)",
+    "(display-mode: window-controls-overlay)",
+    "(display-mode: minimal-ui)",
+  ];
+  const mqls = queries.map((q) => window.matchMedia(q));
+  const notify = () => callback(isRunningStandalone());
+
+  mqls.forEach((mql) => {
+    if (mql.addEventListener) {
+      mql.addEventListener("change", notify);
+    } else if ((mql as any).addListener) {
+      (mql as any).addListener(notify);
+    }
+  });
+  window.addEventListener("appinstalled", notify);
+
+  return () => {
+    mqls.forEach((mql) => {
+      if (mql.removeEventListener) {
+        mql.removeEventListener("change", notify);
+      } else if ((mql as any).removeListener) {
+        (mql as any).removeListener(notify);
+      }
+    });
+    window.removeEventListener("appinstalled", notify);
+  };
 }
 
 /**

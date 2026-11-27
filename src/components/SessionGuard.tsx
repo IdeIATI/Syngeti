@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { signOut } from "next-auth/react";
+import { isRunningStandalone } from "@/lib/chatNotificationCoordination";
 
 /**
  * SessionGuard - Regra Mandatória de Segurança SYNGETI:
@@ -60,14 +61,15 @@ export function SessionGuard() {
       sessionStorage.removeItem("syngeti_login_time");
       sessionStorage.removeItem("syngeti_login_entry_consumed");
 
-      const isStandalonePWA =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        (window.navigator as any).standalone === true;
+      const isStandalonePWA = isRunningStandalone();
       const isChatRoute = window.location.pathname.startsWith("/chat");
       const loginTarget = isStandalonePWA || isChatRoute ? "/login?callbackUrl=/chat" : "/login";
 
-      // Encerra a sessão NextAuth e redireciona de volta para a tela de login
-      signOut({ redirect: false }).finally(() => {
+      // Encerra a sessão NextAuth e redireciona de volta para a tela de login (com timeout de segurança)
+      Promise.race([
+        signOut({ redirect: false }).catch(() => {}),
+        new Promise((resolve) => setTimeout(resolve, 2500)),
+      ]).finally(() => {
         window.location.replace(loginTarget);
       });
       return;
