@@ -251,20 +251,20 @@ export function ImportInventoryModal({
                   </strong>
                 </div>
 
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-                  <span className="text-[11px] text-emerald-600 dark:text-emerald-400 block font-medium">
+                <div className="p-3 rounded-xl bg-success/10 border border-success/25 text-center">
+                  <span className="text-[11px] text-success block font-medium">
                     Prontos para Importar
                   </span>
-                  <strong className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                  <strong className="text-lg font-bold text-success">
                     {validationResult.valid_count}
                   </strong>
                 </div>
 
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-center">
-                  <span className="text-[11px] text-rose-600 dark:text-rose-400 block font-medium">
+                <div className="p-3 rounded-xl bg-danger/10 border border-danger/25 text-center">
+                  <span className="text-[11px] text-danger block font-medium">
                     Inconsistências / Duplicados
                   </span>
-                  <strong className="text-lg font-bold text-rose-600 dark:text-rose-400">
+                  <strong className="text-lg font-bold text-danger">
                     {validationResult.error_count}
                   </strong>
                 </div>
@@ -272,8 +272,8 @@ export function ImportInventoryModal({
 
               {/* Erros Encontrados se houver */}
               {validationResult.errors?.length > 0 && (
-                <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-2 max-h-36 overflow-y-auto custom-scrollbar">
-                  <div className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+                <div className="p-3.5 rounded-xl bg-warning/10 border border-warning/25 space-y-2 max-h-36 overflow-y-auto custom-scrollbar">
+                  <div className="text-xs font-bold text-warning flex items-center gap-1.5">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>Linhas com alertas ou impedimentos (serão ignoradas):</span>
                   </div>

@@ -180,9 +180,9 @@ Estou monitorando em tempo real o frontend, rotas de API, conexões do Supabase 
         };
       default:
         return {
-          bg: "bg-neutral-500/10",
-          border: "border-neutral-500/20",
-          text: "text-neutral-400",
+          bg: "bg-surface-2",
+          border: "border-border",
+          text: "text-muted-foreground",
           label: "Desconhecido",
           icon: Clock,
         };

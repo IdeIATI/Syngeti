@@ -2,7 +2,7 @@ import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter, Exo_2 } from 'next/font/google';
 import Script from 'next/script';
-import { ThemeProvider } from '@/components/ThemeProvider';
+import { ThemeProvider, THEME_INIT_SCRIPT } from '@/design-system/ThemeProvider';
 import { getBranding } from '@/lib/branding';
 
 const inter = Inter({
@@ -28,12 +28,12 @@ export const viewport: Viewport = {
 export async function generateMetadata(): Promise<Metadata> {
   const branding = getBranding();
   return {
-    title: 'SyngeTI — Sistema de Integração e Gestão de TI',
-    description: 'Sistema de Integração e Gestão de TI — ITSM, CMDB, Estoque, Service Desk e Connect Chat',
+    title: 'SyngeTI — Plataforma de Gestão de TI',
+    description: 'Plataforma de Gestão de TI — ITSM, CMDB, Estoque, Service Desk e Connect Chat',
     manifest: '/manifest.webmanifest',
     icons: {
-      icon: branding?.favicon || '/branding/syngeti-icon.svg',
-      shortcut: branding?.favicon || '/branding/syngeti-icon.svg',
+      icon: branding?.favicon || '/branding/syngeti-icon-simple.svg',
+      shortcut: branding?.favicon || '/branding/syngeti-icon-simple.svg',
       apple: branding?.appIcon || '/branding/syngeti-icon.svg',
     },
   };
@@ -45,7 +45,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${exo2.variable}`} suppressHydrationWarning>
+    <html
+      lang="pt-BR"
+      data-theme="dark"
+      className={`${inter.variable} ${exo2.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
       <body
         suppressHydrationWarning
         className="h-full font-sans text-foreground bg-background antialiased"
@@ -82,16 +90,7 @@ export default function RootLayout({
             `,
           }}
         />
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          enableColorScheme={false}
-          disableTransitionOnChange
-          themes={['light', 'dark', 'tokyo-night', 'dlamb']}
-        >
-          {children}
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

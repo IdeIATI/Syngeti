@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), "Inter", "Manrope", Arial, sans-serif;
+  --font-sans: var(--font-inter), "Inter", Arial, sans-serif;
   --font-display: var(--font-exo2), "Exo 2", var(--font-inter), Arial, sans-serif;
 
   /* Tokens Semânticos do Design System SyngeTI */
@@ -16,8 +16,13 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
+  --color-primary-strong: var(--primary-strong);
   --color-primary-soft: var(--primary-soft);
+  --color-link: var(--link);
   --color-focus-ring: var(--focus-ring);
+  --color-severity-high: var(--severity-high);
+  --color-dlamb-red: var(--dlamb-red);
+  --color-dlamb-gray: var(--dlamb-gray);
 
   /* Aliases compatíveis com classes existentes */
   --color-background: var(--bg-app);
@@ -62,48 +67,63 @@
      1. TEMA DARK (Padrão Tecnológico SyngeTI)
      ========================================================= */
   :root,
-  .dark {
-    color-scheme: light dark;
+  html[data-theme="dark"] {
+    color-scheme: dark;
 
-    --bg-app: #07111D;
-    --bg-sidebar: #081522;
-    --bg-header: #07111D;
+    --dlamb-red: #821F1B;
+    --dlamb-gray: #7A7774;
 
-    --surface-1: #0B1B2B;
-    --surface-2: #10253A;
-    --surface-3: #142B42;
+    --bg-app: #020F1A;
+    --bg-sidebar: #071524;
+    --bg-header: #071524;
 
-    --border-subtle: #1E3447;
-    --border-strong: #2C4A63;
+    --surface-1: #0A1C2E;
+    --surface-2: #073447;
+    --surface-3: #0E2235;
 
-    --text-primary: #F5F7FA;
-    --text-secondary: #C7D2DE;
-    --text-muted: #8FA3B7;
+    --border: #425D71;
+    --border-subtle: rgba(66, 93, 113, 0.55);
+    --border-strong: #425D71;
 
-    --primary: #22D3EE;
-    --primary-hover: #06B6D4;
-    --primary-foreground: #04131E;
-    --primary-soft: rgba(34, 211, 238, 0.14);
+    --text-primary: #F4F7FB;
+    --text-secondary: #A9BBCB;
+    --text-muted: #7F95A8;
 
-    --secondary: #14B8A6;
-    --secondary-foreground: #041A18;
+    --primary: #05ABC4;
+    --primary-strong: #01ACBB;
+    --primary-hover: #01ACBB;
+    --primary-foreground: #020F1A;
+    --primary-soft: #014565;
+    --link: #05ABC4;
 
-    --accent: #10253A;
-    --accent-foreground: #22D3EE;
+    --secondary: #01ACBB;
+    --secondary-foreground: #020F1A;
 
-    --input: #071320;
-    --focus-ring: #22D3EE;
+    --accent: #073447;
+    --accent-foreground: #05ABC4;
+
+    --input: #071524;
+    --focus-ring: #05ABC4;
     --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.25);
+    --shadow-modal: 0 20px 50px rgba(2, 15, 26, 0.72);
+    --glow-subtle: 0 0 14px rgba(5, 171, 196, 0.18);
 
+    /* Identidade independente da marca SyngeTI */
+    --brand-wordmark: #F4F7FB;
+    --brand-ti: #05ABC4;
+    --brand-subtitle: #A9BBCB;
+
+    /* Cores semânticas independentes de tema */
     --success: #10B981;
     --warning: #F59E0B;
     --danger: #EF4444;
+    --severity-high: #FB923C;
     --info: #38BDF8;
 
-    --kpi-1: #0EA5E9;
-    --kpi-2: #8B5CF6;
+    --kpi-1: #05ABC4;
+    --kpi-2: #7344B7;
     --kpi-3: #10B981;
-    --kpi-4: #06B6D4;
+    --kpi-4: #01ACBB;
     --kpi-fg: #FFFFFF;
 
     /* Aliases legados */
@@ -114,203 +134,191 @@
     --surface-elevated: var(--surface-3);
     --muted: var(--surface-2);
     --muted-foreground: var(--text-muted);
-    --border: var(--border-subtle);
     --ring: var(--focus-ring);
     --sidebar-bg: var(--bg-sidebar);
     --sidebar-fg: var(--text-secondary);
     --sidebar-active: var(--surface-2);
   }
 
-  .dark {
-    color-scheme: dark;
-  }
-
-  /* Fallback antes da hidratação para preferência clara do sistema */
-  @media (prefers-color-scheme: light) {
-    :root:not(.dark):not(.tokyo-night):not(.dlamb) {
-      color-scheme: light;
-
-      --bg-app: #F3F6F9;
-      --bg-sidebar: #FFFFFF;
-      --bg-header: #FFFFFF;
-
-      --surface-1: #FFFFFF;
-      --surface-2: #F7F9FB;
-      --surface-3: #EEF3F7;
-
-      --border-subtle: #D9E2EA;
-      --border-strong: #BDC9D6;
-
-      --text-primary: #111827;
-      --text-secondary: #475569;
-      --text-muted: #64748B;
-
-      --primary: #0EA5E9;
-      --primary-hover: #0284C7;
-      --primary-foreground: #FFFFFF;
-      --primary-soft: #E0F2FE;
-
-      --secondary: #14B8A6;
-      --secondary-foreground: #FFFFFF;
-
-      --accent: #E0F2FE;
-      --accent-foreground: #0369A1;
-
-      --input: #FFFFFF;
-      --focus-ring: #0EA5E9;
-      --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-
-      --success: #15803D;
-      --warning: #B45309;
-      --danger: #DC2626;
-      --info: #0284C7;
-
-      --kpi-1: #0EA5E9;
-      --kpi-2: #7C3AED;
-      --kpi-3: #10B981;
-      --kpi-4: #06B6D4;
-      --kpi-fg: #FFFFFF;
-    }
-  }
-
   /* =========================================================
-     2. TEMA LIGHT (Corporativo Limpo)
+     2. TEMA TOKYO NIGHT
      ========================================================= */
-  .light {
-    color-scheme: light;
+  html[data-theme="tokyo-night"] {
+    color-scheme: dark;
 
-    --bg-app: #F3F6F9;
-    --bg-sidebar: #FFFFFF;
-    --bg-header: #FFFFFF;
+    --bg-app: #0D0B22;
+    --bg-sidebar: #100F26;
+    --bg-header: #0D0B22;
 
-    --surface-1: #FFFFFF;
-    --surface-2: #F7F9FB;
-    --surface-3: #EEF3F7;
+    --surface-1: #161534;
+    --surface-2: #1B1639;
+    --surface-3: #202543;
 
-    --border-subtle: #D9E2EA;
-    --border-strong: #BDC9D6;
+    --border: #565974;
+    --border-subtle: rgba(86, 89, 116, 0.55);
+    --border-strong: #565974;
 
-    --text-primary: #111827;
-    --text-secondary: #475569;
-    --text-muted: #64748B;
+    --text-primary: #F4F3FF;
+    --text-secondary: #B8B7D1;
+    --text-muted: #8585A3;
 
-    --primary: #0EA5E9;
-    --primary-hover: #0284C7;
-    --primary-foreground: #FFFFFF;
-    --primary-soft: #E0F2FE;
+    --primary: #7344B7;
+    --primary-strong: #4725AA;
+    --primary-hover: #4725AA;
+    --primary-foreground: #F4F3FF;
+    --primary-soft: rgba(115, 68, 183, 0.22);
+    --link: #01C6B0;
 
-    --secondary: #14B8A6;
-    --secondary-foreground: #FFFFFF;
+    --secondary: #01C6B0;
+    --secondary-foreground: #0D0B22;
 
-    --accent: #E0F2FE;
-    --accent-foreground: #0369A1;
+    --accent: #202543;
+    --accent-foreground: #01C6B0;
+    --accent-cyan: #01C6B0;
+    --accent-blue: #2A81C3;
 
-    --input: #FFFFFF;
-    --focus-ring: #0EA5E9;
-    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --input: #100F26;
+    --focus-ring: #7344B7;
+    --shadow-card: 0 2px 6px rgba(6, 5, 18, 0.42);
+    --shadow-modal: 0 20px 50px rgba(6, 5, 18, 0.78);
+    --glow-subtle: 0 0 14px rgba(115, 68, 183, 0.22);
 
-    --success: #15803D;
-    --warning: #B45309;
-    --danger: #DC2626;
-    --info: #0284C7;
+    /* Identidade independente da marca SyngeTI */
+    --brand-wordmark: #F4F3FF;
+    --brand-ti: #01C6B0;
+    --brand-subtitle: #B8B7D1;
 
-    --kpi-1: #0EA5E9;
-    --kpi-2: #7C3AED;
-    --kpi-3: #10B981;
-    --kpi-4: #06B6D4;
+    /* Cores semânticas */
+    --success: #01C6B0;
+    --warning: #E0AF68;
+    --danger: #F7768E;
+    --severity-high: #FB923C;
+    --info: #2A81C3;
+
+    --kpi-1: #2A81C3;
+    --kpi-2: #7344B7;
+    --kpi-3: #01C6B0;
+    --kpi-4: #05ABC4;
     --kpi-fg: #FFFFFF;
   }
 
   /* =========================================================
-     3. TEMA TOKYO NIGHT
+     3. TEMA SISTEMA / LIGHT (Corporativo Limpo)
      ========================================================= */
-  .tokyo-night {
-    color-scheme: dark;
+  html[data-theme="system"] {
+    color-scheme: light;
 
-    --bg-app: #1A1B26;
-    --bg-sidebar: #16161E;
-    --bg-header: #1A1B26;
+    --bg-app: #EFF5F9;
+    --bg-sidebar: #F4F8FB;
+    --bg-header: #FFFFFF;
 
-    --surface-1: #24283B;
-    --surface-2: #292E42;
-    --surface-3: #343A52;
+    --surface-1: #FFFFFF;
+    --surface-2: #EFF2F5;
+    --surface-3: #E9EDF1;
 
-    --border-subtle: #414868;
-    --border-strong: #565F89;
+    --border: #B9D2DA;
+    --border-subtle: #B9D2DA;
+    --border-strong: #92B5C2;
 
-    --text-primary: #C0CAF5;
-    --text-secondary: #A9B1D6;
-    --text-muted: #8B93B5;
+    --text-primary: #2F2B34;
+    --text-secondary: #596574;
+    --text-muted: #6C7482;
 
-    --primary: #7AA2F7;
-    --primary-hover: #89B4FA;
-    --primary-foreground: #15161E;
-    --primary-soft: rgba(122, 162, 247, 0.16);
+    --primary: #1392CE;
+    --primary-strong: #05ABC4;
+    --primary-hover: #05ABC4;
+    --primary-foreground: #FFFFFF;
+    --primary-soft: rgba(19, 146, 206, 0.12);
+    --link: #1392CE;
 
-    --secondary: #BB9AF7;
-    --secondary-foreground: #15161E;
+    --secondary: #05ABC4;
+    --secondary-foreground: #FFFFFF;
 
-    --accent: #292E42;
-    --accent-foreground: #BB9AF7;
+    --accent: #37DFDC;
+    --accent-foreground: #0A1C2E;
 
-    --input: #16161E;
-    --focus-ring: #7AA2F7;
-    --shadow-card: 0 2px 6px rgba(0, 0, 0, 0.35);
+    --input: #FFFFFF;
+    --focus-ring: #1392CE;
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-modal: 0 20px 45px rgba(15, 23, 42, 0.18);
+    --glow-subtle: 0 0 10px rgba(19, 146, 206, 0.14);
 
-    --success: #9ECE6A;
-    --warning: #E0AF68;
-    --danger: #F7768E;
-    --info: #7DCFFF;
+    /* Identidade independente da marca SyngeTI (versão positiva) */
+    --brand-wordmark: #0A1C2E;
+    --brand-ti: #05ABC4;
+    --brand-subtitle: #596574;
 
-    --kpi-1: #7AA2F7;
-    --kpi-2: #9D7CD8;
-    --kpi-3: #73DACA;
-    --kpi-4: #2AC3DE;
-    --kpi-fg: #15161E;
+    /* Cores semânticas */
+    --success: #15803D;
+    --warning: #B45309;
+    --danger: #DC2626;
+    --severity-high: #C2410C;
+    --info: #1392CE;
+
+    --kpi-1: #1392CE;
+    --kpi-2: #7344B7;
+    --kpi-3: #10B981;
+    --kpi-4: #05ABC4;
+    --kpi-fg: #FFFFFF;
   }
 
   /* =========================================================
      4. TEMA D'LAMB (Manual de Identidade D'Lamb Sport)
-        Vermelho D'Lamb (Pantone 7622 C): #821F1B
-        Cinza D'Lamb (Pantone 424 C): #7A7774
+        Vermelho D'Lamb: #821F1B
+        Cinza D'Lamb: #7A7774
      ========================================================= */
-  .dlamb {
+  html[data-theme="dlamb"] {
     color-scheme: light;
 
-    --bg-app: #F5F5F4;
-    --bg-sidebar: #FFFFFF;
+    --dlamb-red: #821F1B;
+    --dlamb-gray: #7A7774;
+
+    --bg-app: #F4F5F6;
+    --bg-sidebar: #ECEEF0;
     --bg-header: #FFFFFF;
 
     --surface-1: #FFFFFF;
-    --surface-2: #F3F2F1;
-    --surface-3: #ECEAE8;
+    --surface-2: #F1F2F4;
+    --surface-3: #E4E5E7;
 
-    --border-subtle: #D6D2CF;
-    --border-strong: #BEB8B4;
+    --border: #D1D3D5;
+    --border-subtle: #D1D3D5;
+    --border-strong: #B6B8BC;
 
-    --text-primary: #2B2B2B;
-    --text-secondary: #5F5C5A;
-    --text-muted: #666360;
+    --text-primary: #16171B;
+    --text-secondary: #55575C;
+    --text-muted: #7A7774;
 
     --primary: #821F1B;
-    --primary-hover: #6F1815;
+    --primary-strong: #6F1715;
+    --primary-hover: #971F1B;
     --primary-foreground: #FFFFFF;
-    --primary-soft: #F4E9E8;
+    --primary-soft: rgba(130, 31, 27, 0.10);
+    --link: #821F1B;
 
     --secondary: #7A7774;
     --secondary-foreground: #FFFFFF;
 
-    --accent: #F4E9E8;
+    --accent: #F1F2F4;
     --accent-foreground: #821F1B;
 
     --input: #FFFFFF;
     --focus-ring: #821F1B;
-    --shadow-card: 0 1px 3px rgba(43, 43, 43, 0.06), 0 1px 2px rgba(43, 43, 43, 0.04);
+    --shadow-card: 0 1px 3px rgba(22, 23, 27, 0.06), 0 1px 2px rgba(22, 23, 27, 0.04);
+    --shadow-modal: 0 20px 45px rgba(22, 23, 27, 0.18);
+    --glow-subtle: 0 0 10px rgba(130, 31, 27, 0.14);
 
+    /* Identidade independente SyngeTI: nunca fica vermelha no tema D'Lamb */
+    --brand-wordmark: #0A1C2E;
+    --brand-ti: #05ABC4;
+    --brand-subtitle: #55575C;
+
+    /* Cores semânticas separadas do vermelho D'Lamb */
     --success: #15803D;
     --warning: #B45309;
     --danger: #DC2626;
-    --info: #0284C7;
+    --severity-high: #C2410C;
+    --info: #1392CE;
 
     --kpi-1: #821F1B;
     --kpi-2: #821F1B;
@@ -414,10 +422,31 @@
     box-shadow: var(--shadow-card);
   }
 
+  .syngeti-card-interactive {
+    transition: border-color 150ms ease, transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  .syngeti-card-interactive:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
   /* Padronização de leitura e contraste para tabelas e ações primárias */
   table thead th {
     color: var(--text-secondary);
     border-color: var(--border-subtle);
+  }
+
+  table tbody tr {
+    transition: background-color 120ms ease;
+  }
+
+  table tbody tr:nth-child(even) {
+    background-color: color-mix(in srgb, var(--surface-2) 32%, transparent);
+  }
+
+  table tbody tr:hover {
+    background-color: color-mix(in srgb, var(--surface-2) 65%, transparent);
   }
 
   table tbody td {

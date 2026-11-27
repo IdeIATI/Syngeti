@@ -79,7 +79,7 @@ export function Topbar({
   
   const moduleInfo = MODULE_DATA[rootPath] || { 
     title: 'Módulo do Sistema', 
-    subtitle: 'SyngeTI • Sistema de Integração e Gestão de TI' 
+    subtitle: 'SyngeTI • Plataforma de Gestão de TI' 
   };
 
   return (

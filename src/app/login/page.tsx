@@ -3,9 +3,9 @@
 import { signIn } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Network, Mail, Lock, Eye, EyeOff, ArrowRight, Check, KeyRound, X, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
+import { Network, Mail, Lock, Eye, EyeOff, ArrowRight, Check, KeyRound, CheckCircle2, AlertCircle } from "lucide-react";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { SyngetiIcon, SyngetiWordmark } from "@/components/branding/SyngetiBrand";
+import { BrandIcon, BrandLogo, Button, Input, Modal } from "@/design-system/components";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -200,14 +200,14 @@ export default function LoginPage() {
             {branding?.loginLogo && !imageError ? (
               <img 
                 src={branding.loginLogo} 
-                alt="SyngeTI — Sistema de Integração e Gestão de TI" 
+                alt="SyngeTI — Plataforma de Gestão de TI" 
                 onError={() => setImageError(true)}
                 className="w-full max-w-[320px] h-auto max-h-[280px] object-contain object-left" 
               />
             ) : (
               <>
-                <SyngetiIcon size={64} className="shrink-0" />
-                <SyngetiWordmark variant="login" />
+                <BrandIcon size={64} className="shrink-0 shadow-[var(--glow-subtle)] rounded-2xl" />
+                <BrandLogo variant="auto" size="lg" align="center" showSubtitle showIcon={false} />
               </>
             )}
           </div>
@@ -219,39 +219,39 @@ export default function LoginPage() {
               PARA A SUA <span className="text-primary">TI</span>
             </h1>
             <p className="mt-4 text-text-secondary text-base lg:text-lg leading-relaxed">
-              Sistema de Integração e Gestão de TI. Centralize chamados, monitore ativos e gerencie toda a operação tecnológica em uma plataforma unificada e de alta legibilidade.
+              Plataforma de Gestão de TI. Centralize chamados, monitore ativos e gerencie toda a operação tecnológica em uma plataforma unificada e de alta legibilidade.
             </p>
           </div>
 
           {/* Rodapé do lado esquerdo */}
           <div className="text-xs text-muted-foreground font-medium">
-            © 2026 SyngeTI — Sistema de Integração e Gestão de TI. Todos os direitos reservados.
+            © 2026 SyngeTI — Plataforma de Gestão de TI. Todos os direitos reservados.
           </div>
         </div>
       </div>
 
       {/* Lado Direito - Formulário de Login */}
       <div className="flex w-full lg:w-1/2 items-center justify-center p-4 sm:p-6 md:p-8 bg-background">
-        <div className="w-full max-w-md bg-surface p-6 sm:p-8 md:p-10 rounded-2xl border border-border shadow-xl">
+        <div className="w-full max-w-md bg-surface-1 p-6 sm:p-8 md:p-10 rounded-2xl border border-border shadow-[var(--shadow-modal)]">
           
-          {/* Logo com ícone visível no Mobile / Smartphone (< lg) */}
-          <div className="flex lg:hidden flex-col items-center justify-center mb-6">
+          {/* Logo com ícone acima de Bem-vindo de volta em todas as telas */}
+          <div className="flex flex-col items-center justify-center mb-6">
             {branding?.loginLogo && !imageError ? (
               <img 
                 src={branding.loginLogo} 
-                alt="SyngeTI — Sistema de Integração e Gestão de TI" 
+                alt="SyngeTI — Plataforma de Gestão de TI" 
                 onError={() => setImageError(true)}
                 className="h-14 sm:h-16 w-auto max-w-[220px] object-contain mb-1" 
               />
             ) : (
-              <div className="flex items-center gap-3 py-1">
-                <SyngetiIcon size={44} className="shrink-0" />
-                <SyngetiWordmark variant="compact" />
+              <div className="flex items-center justify-center gap-3.5 py-1">
+                <BrandIcon size={48} className="shrink-0" />
+                <BrandLogo variant="auto" size="md" align="center" showSubtitle showIcon={false} />
               </div>
             )}
           </div>
 
-          <div className="mb-6 sm:mb-8 text-center lg:text-left">
+          <div className="mb-6 sm:mb-8 text-center">
             <h2 className="font-display text-xl sm:text-2xl font-bold text-foreground mb-1.5">Bem-vindo de volta</h2>
             <p className="text-xs sm:text-sm text-muted-foreground">Insira suas credenciais para acessar a plataforma</p>
           </div>
@@ -364,110 +364,80 @@ export default function LoginPage() {
       </div>
 
       {/* Modal - Recuperação de Senha */}
-      {isForgotOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-surface p-8 rounded-2xl border border-border-strong shadow-2xl relative">
-            
-            {/* Fechar Modal */}
-            <button
-              type="button"
-              onClick={() => setIsForgotOpen(false)}
-              aria-label="Fechar modal de recuperação de senha"
-              className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors p-1.5 rounded-lg hover:bg-surface-hover cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
+      <Modal
+        open={isForgotOpen}
+        onClose={() => setIsForgotOpen(false)}
+        subtitle="Recuperação de Acesso"
+        title="Esqueceu sua senha?"
+        icon={<KeyRound className="w-5 h-5" />}
+      >
+        <p className="text-[13px] text-text-secondary leading-relaxed mb-5">
+          Informe seu e-mail ou nome de usuário cadastrado. Uma notificação será encaminhada à administração de TI para validação e atendimento seguro.
+        </p>
 
-            <div className="flex items-center gap-2 mb-4">
-              <KeyRound className="w-5 h-5 text-primary" />
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-                Recuperação de Acesso
-              </span>
+        {forgotMessage ? (
+          <div className="space-y-5">
+            <div className="p-4 bg-success/10 border border-success/25 rounded-xl space-y-2">
+              <div className="flex items-center gap-2 text-success font-bold text-sm">
+                <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
+                <span>Solicitação Encaminhada</span>
+              </div>
+              <p className="text-[13px] text-text-secondary leading-relaxed">
+                {forgotMessage}
+              </p>
             </div>
 
-            <h3 className="font-display text-xl font-bold text-foreground mb-2">Esqueceu sua senha?</h3>
-            <p className="text-xs text-text-secondary leading-relaxed mb-6">
-              Informe seu e-mail ou nome de usuário cadastrado. Uma notificação será encaminhada à administração de TI para validação e atendimento seguro.
-            </p>
-
-            {forgotMessage ? (
-              <div className="space-y-6">
-                <div className="p-4 bg-success/10 border border-success/25 rounded-xl space-y-2">
-                  <div className="flex items-center gap-2 text-success font-bold text-sm">
-                    <CheckCircle2 className="w-5 h-5 flex-shrink-0" />
-                    <span>Solicitação Encaminhada</span>
-                  </div>
-                  <p className="text-xs text-text-secondary leading-relaxed">
-                    {forgotMessage}
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsForgotOpen(false)}
-                  className="w-full bg-primary hover:bg-primary-hover text-primary-foreground text-sm font-semibold py-3 rounded-xl transition-colors cursor-pointer"
-                >
-                  Concluir e Voltar ao Login
-                </button>
+            <Button
+              type="button"
+              onClick={() => setIsForgotOpen(false)}
+              className="w-full"
+            >
+              Concluir e Voltar ao Login
+            </Button>
+          </div>
+        ) : (
+          <form onSubmit={handleForgotSubmit} className="space-y-4">
+            {forgotError && (
+              <div className="p-3 bg-danger/10 border border-danger/25 rounded-xl flex items-center gap-2.5 text-danger text-xs font-medium" role="alert">
+                <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                <span>{forgotError}</span>
               </div>
-            ) : (
-              <form onSubmit={handleForgotSubmit} className="space-y-4">
-                {forgotError && (
-                  <div className="p-3 bg-danger/10 border border-danger/25 rounded-xl flex items-center gap-2.5 text-danger text-xs font-medium" role="alert">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                    <span>{forgotError}</span>
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <label htmlFor="forgot-identifier" className="text-xs font-semibold text-foreground ml-1 block">E-mail ou Usuário</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                      <Mail className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                    <input
-                      id="forgot-identifier"
-                      type="text"
-                      required
-                      value={forgotIdentifier}
-                      onChange={(e) => setForgotIdentifier(e.target.value)}
-                      placeholder="ex: joao.marcos ou compras@dlamb.ind.br"
-                      className="w-full bg-input border border-border text-foreground text-sm rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors placeholder:text-muted-foreground"
-                      disabled={forgotLoading}
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-2 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setIsForgotOpen(false)}
-                    disabled={forgotLoading}
-                    className="w-1/3 bg-surface-2 hover:bg-surface-3 text-foreground text-xs font-semibold py-3 rounded-xl border border-border transition-colors cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={forgotLoading || !forgotIdentifier.trim()}
-                    className="w-2/3 bg-primary hover:bg-primary-hover text-primary-foreground text-xs font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
-                  >
-                    {forgotLoading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <span>Enviando...</span>
-                      </>
-                    ) : (
-                      <span>Enviar Solicitação</span>
-                    )}
-                  </button>
-                </div>
-              </form>
             )}
 
-          </div>
-        </div>
-      )}
+            <Input
+              id="forgot-identifier"
+              label="E-mail ou Usuário"
+              type="text"
+              required
+              value={forgotIdentifier}
+              onChange={(e) => setForgotIdentifier(e.target.value)}
+              placeholder="ex: joao.marcos ou compras@dlamb.ind.br"
+              leftIcon={<Mail className="h-4 w-4" />}
+              disabled={forgotLoading}
+            />
+
+            <div className="pt-2 flex gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setIsForgotOpen(false)}
+                disabled={forgotLoading}
+                className="w-1/3"
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                loading={forgotLoading}
+                disabled={!forgotIdentifier.trim()}
+                className="w-2/3"
+              >
+                {forgotLoading ? "Enviando..." : "Enviar Solicitação"}
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
 
     </div>
   );

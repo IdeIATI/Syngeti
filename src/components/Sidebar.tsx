@@ -12,7 +12,7 @@ import {
 import { useMobileMenu } from "./AuthenticatedShell";
 import { useAuthUser } from "@/contexts/AuthUserContext";
 import { canRead, isAdminRole } from "@/lib/permissions";
-import { SyngetiIcon, SyngetiWordmark } from "@/components/branding/SyngetiBrand";
+import { BrandIcon, BrandLogo } from "@/design-system/components";
 
 // Cache em memória do branding para evitar fetch repetido a cada troca de aba
 let brandingMemoryCache: any = null;
@@ -283,7 +283,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
         {/* Expanded mode or Mobile drawer (always expanded on mobile) */}
         <div className={`items-center gap-3 flex-1 h-full min-w-0 mr-1.5 ${isCollapsed ? 'hidden md:hidden' : 'flex'}`}>
           {/* CAMPO SEPARADO SOMENTE PARA O ÍCONE */}
-          <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center flex-shrink-0 overflow-hidden p-1">
+          <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center flex-shrink-0 overflow-hidden p-1 shadow-[var(--glow-subtle)]">
             {branding?.appIcon && !iconError ? (
               <img 
                 src={branding.appIcon} 
@@ -292,7 +292,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                 className="w-full h-full object-contain" 
               />
             ) : (
-              <SyngetiIcon size={32} className="shrink-0" />
+              <BrandIcon size={32} simplified className="shrink-0" />
             )}
           </div>
 
@@ -306,7 +306,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                 className="max-h-[42px] w-auto max-w-full object-contain object-left transition-all" 
               />
             ) : (
-              <SyngetiWordmark variant="sidebar" />
+              <BrandLogo variant="auto" size="sm" showSubtitle showIcon={false} />
             )}
           </div>
         </div>
@@ -314,7 +314,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
         {/* Collapsed Mode (Desktop only) */}
         {isCollapsed && (
           <div className="hidden md:flex items-center justify-center w-full">
-            <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center flex-shrink-0 overflow-hidden p-1">
+            <div className="w-10 h-10 rounded-xl bg-surface-2 border border-border flex items-center justify-center flex-shrink-0 overflow-hidden p-1 shadow-[var(--glow-subtle)]">
               {branding?.appIcon && !iconError ? (
                 <img 
                   src={branding.appIcon} 
@@ -323,7 +323,7 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                   className="w-full h-full object-contain" 
                 />
               ) : (
-                <SyngetiIcon size={32} className="shrink-0" />
+                <BrandIcon size={32} simplified className="shrink-0" />
               )}
             </div>
           </div>
@@ -377,12 +377,19 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                   closeMobileMenu();
                 }}
                 title={item.name}
+                aria-label={item.name}
                 className={`relative flex items-center justify-center w-full h-11 rounded-xl transition-colors duration-200 ${
                   active 
-                    ? 'bg-primary text-primary-foreground shadow-sm' 
+                    ? 'bg-primary text-primary-foreground shadow-[var(--glow-subtle)]' 
                     : 'text-muted-foreground hover:bg-surface-hover hover:text-foreground'
                 }`}
               >
+                {active && (
+                  <span
+                    className="absolute left-0.5 top-2 bottom-2 w-[3px] rounded-full bg-primary-foreground/85"
+                    aria-hidden="true"
+                  />
+                )}
                 <item.icon className="w-5 h-5" />
                 {isConnectItem && chatUnreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-danger text-white text-[11px] font-bold leading-none shadow-sm">
@@ -460,12 +467,18 @@ export function Sidebar({ initialBranding }: { initialBranding?: any } = {}) {
                     startNavigation(item.href!);
                     closeMobileMenu();
                   }}
-                  className={`flex items-center px-3 py-2.5 rounded-xl transition-colors duration-200 group
+                  className={`relative flex items-center px-3 py-2.5 rounded-xl transition-colors duration-200 group
                     ${active 
-                      ? 'bg-primary text-primary-foreground shadow-sm' 
+                      ? 'bg-primary text-primary-foreground shadow-[var(--glow-subtle)]' 
                       : 'hover:bg-surface-hover'
                     }`}
                 >
+                  {active && (
+                    <span
+                      className="absolute left-1 top-2 bottom-2 w-[3px] rounded-full bg-primary-foreground/85"
+                      aria-hidden="true"
+                    />
+                  )}
                   {ItemContent}
                 </Link>
               )}

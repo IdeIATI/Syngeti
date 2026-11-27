@@ -169,8 +169,8 @@ export function EmailFormModal({
                   }}
                   className={`px-2 py-0.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
                     formData.email_address.toLowerCase().endsWith("@dlamb.ind.br")
-                      ? "bg-blue-600 text-white border-blue-600 shadow-xs"
-                      : "bg-surface border-border text-blue-500 hover:bg-blue-500/10"
+                      ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                      : "bg-surface border-border text-primary hover:bg-primary/10"
                   }`}
                   title="Aplicar domínio @dlamb.ind.br"
                 >

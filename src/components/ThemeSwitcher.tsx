@@ -1,17 +1,23 @@
 "use client";
 
 import * as React from "react";
-import { useTheme } from "next-themes";
-import { Monitor, Moon, Sun, Palette, Sparkles, Check } from "lucide-react";
+import { Monitor, Moon, Palette, Sparkles, Check } from "lucide-react";
+import { useTheme } from "@/design-system/ThemeProvider";
+import type { ThemeId } from "@/design-system/themes";
+
+const THEME_ICONS: Record<ThemeId, React.ComponentType<{ size?: number; className?: string }>> = {
+  dark: Moon,
+  "tokyo-night": Sparkles,
+  system: Monitor,
+  dlamb: Palette,
+};
 
 export function ThemeSwitcher() {
-  const { theme, resolvedTheme, setTheme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
+  const { theme, setTheme, mounted, themes } = useTheme();
   const [open, setOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    setMounted(true);
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
@@ -32,20 +38,8 @@ export function ThemeSwitcher() {
     return <div className="w-9 h-9 rounded-xl bg-surface-2 animate-pulse" aria-hidden="true" />;
   }
 
-  const systemLabel =
-    resolvedTheme === "light" ? "Sistema (Claro)" : "Sistema (Escuro)";
-
-  const themes = [
-    { id: "dark", label: "Dark", icon: Moon, swatchClass: "bg-[#22D3EE]" },
-    { id: "light", label: "Light", icon: Sun, swatchClass: "bg-[#0EA5E9]" },
-    { id: "tokyo-night", label: "Tokyo Night", icon: Sparkles, swatchClass: "bg-[#7AA2F7]" },
-    { id: "dlamb", label: "D’Lamb", icon: Palette, swatchClass: "bg-[#821F1B]" },
-    { id: "system", label: systemLabel, icon: Monitor, swatchClass: "bg-foreground/60" },
-  ];
-
-  const activeId = theme || "system";
-  const currentTheme = themes.find((t) => t.id === activeId) || themes[4];
-  const CurrentIcon = currentTheme.icon;
+  const currentTheme = themes.find((t) => t.id === theme) || themes[0];
+  const CurrentIcon = THEME_ICONS[currentTheme.id];
 
   return (
     <div className="relative" ref={containerRef}>
@@ -60,7 +54,7 @@ export function ThemeSwitcher() {
       >
         <CurrentIcon size={16} className="text-primary shrink-0" />
         <span className="hidden xl:inline text-xs font-medium text-text-secondary">
-          {currentTheme.id === "system" ? "Sistema" : currentTheme.label}
+          {currentTheme.label}
         </span>
       </button>
 
@@ -71,12 +65,12 @@ export function ThemeSwitcher() {
           className="absolute right-0 mt-2 w-56 bg-surface border border-border-strong rounded-xl shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95 duration-150"
         >
           <div className="px-3 py-1.5 border-b border-border text-xs font-semibold text-muted-foreground tracking-wide">
-            Aparência
+            Tema da Plataforma
           </div>
           <div className="p-1.5 space-y-0.5">
             {themes.map((t) => {
-              const Icon = t.icon;
-              const isSelected = activeId === t.id;
+              const Icon = THEME_ICONS[t.id];
+              const isSelected = theme === t.id;
               return (
                 <button
                   key={t.id}
@@ -87,14 +81,18 @@ export function ThemeSwitcher() {
                     setTheme(t.id);
                     setOpen(false);
                   }}
-                  className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                  className={`flex items-center justify-between w-full px-3 py-2 rounded-lg text-[13px] font-medium transition-colors cursor-pointer ${
                     isSelected
                       ? "bg-primary-soft text-primary font-semibold"
                       : "text-foreground hover:bg-surface-hover"
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <span className={`w-2.5 h-2.5 rounded-full shrink-0 border border-border/50 ${t.swatchClass}`} aria-hidden="true" />
+                    <span
+                      className="w-2.5 h-2.5 rounded-full shrink-0 border border-border-strong"
+                      style={{ backgroundColor: t.previewPrimary }}
+                      aria-hidden="true"
+                    />
                     <Icon size={15} className={isSelected ? "text-primary shrink-0" : "text-muted-foreground shrink-0"} />
                     <span className="truncate">{t.label}</span>
                   </div>

@@ -423,7 +423,7 @@ export default function RoleManager({
                       onClick={() => setModuleLevel(module.id, 'none')}
                       className={`px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition-all ${
                         currentLevel === 'none'
-                          ? 'bg-zinc-600 text-white shadow-sm'
+                          ? 'bg-surface-3 text-foreground border border-border shadow-sm'
                           : 'text-muted-foreground hover:text-foreground hover:bg-surface-hover'
                       }`}
                       title="Bloquear acesso a este módulo"
@@ -438,7 +438,7 @@ export default function RoleManager({
                       onClick={() => setModuleLevel(module.id, 'read')}
                       className={`px-2.5 py-1 rounded-md text-[11px] font-bold flex items-center gap-1 transition-all ${
                         currentLevel === 'read'
-                          ? 'bg-blue-600 text-white shadow-sm'
+                          ? 'bg-primary text-primary-foreground shadow-sm'
                           : 'text-muted-foreground hover:text-foreground hover:bg-surface-hover'
                       }`}
                       title="Apenas consultar e ler, sem criar ou editar"

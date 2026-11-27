@@ -301,7 +301,7 @@ export function AuthenticatedShell({
         {/* Barra superior indicadora de transição suave de abas (feedback visual imediato de 0ms) */}
         {navigatingTo && (
           <div 
-            className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-cyan-400 to-primary animate-pulse z-[9999]" 
+            className="fixed top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-primary-strong to-primary animate-pulse z-[9999]" 
             role="progressbar" 
             aria-label="Carregando aba" 
           />

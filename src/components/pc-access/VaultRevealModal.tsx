@@ -133,7 +133,7 @@ export function VaultRevealModal({
         <div className="p-6">
           {!revealedPassword ? (
             <form onSubmit={handleReveal} className="space-y-4">
-              <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-amber-600 dark:text-amber-400 flex items-start gap-2.5">
+              <div className="p-3 rounded-xl bg-warning/10 border border-warning/25 text-xs text-warning flex items-start gap-2.5">
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>
                   Esta operação requer autorização e será <strong>registrada no histórico de auditoria</strong> com seu usuário, data, hora e IP.

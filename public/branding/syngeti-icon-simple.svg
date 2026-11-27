@@ -1,0 +1,26 @@
+<svg width="64" height="64" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ícone SyngeTI Simplificado">
+  <path
+    d="M64 10L111 37.2V90.8L64 118L17 90.8V37.2L64 10Z"
+    fill="#071524"
+    stroke="#05ABC4"
+    stroke-width="7"
+    stroke-linejoin="round"
+  />
+  <!-- Nuvem simplificada -->
+  <path
+    d="M44 58C38.5 58 35 54 35 49.5C35 45.2 38.2 41.8 42.5 41.2C44.5 34.5 51 30 59 30C68 30 75 36.8 75.5 45.5C80 46 83.5 49.5 83.5 53.8C83.5 56.4 81.8 58 79.5 58"
+    stroke="#37DFDC"
+    stroke-width="6"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <!-- Barras de servidor nítidas para tamanhos pequenos -->
+  <rect x="38" y="61" width="52" height="15" rx="4" fill="#0A1C2E" stroke="#37DFDC" stroke-width="4.5"/>
+  <circle cx="48" cy="68.5" r="3" fill="#37DFDC"/>
+  <rect x="38" y="82" width="52" height="15" rx="4" fill="#0A1C2E" stroke="#05ABC4" stroke-width="4.5"/>
+  <circle cx="48" cy="89.5" r="3" fill="#05ABC4"/>
+  <!-- Nós principais -->
+  <circle cx="25" cy="64" r="4" fill="#37DFDC"/>
+  <circle cx="103" cy="64" r="4" fill="#37DFDC"/>
+  <circle cx="64" cy="106" r="4" fill="#05ABC4"/>
+</svg>

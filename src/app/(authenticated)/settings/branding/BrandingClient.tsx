@@ -89,7 +89,7 @@ export default function BrandingClient({ initialData }: { initialData: BrandingD
     desc, 
     type, 
     aspectClass, 
-    bgClass = "bg-[#050D1B]" 
+    bgClass = "bg-bg-sidebar" 
   }: { 
     title: string;
     badge?: string;

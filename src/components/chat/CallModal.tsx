@@ -225,7 +225,7 @@ export function CallModal({
       </div>
 
       {/* Main Call Stage */}
-      <div className="w-full max-w-4xl flex-1 flex items-center justify-center relative my-4 rounded-3xl overflow-hidden bg-slate-950 border border-white/10 shadow-2xl">
+      <div className="w-full max-w-4xl flex-1 flex items-center justify-center relative my-4 rounded-3xl overflow-hidden bg-bg-app border border-border shadow-2xl">
         
         {/* Se for vídeo ou compartilhamento de tela */}
         {(videoEnabled || isScreenSharing) ? (

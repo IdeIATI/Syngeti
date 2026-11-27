@@ -463,14 +463,14 @@ export function ContextualHelpModal() {
                     }`}
                   >
                     {/* Representação Gráfica da Página A4 */}
-                    <div className="w-24 h-32 bg-white rounded border border-neutral-300 shadow-sm p-1.5 flex flex-col justify-between overflow-hidden">
+                    <div className="w-24 h-32 bg-surface-1 rounded border border-border shadow-sm p-1.5 flex flex-col justify-between overflow-hidden">
                       <div className="w-full h-2 bg-primary/20 rounded-xs mb-1" />
                       <div className="space-y-1">
-                        <div className="w-3/4 h-1 bg-neutral-200 rounded-xs" />
-                        <div className="w-full h-1 bg-neutral-200 rounded-xs" />
-                        <div className="w-5/6 h-1 bg-neutral-200 rounded-xs" />
+                        <div className="w-3/4 h-1 bg-surface-3 rounded-xs" />
+                        <div className="w-full h-1 bg-surface-3 rounded-xs" />
+                        <div className="w-5/6 h-1 bg-surface-3 rounded-xs" />
                       </div>
-                      <div className="w-full h-1 bg-neutral-200 rounded-xs" />
+                      <div className="w-full h-1 bg-surface-3 rounded-xs" />
                     </div>
 
                     <span className="text-[11px] font-bold">

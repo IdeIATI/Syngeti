@@ -244,7 +244,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         
         {/* Chamados Abertos */}
-        <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
+        <div className="syngeti-card syngeti-card-interactive h-full flex flex-col justify-between gap-4">
           <div className="flex items-center gap-3">
             <div
               className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
@@ -270,7 +270,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Em Atendimento */}
-        <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
+        <div className="syngeti-card syngeti-card-interactive h-full flex flex-col justify-between gap-4">
           <div className="flex items-center gap-3">
             <div
               className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
@@ -292,7 +292,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Taxa de Resolução & MTTR */}
-        <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
+        <div className="syngeti-card syngeti-card-interactive h-full flex flex-col justify-between gap-4">
           <div className="flex items-center gap-3">
             <div
               className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
@@ -319,7 +319,7 @@ export default async function DashboardPage() {
         </div>
 
         {/* Equipamentos Ativos */}
-        <div className="syngeti-card h-full flex flex-col justify-between gap-4 hover:border-border-strong transition-colors">
+        <div className="syngeti-card syngeti-card-interactive h-full flex flex-col justify-between gap-4">
           <div className="flex items-center gap-3">
             <div
               className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs"
@@ -378,15 +378,15 @@ export default async function DashboardPage() {
             </div>
 
             {/* Alto */}
-            <div className="p-3 rounded-xl bg-orange-500/10 border border-orange-500/25 flex flex-col justify-between">
+            <div className="p-3 rounded-xl bg-severity-high/10 border border-severity-high/25 flex flex-col justify-between">
               <div className="flex items-center justify-between mb-1">
-                <span className="text-xs font-bold text-orange-600 dark:text-orange-400 uppercase tracking-wide">Alto</span>
-                <span className="w-2 h-2 rounded-full bg-orange-500" aria-hidden="true"></span>
+                <span className="text-xs font-bold text-severity-high uppercase tracking-wide">Alto</span>
+                <span className="w-2 h-2 rounded-full bg-severity-high" aria-hidden="true"></span>
               </div>
               <p className="font-display text-2xl font-bold text-foreground tabular-nums">{priorityStats.HIGH || 0}</p>
               <div className="w-full bg-surface-3 rounded-full h-1.5 mt-2 overflow-hidden">
                 <div 
-                  className="bg-orange-500 h-full rounded-full transition-all"
+                  className="bg-severity-high h-full rounded-full transition-all"
                   style={{ width: `${totalTicketsCount > 0 ? ((priorityStats.HIGH || 0) / totalTicketsCount) * 100 : 0}%` }}
                 />
               </div>
@@ -594,7 +594,7 @@ export default async function DashboardPage() {
                       ticket.priority === 'CRITICAL' 
                         ? 'bg-danger/10 text-danger border-danger/25' 
                         : ticket.priority === 'HIGH' 
-                        ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/25' 
+                        ? 'bg-severity-high/10 text-severity-high border-severity-high/25' 
                         : ticket.priority === 'LOW'
                         ? 'bg-info/10 text-info border-info/25'
                         : 'bg-warning/10 text-warning border-warning/25'
